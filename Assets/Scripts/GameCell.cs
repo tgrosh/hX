@@ -12,15 +12,31 @@ public class GameCell : MonoBehaviour {
 
     private GameCellState state = GameCellState.Empty;
     private List<GameObject> adjacent = new List<GameObject>();
+    private GameManager gameManager;
 
 	// Use this for initialization
 	void Start () {
-	
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        if (state == GameCellState.PlayerOneCore)
+        {
+            GetComponent<Renderer>().material = PlayerOneCore;
+        }
+        else if (state == GameCellState.PlayerOneArea)
+        {
+            GetComponent<Renderer>().material = PlayerOneArea;
+        }
+        else if (state == GameCellState.PlayerTwoCore)
+        {
+            GetComponent<Renderer>().material = PlayerTwoCore;
+        }
+        else if (state == GameCellState.PlayerTwoArea)
+        {
+            GetComponent<Renderer>().material = PlayerTwoArea;
+        }
 	}
 
     public void SelectCore(PlayerType player)
@@ -28,6 +44,7 @@ public class GameCell : MonoBehaviour {
         if (state == GameCellState.Empty)
         {
             MakeCore(player, true);
+            gameManager.EndPlayerTurn();
         }
     }
 
@@ -37,9 +54,12 @@ public class GameCell : MonoBehaviour {
         {
             if (player == PlayerType.One)
             {
-                GetComponent<Renderer>().material = PlayerOneArea;
+                state = GameCellState.PlayerOneArea;
             }
-            state = GameCellState.PlayerOneArea;
+            else
+            {
+                state = GameCellState.PlayerTwoArea;
+            }            
         }
         else if (state == GameCellState.PlayerOneArea)
         {
@@ -50,24 +70,33 @@ public class GameCell : MonoBehaviour {
             }
             else
             {
+                state = GameCellState.PlayerTwoArea;
             }
         }
         else if (state == GameCellState.PlayerTwoArea)
         {
             if (player == PlayerType.One)
             {
-
+                state = GameCellState.PlayerOneArea;
             }
-            else 
+            else
             { 
+                //already an area, make it a core         
+                MakeCore(PlayerType.Two, false);
             }
         }
     }
 
     private void MakeCore(PlayerType player, bool cascade)
     {
-        GetComponent<Renderer>().material = PlayerOneCore;
-        state = GameCellState.PlayerOneCore;
+        if (player == PlayerType.One)
+        {
+            state = GameCellState.PlayerOneCore;
+        }
+        else
+        {
+            state = GameCellState.PlayerTwoCore;
+        }        
 
         if (cascade)
         {
