@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{F548D1B1-5249-5526-FFC1-2088B8F62E15}") = "hX", "Assembly-CSharp-firstpass.csproj", "{F2D7DA44-4737-3BF2-0FA4-8645692AC8B5}"
+EndProject
+Project("{F548D1B1-5249-5526-FFC1-2088B8F62E15}") = "hX", "Assembly-CSharp.csproj", "{D470B168-C79F-2A6A-9009-E2AF2E337756}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2D7DA44-4737-3BF2-0FA4-8645692AC8B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D7DA44-4737-3BF2-0FA4-8645692AC8B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2D7DA44-4737-3BF2-0FA4-8645692AC8B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2D7DA44-4737-3BF2-0FA4-8645692AC8B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D470B168-C79F-2A6A-9009-E2AF2E337756}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D470B168-C79F-2A6A-9009-E2AF2E337756}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D470B168-C79F-2A6A-9009-E2AF2E337756}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D470B168-C79F-2A6A-9009-E2AF2E337756}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
