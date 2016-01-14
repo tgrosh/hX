@@ -8,6 +8,7 @@ namespace Assets.Scripts
 {
     public enum PlayerType
     {
+        None = 0,
         One = 1,
         Two = 2
     }

@@ -1,60 +1,51 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts;
+using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
+    public GameBoard gameBoard;
     public Camera gameCamera;
     public int numRows = 10;
     public int numCols = 10;
-    public GameObject boardSpace;
-    public PlayerType currentPlayerType = PlayerType.One;
-
-    private float boardSpacing = 1.05f;
+    public float boardSpacing = 1.05f;
+    public Player currentPlayer;
+    
+    private List<Player> players = new List<Player>();
 
 	// Use this for initialization
-	void Start () {
-        float posX, posY;
-        float spaceWidth = (boardSpace.GetComponent<Renderer>().bounds.size.x * boardSpacing);
-        float spaceHeight = (boardSpace.GetComponent<Renderer>().bounds.size.z * boardSpacing) * .75f;
-        float startX = numCols / 2 * -spaceWidth + spaceWidth/2;
-        float startY = numRows / 2 * -spaceHeight + spaceHeight/2;
-        GameObject obj = null;
+    void Start()
+    {
+        gameBoard.CreateBoard(10, 10, 1.05f);
+        gameCamera.transform.LookAt(gameBoard.transform);
+	}
 
-	    //create hex board
-        for (var y = 0; y < numCols; y++) {
-            for (var x = 0; x < numRows; x++) {
-                posX = x * spaceWidth;
-                posY = y * spaceHeight;
+    public void AddPlayer(Player player)
+    {
+        player.type = (PlayerType)(players.Count + 1);
+        players.Add(player);
 
-                if (y % 2 == 0)
-                {
-                    //even rows
-                    posX -= (boardSpace.GetComponent<Renderer>().bounds.size.x / 2f);
-                }
-
-                obj = (GameObject)Instantiate(boardSpace, new Vector3(startX + posX, startY + posY, 0), Quaternion.identity);
-                obj.transform.parent = GameObject.Find("GameBoard").transform;
-            }
+        if (currentPlayer == null)
+        {
+            currentPlayer = player;
         }
-
-        gameCamera.transform.LookAt(GameObject.Find("GameBoard").transform);
-	}
+    }
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
     public void EndPlayerTurn()
     {
-        if (currentPlayerType == PlayerType.One)
+        currentPlayer.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+
+        if (players[0] == currentPlayer && players.Count > 1)
         {
-            currentPlayerType = PlayerType.Two;
+            currentPlayer = players[1];
         }
         else
         {
-            currentPlayerType = PlayerType.One;
+            currentPlayer = players[0];
         }
+
+        currentPlayer.GetComponent<NetworkIdentity>().localPlayerAuthority = true;
     }
 }

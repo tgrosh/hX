@@ -46,9 +46,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\ClickHandler.cs" />
+     <Compile Include="Assets\Scripts\GameBoard.cs" />
      <Compile Include="Assets\Scripts\GameCell.cs" />
      <Compile Include="Assets\Scripts\GameCellState.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerType.cs" />
      <None Include="Assets\Standard Assets\Cameras\CameraGuidelines.txt" />
  <Reference Include="UnityEngine.UI">
