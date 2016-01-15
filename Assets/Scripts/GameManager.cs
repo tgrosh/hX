@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour {
     public Player currentPlayer;
     
     private List<Player> players = new List<Player>();
-
+    
 	// Use this for initialization
     void Start()
     {
@@ -46,5 +46,10 @@ public class GameManager : MonoBehaviour {
         }
 
         currentPlayer.GetComponent<NetworkIdentity>().localPlayerAuthority = true;
+    }
+
+    public void RemovePlayer(Player player)
+    {
+        players.Remove(player);
     }
 }

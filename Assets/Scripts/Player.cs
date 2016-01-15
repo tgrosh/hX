@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour {
     
+    [SyncVar]
     public Color color;
 
 	// Use this for initialization
@@ -12,6 +13,13 @@ public class Player : NetworkBehaviour {
     {
         GameObject.Find("GameManager").GetComponent<GameManager>().AddPlayer(this);
 	}
+
+    public void SelectCell(string cellName) {
+        if (isLocalPlayer)
+        {
+            Cmd_SelectCell(cellName);
+        }
+    }
 
     [Command]
     public void Cmd_SelectCell(string cellName)

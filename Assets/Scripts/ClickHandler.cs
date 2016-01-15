@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts;
+using UnityEngine.Networking;
 
-public class ClickHandler : MonoBehaviour {   
+public class ClickHandler : NetworkBehaviour {   
 
     void OnMouseDown()
     {
         if(Input.GetMouseButtonDown(0)){
-            GameObject.Find("GameManager").GetComponent<GameManager>().currentPlayer.Cmd_SelectCell(GetComponent<GameCell>().name);
+            GameObject.Find("GameManager").GetComponent<GameManager>().currentPlayer.SelectCell(GetComponent<GameCell>().name);
         }
     }
     
