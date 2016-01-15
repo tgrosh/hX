@@ -7,15 +7,11 @@ using UnityEngine.Networking;
 public class GameCell : NetworkBehaviour {
 
     public Material Empty;
-    public Material PlayerOneCore;
-    public Material PlayerOneArea;
-    public Material PlayerTwoCore;
-    public Material PlayerTwoArea;
+    public Material Core;
+    public Material Area;
 
-    [SyncVar]
     public GameCellState state = GameCellState.Empty;
-    [SyncVar]
-    public PlayerType owner = PlayerType.None;
+    public Player owner = null;
 
     private List<GameObject> adjacent = new List<GameObject>();
     private GameManager gameManager;
@@ -31,25 +27,22 @@ public class GameCell : NetworkBehaviour {
         {
             GetComponent<Renderer>().material = Empty;
         }
-        else if (state == GameCellState.Core && owner == PlayerType.One)
+        else if (state == GameCellState.Core)
         {
-            GetComponent<Renderer>().material = PlayerOneCore;
+            GetComponent<Renderer>().material = Core;
         }
-        else if (state == GameCellState.Area && owner == PlayerType.One)
+        else if (state == GameCellState.Area)
         {
-            GetComponent<Renderer>().material = PlayerOneArea;
+            GetComponent<Renderer>().material = Area;
         }
-        else if (state == GameCellState.Core && owner == PlayerType.Two)
+
+        if (owner)
         {
-            GetComponent<Renderer>().material = PlayerTwoCore;
-        }
-        else if (state == GameCellState.Area && owner == PlayerType.Two)
-        {
-            GetComponent<Renderer>().material = PlayerTwoArea;
+            GetComponent<Renderer>().material.color = new Color(owner.color.r, owner.color.g, owner.color.b, GetComponent<Renderer>().material.color.a);
         }
 	}
 
-    public void Select(PlayerType player)
+    public void Select(Player player)
     {
         if (state == GameCellState.Empty)
         {
@@ -63,7 +56,7 @@ public class GameCell : NetworkBehaviour {
         }
     }
 
-    public void SelectCore(PlayerType player)
+    public void SelectCore(Player player)
     {
         if (state == GameCellState.Empty || (owner == player && state == GameCellState.Area))
         {
@@ -71,7 +64,7 @@ public class GameCell : NetworkBehaviour {
         }
     }
 
-    public void SetArea(PlayerType player)
+    public void SetArea(Player player)
     {
         if (state == GameCellState.Empty)
         {
@@ -93,7 +86,7 @@ public class GameCell : NetworkBehaviour {
         }
     }
 
-    private void SetCore(PlayerType player, bool cascadeAreas, bool cascadeCores)
+    private void SetCore(Player player, bool cascadeAreas, bool cascadeCores)
     {
         state = GameCellState.Core;
         owner = player;

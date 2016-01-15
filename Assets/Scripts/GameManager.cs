@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour {
 
     public void AddPlayer(Player player)
     {
-        player.type = (PlayerType)(players.Count + 1);
         players.Add(player);
 
         if (currentPlayer == null)
