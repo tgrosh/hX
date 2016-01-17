@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class NetManager : NetworkManager {
 
@@ -20,7 +21,6 @@ public class NetManager : NetworkManager {
     {
         // remove players from slots
         var player = playerController.gameObject.GetComponent<Player>();
-        //GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
         GameManager.singleton.RemovePlayer(player);
 
         base.OnServerRemovePlayer(conn, playerController);
@@ -31,7 +31,6 @@ public class NetManager : NetworkManager {
         foreach (var playerController in conn.playerControllers)
         {
             var player = playerController.gameObject.GetComponent<Player>();
-            //GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
             GameManager.singleton.RemovePlayer(player);
         }
 

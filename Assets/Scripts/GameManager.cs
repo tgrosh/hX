@@ -3,6 +3,7 @@ using System.Collections;
 using Assets.Scripts;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class GameManager : NetworkBehaviour
 {
@@ -66,5 +67,4 @@ public class GameManager : NetworkBehaviour
     {
         players.Remove(player);
     }
-
 }
