@@ -4,52 +4,71 @@ using Assets.Scripts;
 using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour {
-    
+    public static Player localPlayer;
+
     [SyncVar]
     public Color color;
 
 	// Use this for initialization
     void Start()
     {
-        GameObject.Find("GameManager").GetComponent<GameManager>().AddPlayer(this);
+        if (isLocalPlayer)
+        {
+            localPlayer = this;
+        }
 	}
-
-    public void SelectCell(string cellName) {
+    
+    [Client]
+    public void SelectCell(string cellName)
+    {
         if (isLocalPlayer)
         {
             Cmd_SelectCell(cellName);
         }
     }
 
-    [Command]
-    public void Cmd_SelectCell(string cellName)
+    [Client]
+    public void EndTurn()
     {
-        Rpc_SelectCell(cellName);
+        if (isLocalPlayer)
+        {
+            Cmd_EndTurn();
+        }
+    }
+    
+    [Server]
+    public void StartGame()
+    {
+        Rpc_StartGame();
+    }
+
+    [Command]
+    private void Cmd_SelectCell(string cellName)
+    {
+        if (GameManager.singleton.activePlayer == this)
+        {
+            //rpc call back to all clients, but only the active player object will get the callback
+            Rpc_SelectCell(cellName);
+        }        
+    }
+
+    [Command]
+    private void Cmd_EndTurn()
+    {
+        GameManager.singleton.EndPlayerTurn();
     }
 
     [ClientRpc]
-    public void Rpc_SelectCell(string cellName)
+    private void Rpc_SelectCell(string cellName)
     {
         GameObject.Find(cellName).GetComponent<GameCell>().Select(this);
     }
-
-    [Command]
-    public void Cmd_EndTurn()
-    {
-        Rpc_EndTurn();
-    }
-
-    [ClientRpc]
-    public void Rpc_EndTurn()
-    {
-        GameObject.Find("GameManager").GetComponent<GameManager>().EndPlayerTurn();
-    }
     
-    private Color HexToColor(string hex)
+    [ClientRpc]
+    private void Rpc_StartGame()
     {
-        byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-        byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-        return new Color32(r, g, b, 255);
+        if (isLocalPlayer) { 
+            GameManager.singleton.StartGame();
+        }
     }
 }

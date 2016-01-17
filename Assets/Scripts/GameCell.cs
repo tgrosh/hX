@@ -14,11 +14,9 @@ public class GameCell : NetworkBehaviour {
     public Player owner = null;
 
     private List<GameObject> adjacent = new List<GameObject>();
-    private GameManager gameManager;
     
 	// Use this for initialization
 	void Start () {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
 	
 	// Update is called once per frame
@@ -47,12 +45,12 @@ public class GameCell : NetworkBehaviour {
         if (state == GameCellState.Empty)
         {
             SetArea(player);
-            gameManager.EndPlayerTurn();
+            GameManager.singleton.EndPlayerTurn();
         }
         else if (owner == player && state == GameCellState.Area)
         {
             SetCore(player, true, true);
-            gameManager.EndPlayerTurn();
+            GameManager.singleton.EndPlayerTurn();
         }
     }
 

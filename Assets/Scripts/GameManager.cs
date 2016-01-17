@@ -4,52 +4,67 @@ using Assets.Scripts;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : NetworkBehaviour
+{
+    public static GameManager singleton;
 
     public GameBoard gameBoard;
     public Camera gameCamera;
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
-    public Player currentPlayer;
-    
-    private List<Player> players = new List<Player>();
-    
-	// Use this for initialization
-    void Start()
+
+    public int activePlayerIndex = 0;
+    public List<Player> players = new List<Player>();
+
+    public Player activePlayer
+    {
+        get
+        {
+            return players[activePlayerIndex];
+        }
+    }
+
+    void Awake()
+    {
+        singleton = this;
+    }
+
+    [Client]
+    public void StartGame()
     {
         gameBoard.CreateBoard(10, 10, 1.05f);
         gameCamera.transform.LookAt(gameBoard.transform);
-	}
-
+    }
+    
+    [Server]
+    public void EndPlayerTurn()
+    {
+        activePlayerIndex++;
+        if (activePlayerIndex >= players.Count)
+        {
+            activePlayerIndex = 0;
+        }
+    }
+    
+    [Server]
     public void AddPlayer(Player player)
     {
         players.Add(player);
 
-        if (currentPlayer == null)
+        if (players.Count == 2)
         {
-            currentPlayer = player;
+            foreach (Player p in players)
+            {
+                p.StartGame();
+            }
         }
     }
-	
-    public void EndPlayerTurn()
-    {
-        currentPlayer.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
 
-        if (players[0] == currentPlayer && players.Count > 1)
-        {
-            currentPlayer = players[1];
-        }
-        else
-        {
-            currentPlayer = players[0];
-        }
-
-        currentPlayer.GetComponent<NetworkIdentity>().localPlayerAuthority = true;
-    }
-
+    [Server]
     public void RemovePlayer(Player player)
     {
         players.Remove(player);
     }
+
 }

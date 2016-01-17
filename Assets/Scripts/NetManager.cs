@@ -12,13 +12,16 @@ public class NetManager : NetworkManager {
         GameObject player = (GameObject)Instantiate(playerPrefab, Vector3.forward, Quaternion.identity);
         player.GetComponent<Player>().color = playerColors[NetworkServer.connections.Count-1];
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+        
+        GameManager.singleton.AddPlayer(player.GetComponent<Player>());
     }
 
     public override void OnServerRemovePlayer(NetworkConnection conn, PlayerController playerController)
     {
         // remove players from slots
         var player = playerController.gameObject.GetComponent<Player>();
-        GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
+        //GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
+        GameManager.singleton.RemovePlayer(player);
 
         base.OnServerRemovePlayer(conn, playerController);
     }
@@ -28,7 +31,8 @@ public class NetManager : NetworkManager {
         foreach (var playerController in conn.playerControllers)
         {
             var player = playerController.gameObject.GetComponent<Player>();
-            GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
+            //GameObject.Find("GameManager").GetComponent<GameManager>().RemovePlayer(player);
+            GameManager.singleton.RemovePlayer(player);
         }
 
         base.OnServerDisconnect(conn);
