@@ -11,12 +11,15 @@ public class GameManager : NetworkBehaviour
 
     public GameBoard gameBoard;
     public Camera gameCamera;
+    public GameObject PlayerName;
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
 
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
+
+    private GameObject playerNamePanel;
 
     public Player activePlayer
     {
@@ -31,6 +34,26 @@ public class GameManager : NetworkBehaviour
         singleton = this;
     }
 
+    void Start()
+    {
+        playerNamePanel = GameObject.Find("PlayerNamesPanel");
+    }
+
+    void Update()
+    {
+        foreach (Transform t in playerNamePanel.transform)
+        {
+            GameObject.Destroy(t.gameObject);
+        }
+
+        foreach (Player player in GameObject.FindObjectsOfType<Player>())
+        {
+            GameObject obj = Instantiate(PlayerName);
+            obj.GetComponent<Text>().text = player.playerName;
+            obj.transform.SetParent(playerNamePanel.transform);
+        }
+    }
+    
     [Server]
     public void StartGame()
     {

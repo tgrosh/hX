@@ -8,16 +8,20 @@ public class Player : NetworkBehaviour {
 
     [SyncVar]
     public Color color;
+    [SyncVar(hook="OnPlayerSetName")]
+    public string playerName;
 
 	// Use this for initialization
     void Start()
     {
         if (isLocalPlayer)
-        {
+        {            
             localPlayer = this;
+            this.playerName = LocalPlayerInfo.singleton.name;
+            Cmd_SetName(this.playerName);
         }
 	}
-    
+        
     [Client]
     public void EndTurn()
     {
@@ -32,6 +36,12 @@ public class Player : NetworkBehaviour {
     {
         Cmd_SelectCell(cellId);
     }
+
+    [Client]
+    private void OnPlayerSetName(string value)
+    {
+        this.playerName = value;
+    }
     
     [Command]
     private void Cmd_SelectCell(NetworkInstanceId cellId)
@@ -43,6 +53,12 @@ public class Player : NetworkBehaviour {
                 GameManager.singleton.EndPlayerTurn();
             }
         }        
+    }
+
+    [Command]
+    private void Cmd_SetName(string name)
+    {
+        this.playerName = name;
     }
 
     [Command]
