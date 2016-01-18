@@ -19,15 +19,6 @@ public class Player : NetworkBehaviour {
 	}
     
     [Client]
-    public void SelectCell(string cellName)
-    {
-        if (isLocalPlayer)
-        {
-            Cmd_SelectCell(cellName);
-        }
-    }
-
-    [Client]
     public void EndTurn()
     {
         if (isLocalPlayer)
@@ -35,20 +26,22 @@ public class Player : NetworkBehaviour {
             Cmd_EndTurn();
         }
     }
-    
-    [Server]
-    public void StartGame()
-    {
-        Rpc_StartGame();
-    }
 
+    [Client]
+    public void SelectCell(NetworkInstanceId cellId)
+    {
+        Cmd_SelectCell(cellId);
+    }
+    
     [Command]
-    private void Cmd_SelectCell(string cellName)
+    private void Cmd_SelectCell(NetworkInstanceId cellId)
     {
         if (GameManager.singleton.activePlayer == this)
         {
-            //rpc call back to all clients, but only the active player object will get the callback
-            Rpc_SelectCell(cellName);
+            if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this.netId))
+            {
+                GameManager.singleton.EndPlayerTurn();
+            }
         }        
     }
 
@@ -56,19 +49,5 @@ public class Player : NetworkBehaviour {
     private void Cmd_EndTurn()
     {
         GameManager.singleton.EndPlayerTurn();
-    }
-
-    [ClientRpc]
-    private void Rpc_SelectCell(string cellName)
-    {
-        GameObject.Find(cellName).GetComponent<GameCell>().Select(this);
-    }
-    
-    [ClientRpc]
-    private void Rpc_StartGame()
-    {
-        if (isLocalPlayer) { 
-            GameManager.singleton.StartGame();
-        }
     }
 }

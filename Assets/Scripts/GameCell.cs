@@ -10,8 +10,10 @@ public class GameCell : NetworkBehaviour {
     public Material Core;
     public Material Area;
 
+    [SyncVar]
     public GameCellState state = GameCellState.Empty;
-    public Player owner = null;
+    [SyncVar]
+    public NetworkInstanceId owner;
 
     private List<GameObject> adjacent = new List<GameObject>();
     
@@ -34,60 +36,56 @@ public class GameCell : NetworkBehaviour {
             GetComponent<Renderer>().material = Area;
         }
 
-        if (owner)
+        if (owner.Value != uint.MinValue)
         {
-            GetComponent<Renderer>().material.color = new Color(owner.color.r, owner.color.g, owner.color.b, GetComponent<Renderer>().material.color.a);
+            Player ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
+            GetComponent<Renderer>().material.color = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, GetComponent<Renderer>().material.color.a);            
         }
 	}
 
-    public void Select(Player player)
+    [Server]
+    public bool Select(NetworkInstanceId playerId)
     {
         if (state == GameCellState.Empty)
         {
-            SetArea(player);
-            GameManager.singleton.EndPlayerTurn();
+            SetArea(playerId);
+            return true;
         }
-        else if (owner == player && state == GameCellState.Area)
+        else if (owner == playerId && state == GameCellState.Area)
         {
-            SetCore(player, true, true);
-            GameManager.singleton.EndPlayerTurn();
+            SetCore(playerId, true, true);
+            return true;
         }
-    }
 
-    public void SelectCore(Player player)
-    {
-        if (state == GameCellState.Empty || (owner == player && state == GameCellState.Area))
-        {
-            SetCore(player, true, true);            
-        }
+        return false;
     }
-
-    public void SetArea(Player player)
+    
+    void SetArea(NetworkInstanceId playerId)
     {
         if (state == GameCellState.Empty)
         {
             state = GameCellState.Area;
-            owner = player;
+            owner = playerId;
         }
         else if (state == GameCellState.Area)
         {
-            if (player == owner)
+            if (playerId == owner)
             {
                 //already an area, make it a core         
-                SetCore(player, false, false);
+                SetCore(playerId, false, false);
             }
             else
             {
                 state = GameCellState.Area;
-                owner = player;
+                owner = playerId;
             }
         }
     }
 
-    private void SetCore(Player player, bool cascadeAreas, bool cascadeCores)
+    void SetCore(NetworkInstanceId playerId, bool cascadeAreas, bool cascadeCores)
     {
         state = GameCellState.Core;
-        owner = player;
+        owner = playerId;
 
         if (cascadeAreas)
         {
@@ -97,7 +95,7 @@ public class GameCell : NetworkBehaviour {
 
                 if (cell.state != GameCellState.Core)
                 {
-                    cell.SetArea(player);
+                    cell.SetArea(playerId);
                 }
             }
         }
@@ -108,9 +106,9 @@ public class GameCell : NetworkBehaviour {
             {
                 GameCell cell = obj.GetComponent<GameCell>();
 
-                if (cell.state == GameCellState.Core && cell.owner != player)
+                if (cell.state == GameCellState.Core && cell.owner != playerId)
                 {
-                    cell.SetCore(player, true, true);
+                    cell.SetCore(playerId, true, true);
                 }
             }
         }
@@ -123,4 +121,5 @@ public class GameCell : NetworkBehaviour {
             adjacent.Add(other.gameObject);
         }
     }
+
 }

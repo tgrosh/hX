@@ -6,9 +6,8 @@ using UnityEngine.Networking;
 public class GameBoard : NetworkBehaviour {
 
     public GameObject emptyBoardSpace;
-
-    private List<GameObject> boardSpaces = new List<GameObject>();
-        
+            
+    [Server]
     public void CreateBoard(float numCols, float numRows, float boardSpacing)
     {
         float posX, posY;
@@ -34,9 +33,8 @@ public class GameBoard : NetworkBehaviour {
                                 
                 obj = (GameObject)Instantiate(emptyBoardSpace, new Vector3(startX + posX, startY + posY, 0), Quaternion.identity);
                 obj.name = x + "." + y;
-                obj.transform.parent = transform;
-                
-                boardSpaces.Add(obj);
+
+                NetworkServer.Spawn(obj);
             }
         }
     }

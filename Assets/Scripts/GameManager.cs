@@ -31,11 +31,11 @@ public class GameManager : NetworkBehaviour
         singleton = this;
     }
 
-    [Client]
+    [Server]
     public void StartGame()
     {
         gameBoard.CreateBoard(10, 10, 1.05f);
-        gameCamera.transform.LookAt(gameBoard.transform);
+        //gameCamera.transform.LookAt(gameBoard.transform);
     }
     
     [Server]
@@ -55,10 +55,7 @@ public class GameManager : NetworkBehaviour
 
         if (players.Count == 2)
         {
-            foreach (Player p in players)
-            {
-                p.StartGame();
-            }
+            StartGame();
         }
     }
 
