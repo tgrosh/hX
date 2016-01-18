@@ -3,25 +3,30 @@ using System.Collections;
 using Assets.Scripts;
 using UnityEngine.Networking;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour
+{
     public static Player localPlayer;
 
     [SyncVar]
     public Color color;
-    [SyncVar(hook="OnPlayerSetName")]
+    [SyncVar(hook = "OnPlayerSetName")]
     public string playerName;
+    [SyncVar]
+    public bool playerActive = false;
+    [SyncVar]
+    public int score;
 
-	// Use this for initialization
+    // Use this for initialization
     void Start()
     {
         if (isLocalPlayer)
-        {            
+        {
             localPlayer = this;
             this.playerName = LocalPlayerInfo.singleton.name;
             Cmd_SetName(this.playerName);
         }
-	}
-        
+    }
+
     [Client]
     public void EndTurn()
     {
@@ -42,7 +47,7 @@ public class Player : NetworkBehaviour {
     {
         this.playerName = value;
     }
-    
+
     [Command]
     private void Cmd_SelectCell(NetworkInstanceId cellId)
     {
@@ -52,7 +57,7 @@ public class Player : NetworkBehaviour {
             {
                 GameManager.singleton.EndPlayerTurn();
             }
-        }        
+        }
     }
 
     [Command]

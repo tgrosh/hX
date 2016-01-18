@@ -41,6 +41,31 @@ public class GameManager : NetworkBehaviour
 
     void Update()
     {
+        foreach (Player player in players)
+        {
+            player.playerActive = player == activePlayer;
+            player.score = 0;
+        }
+
+        if (isServer)
+        {
+            foreach (GameCell cell in GameObject.FindObjectsOfType<GameCell>())
+            {
+                if (cell.owner == NetworkInstanceId.Invalid)
+                {
+                    break;
+                }
+                if (cell.state == GameCellState.Area)
+                {
+                    ClientScene.FindLocalObject(cell.owner).GetComponent<Player>().score += 100;
+                }
+                else if (cell.state == GameCellState.Core)
+                {
+                    ClientScene.FindLocalObject(cell.owner).GetComponent<Player>().score += 1000;
+                }
+            }
+        }
+
         foreach (Transform t in playerNamePanel.transform)
         {
             GameObject.Destroy(t.gameObject);
@@ -48,19 +73,28 @@ public class GameManager : NetworkBehaviour
 
         foreach (Player player in GameObject.FindObjectsOfType<Player>())
         {
-            GameObject obj = Instantiate(PlayerName);
-            obj.GetComponent<Text>().text = player.playerName;
-            obj.transform.SetParent(playerNamePanel.transform);
+            CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
+            CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
         }
     }
-    
+
+    private void CreatePlayerNameText(string text, Color color, int fontSize)
+    {
+        GameObject objPlayerName = Instantiate(PlayerName);
+        Text txt = objPlayerName.GetComponent<Text>();
+        txt.text = text;
+        txt.color = color;
+        txt.fontSize = fontSize;
+        objPlayerName.transform.SetParent(playerNamePanel.transform);
+    }
+
     [Server]
     public void StartGame()
     {
         gameBoard.CreateBoard(10, 10, 1.05f);
         //gameCamera.transform.LookAt(gameBoard.transform);
     }
-    
+
     [Server]
     public void EndPlayerTurn()
     {
@@ -70,7 +104,7 @@ public class GameManager : NetworkBehaviour
             activePlayerIndex = 0;
         }
     }
-    
+
     [Server]
     public void AddPlayer(Player player)
     {

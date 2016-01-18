@@ -4,7 +4,8 @@ using Assets.Scripts;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
-public class GameCell : NetworkBehaviour {
+public class GameCell : NetworkBehaviour
+{
 
     public Material Empty;
     public Material Core;
@@ -16,13 +17,15 @@ public class GameCell : NetworkBehaviour {
     public NetworkInstanceId owner;
 
     private List<GameObject> adjacent = new List<GameObject>();
-    
-	// Use this for initialization
-	void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Use this for initialization
+    void Start()
+    {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         if (state == GameCellState.Empty)
         {
             GetComponent<Renderer>().material = Empty;
@@ -39,9 +42,9 @@ public class GameCell : NetworkBehaviour {
         if (owner.Value != uint.MinValue)
         {
             Player ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
-            GetComponent<Renderer>().material.color = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, GetComponent<Renderer>().material.color.a);            
+            GetComponent<Renderer>().material.color = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, GetComponent<Renderer>().material.color.a);
         }
-	}
+    }
 
     [Server]
     public bool Select(NetworkInstanceId playerId)
@@ -59,7 +62,7 @@ public class GameCell : NetworkBehaviour {
 
         return false;
     }
-    
+
     void SetArea(NetworkInstanceId playerId, bool setCores, bool cascadeAreas)
     {
         if (state == GameCellState.Empty)
