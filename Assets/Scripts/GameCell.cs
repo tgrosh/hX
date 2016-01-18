@@ -48,19 +48,19 @@ public class GameCell : NetworkBehaviour {
     {
         if (state == GameCellState.Empty)
         {
-            SetArea(playerId);
+            SetArea(playerId, true, false);
             return true;
         }
         else if (owner == playerId && state == GameCellState.Area)
         {
-            SetCore(playerId, true, true);
+            SetCore(playerId, true, false);
             return true;
         }
 
         return false;
     }
     
-    void SetArea(NetworkInstanceId playerId)
+    void SetArea(NetworkInstanceId playerId, bool setCores, bool cascadeAreas)
     {
         if (state == GameCellState.Empty)
         {
@@ -71,13 +71,29 @@ public class GameCell : NetworkBehaviour {
         {
             if (playerId == owner)
             {
-                //already an area, make it a core         
-                SetCore(playerId, false, false);
+                if (setCores)
+                {
+                    //already an area, make it a core         
+                    SetCore(playerId, false, false);
+                }
             }
             else
             {
                 state = GameCellState.Area;
                 owner = playerId;
+
+                if (cascadeAreas)
+                {
+                    foreach (GameObject obj in adjacent)
+                    {
+                        GameCell cell = obj.GetComponent<GameCell>();
+
+                        if (cell.state == GameCellState.Area && cell.owner != playerId)
+                        {
+                            cell.SetArea(playerId, false, true);
+                        }
+                    }
+                }
             }
         }
     }
@@ -95,7 +111,7 @@ public class GameCell : NetworkBehaviour {
 
                 if (cell.state != GameCellState.Core)
                 {
-                    cell.SetArea(playerId);
+                    cell.SetArea(playerId, true, true);
                 }
             }
         }
