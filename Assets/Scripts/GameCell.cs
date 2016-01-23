@@ -6,7 +6,6 @@ using UnityEngine.Networking;
 
 public class GameCell : NetworkBehaviour
 {
-
     public Material Empty;
     public Material Core;
     public Material Area;
@@ -14,7 +13,7 @@ public class GameCell : NetworkBehaviour
     [SyncVar]
     public GameCellState state = GameCellState.Empty;
     [SyncVar]
-    public NetworkInstanceId owner;
+    public NetworkInstanceId owner = NetworkInstanceId.Invalid;
 
     private List<GameObject> adjacent = new List<GameObject>();
 
@@ -39,7 +38,7 @@ public class GameCell : NetworkBehaviour
             GetComponent<Renderer>().material = Area;
         }
 
-        if (owner.Value != uint.MinValue)
+        if (owner != NetworkInstanceId.Invalid)
         {
             Player ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
             GetComponent<Renderer>().material.color = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, GetComponent<Renderer>().material.color.a);
@@ -49,90 +48,162 @@ public class GameCell : NetworkBehaviour
     [Server]
     public bool Select(NetworkInstanceId playerId)
     {
+        GameRule rule = null;
+
         if (state == GameCellState.Empty)
         {
-            SetArea(playerId, true, false);
-            return true;
+            rule = GameRuleManager.singleton.ruleEmpty;
         }
         else if (owner == playerId && state == GameCellState.Area)
         {
-            SetCore(playerId, true, false);
-            return true;
+            rule = GameRuleManager.singleton.ruleOwnArea;
+        }
+        else if (owner == playerId && state == GameCellState.Core)
+        {
+            rule = GameRuleManager.singleton.ruleOwnCore;
+        }
+        else if (owner != playerId && state == GameCellState.Area)
+        {
+            rule = GameRuleManager.singleton.ruleEnemyArea;
+        }
+        else if (owner != playerId && state == GameCellState.Core)
+        {
+            rule = GameRuleManager.singleton.ruleEnemyCore;
         }
 
-        return false;
+        return ApplyRule(playerId, rule);
     }
-
-    void SetArea(NetworkInstanceId playerId, bool setCores, bool cascadeAreas)
+        
+    bool ApplyRule(NetworkInstanceId playerId, GameRule rule)
     {
-        if (state == GameCellState.Empty)
-        {
-            state = GameCellState.Area;
-            owner = playerId;
-        }
-        else if (state == GameCellState.Area)
-        {
-            if (playerId == owner)
-            {
-                if (setCores)
-                {
-                    //already an area, make it a core         
-                    SetCore(playerId, false, false);
-                }
-            }
-            else
-            {
-                state = GameCellState.Area;
-                owner = playerId;
+        bool result = false;
 
-                if (cascadeAreas)
-                {
-                    foreach (GameObject obj in adjacent)
-                    {
-                        GameCell cell = obj.GetComponent<GameCell>();
-
-                        if (cell.state == GameCellState.Area && cell.owner != playerId)
-                        {
-                            cell.SetArea(playerId, false, true);
-                        }
-                    }
-                }
-            }
+        if (rule.clickResult == CellAction.MakeOwnArea)
+        {
+            SetCell(playerId, GameCellState.Area);
+            result = true;
         }
+        else if (rule.clickResult == CellAction.MakeOwnCore)
+        {
+            SetCell(playerId, GameCellState.Core);
+            result = true;
+        }
+        else if (rule.clickResult == CellAction.MakeEmpty)
+        {
+            SetCell(NetworkInstanceId.Invalid, GameCellState.Empty);
+            result = true;
+        }
+        else if (rule.clickResult == CellAction.MakeEnemyArea)
+        {
+            SetCell(GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Empty);
+            result = true;
+        }
+        else if (rule.clickResult == CellAction.MakeEnemyCore)
+        {
+            SetCell(GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Empty);
+            result = true;
+        }
+
+        if (rule.cascadeEmptyResult == CellAction.MakeOwnArea)
+        {
+            SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, playerId, GameCellState.Area, rule.continueEmptyCascade);
+        }
+        else if (rule.cascadeEmptyResult == CellAction.MakeOwnCore)
+        {
+            SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, playerId, GameCellState.Core, rule.continueEmptyCascade);
+        }
+        else if (rule.cascadeEmptyResult == CellAction.MakeEnemyArea)
+        {
+            SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueEmptyCascade);
+        }
+        else if (rule.cascadeEmptyResult == CellAction.MakeEnemyCore)
+        {
+            SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueEmptyCascade);
+        }
+
+        if (rule.cascadeOwnAreaResult == CellAction.MakeEmpty)
+        {
+            SetAdjacentCells(this, playerId, GameCellState.Empty, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueOwnAreaCascade);
+        }
+        else if (rule.cascadeOwnAreaResult == CellAction.MakeOwnCore)
+        {
+            SetAdjacentCells(this, playerId, GameCellState.Area, playerId, GameCellState.Core, rule.continueOwnAreaCascade);
+        }
+        else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyArea)
+        {
+            SetAdjacentCells(this, playerId, GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueOwnAreaCascade);
+        }
+        else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyCore)
+        {
+            SetAdjacentCells(this, playerId, GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueOwnAreaCascade);
+        }
+
+        if (rule.cascadeEnemyAreaResult == CellAction.MakeEmpty)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueEnemyAreaCascade);
+        }
+        else if (rule.cascadeEnemyAreaResult == CellAction.MakeOwnArea)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, playerId, GameCellState.Area, rule.continueEnemyAreaCascade);
+        }
+        else if (rule.cascadeEnemyAreaResult == CellAction.MakeOwnCore)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, playerId, GameCellState.Core, rule.continueEnemyAreaCascade);
+        }
+        else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyCore)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueEnemyAreaCascade);
+        }
+
+        if (rule.cascadeEnemyCoreResult == CellAction.MakeEmpty)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueEnemyCoreCascade);
+        }
+        else if (rule.cascadeEnemyCoreResult == CellAction.MakeOwnArea)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, playerId, GameCellState.Area, rule.continueEnemyCoreCascade);
+        }
+        else if (rule.cascadeEnemyCoreResult == CellAction.MakeOwnCore)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, playerId, GameCellState.Core, rule.continueEnemyCoreCascade);
+        }
+        else if (rule.cascadeEnemyCoreResult == CellAction.MakeEnemyArea)
+        {
+            SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueEnemyCoreCascade);
+        }
+
+        return result;
     }
-
-    void SetCore(NetworkInstanceId playerId, bool cascadeAreas, bool cascadeCores)
+    
+    void SetCell(NetworkInstanceId playerId, GameCellState state)
     {
-        state = GameCellState.Core;
-        owner = playerId;
+        SetCell(this, playerId, state);
+    }
 
-        if (cascadeAreas)
+    void SetCell(GameCell cell, NetworkInstanceId playerId, GameCellState state)
+    {
+        cell.owner = playerId;
+        cell.state = state;
+    }
+
+    void SetAdjacentCells(GameCell cell, NetworkInstanceId adjacentPlayerId, GameCellState adjacentCellState, NetworkInstanceId newPlayerId, GameCellState newCellState, bool continueCascade)
+    {
+        foreach (GameObject obj in cell.adjacent)
         {
-            foreach (GameObject obj in adjacent)
+            GameCell adjacentCell = obj.GetComponent<GameCell>();
+
+            if (adjacentCell.state == adjacentCellState && adjacentCell.owner == adjacentPlayerId)
             {
-                GameCell cell = obj.GetComponent<GameCell>();
+                SetCell(adjacentCell, newPlayerId, newCellState);
 
-                if (cell.state != GameCellState.Core)
+                if (continueCascade)
                 {
-                    cell.SetArea(playerId, true, true);
-                }
-            }
-        }
-
-        if (cascadeCores)
-        {
-            foreach (GameObject obj in adjacent)
-            {
-                GameCell cell = obj.GetComponent<GameCell>();
-
-                if (cell.state == GameCellState.Core && cell.owner != playerId)
-                {
-                    cell.SetCore(playerId, true, true);
+                    SetAdjacentCells(adjacentCell, adjacentPlayerId, adjacentCellState, newPlayerId, newCellState, continueCascade);
                 }
             }
         }
     }
-
+    
     void OnTriggerStay(Collider other)
     {
         if (!adjacent.Contains(other.gameObject))

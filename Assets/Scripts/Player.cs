@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 public class Player : NetworkBehaviour
 {
     public static Player localPlayer;
+    public static Player opponent;
 
     [SyncVar]
     public Color color;
@@ -24,6 +25,10 @@ public class Player : NetworkBehaviour
             localPlayer = this;
             this.playerName = LocalPlayerInfo.singleton.name;
             Cmd_SetName(this.playerName);
+        }
+        else
+        {
+            opponent = this;
         }
     }
 
@@ -70,5 +75,15 @@ public class Player : NetworkBehaviour
     private void Cmd_EndTurn()
     {
         GameManager.singleton.EndPlayerTurn();
+    }
+
+    [ClientRpc]
+    public void Rpc_StartGame()
+    {
+        if (isLocalPlayer)
+        {
+            Transform gameBoard = GameObject.Find("GameBoard").transform;
+            //Camera.main.transform.LookAt(gameBoard);
+        }        
     }
 }
