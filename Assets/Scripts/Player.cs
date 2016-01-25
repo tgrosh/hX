@@ -81,8 +81,7 @@ public class Player : NetworkBehaviour
     public void Rpc_StartGame()
     {
         if (isLocalPlayer)
-        {
-            Transform gameBoard = GameObject.Find("GameBoard").transform;
+        {            
             //Camera.main.transform.LookAt(gameBoard);
         }        
     }

@@ -204,7 +204,7 @@ public class GameCell : NetworkBehaviour
         }
     }
     
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (!adjacent.Contains(other.gameObject))
         {

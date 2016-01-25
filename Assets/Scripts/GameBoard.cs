@@ -12,7 +12,7 @@ public class GameBoard : NetworkBehaviour {
     {
         float posX, posY;
         float spaceWidth = (emptyBoardSpace.GetComponent<Renderer>().bounds.size.x * boardSpacing);
-        float spaceHeight = (emptyBoardSpace.GetComponent<Renderer>().bounds.size.z * boardSpacing) * .75f;
+        float spaceHeight = (emptyBoardSpace.GetComponent<Renderer>().bounds.size.z * boardSpacing);
         float startX = numCols / 2 * -spaceWidth + spaceWidth / 2;
         float startY = numRows / 2 * -spaceHeight + spaceHeight / 2;
         GameObject obj = null;
