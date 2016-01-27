@@ -16,9 +16,10 @@ public class GameManager : NetworkBehaviour
     public float boardSpacing = 1.05f;
 
     public int activePlayerIndex = 0;
-    public List<Player> players = new List<Player>();    
+    public List<Player> players = new List<Player>();
 
     private GameObject playerNamePanel;
+    private GameCell[] cells = new GameCell[]{};
 
     public Player activePlayer
     {
@@ -35,11 +36,15 @@ public class GameManager : NetworkBehaviour
 
     void Start()
     {
-        playerNamePanel = GameObject.Find("PlayerNamesPanel");
+        playerNamePanel = GameObject.Find("PlayerNamesPanel");        
     }
 
     void Update()
     {
+        if (cells.Length == 0) {
+            cells = GameObject.FindObjectsOfType<GameCell>();
+        }
+
         foreach (Player player in players)
         {
             player.playerActive = player == activePlayer;
@@ -48,11 +53,11 @@ public class GameManager : NetworkBehaviour
 
         if (isServer)
         {
-            foreach (GameCell cell in GameObject.FindObjectsOfType<GameCell>())
+            foreach (GameCell cell in cells)
             {
                 if (cell.owner == NetworkInstanceId.Invalid)
                 {
-                    break;
+                    continue;
                 }
                 if (cell.state == GameCellState.Area)
                 {
