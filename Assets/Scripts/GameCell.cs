@@ -9,9 +9,17 @@ public class GameCell : NetworkBehaviour
     public Material Empty;
     public Material Core;
     public Material Area;
+    public GameObject hex;
 
     private Vector3 boardPosition;
     private float cellAnimationSpeed = 3f;
+    private float cellAnimationTime = 0f;
+    private Vector3 cellPopoutDestination;
+    private float cellPopoutZArea = -.4f;
+    private float cellPopoutZCore = -.8f;
+    private bool animating;
+    private Color cellColorTarget = Color.white;
+    private Player ownerPlayer;
 
     [SyncVar]
     public GameCellState state = GameCellState.Empty;
@@ -23,38 +31,57 @@ public class GameCell : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        boardPosition = transform.position;
+        boardPosition = transform.position;        
     }
 
     // Update is called once per frame
     void Update()
     {
-        Material cellMaterial = GetComponent<Renderer>().material;
-
-        if (state == GameCellState.Empty)
-        {
-            GetComponent<Renderer>().material = Empty;
-        }
-        else if (state == GameCellState.Core)
-        {
-            GetComponent<Renderer>().material = Core;
-        }
-        else if (state == GameCellState.Area)
-        {
-            GetComponent<Renderer>().material = Area;
-        }
-
         if (owner != NetworkInstanceId.Invalid)
         {
-            transform.position = Vector3.Lerp(transform.position, boardPosition + new Vector3(0, 0, -.4f), cellAnimationSpeed * Time.deltaTime);
+            Material cellMaterial = hex.GetComponent<Renderer>().material;
+            
+            if (state == GameCellState.Core && !cellMaterial.name.Contains(Core.name))
+            {
+                ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
+                cellColorTarget = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, hex.GetComponent<Renderer>().material.color.a);
+                cellPopoutDestination = boardPosition + new Vector3(0, 0, cellPopoutZCore);
+                hex.GetComponent<Renderer>().material = Core;
+                animating = true;
+            }
+            else if (state == GameCellState.Area && !cellMaterial.name.Contains(Area.name))
+            {
+                ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
+                cellColorTarget = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, hex.GetComponent<Renderer>().material.color.a);
+                cellPopoutDestination = boardPosition + new Vector3(0, 0, cellPopoutZArea);
+                hex.GetComponent<Renderer>().material = Area;
+                animating = true;
+            }
 
-            Player ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
-            GetComponent<Renderer>().material.color = Color.Lerp(cellMaterial.color, new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, GetComponent<Renderer>().material.color.a), cellAnimationSpeed * Time.deltaTime);
+            if (animating && cellAnimationTime / cellAnimationSpeed < .9f) {
+                transform.position = Vector3.Lerp(transform.position, cellPopoutDestination, cellAnimationSpeed * Time.deltaTime);
+                hex.GetComponent<Renderer>().material.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
+
+                cellAnimationTime += Time.deltaTime;
+            }
+            else if (cellAnimationTime < cellAnimationSpeed)
+            {
+                transform.position = cellPopoutDestination;
+                hex.GetComponent<Renderer>().material.color = cellColorTarget;
+
+                cellAnimationTime = 0;
+                animating = false;
+            }
         }
         else
         {
             transform.position = boardPosition;
         }
+    }
+
+    private void SetColor()
+    {
+        
     }
 
     [Server]

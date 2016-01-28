@@ -34,17 +34,29 @@ public class GameManager : NetworkBehaviour
         singleton = this;
     }
 
-    void Start()
+    public override void OnStartClient()
     {
-        playerNamePanel = GameObject.Find("PlayerNamesPanel");        
+        playerNamePanel = GameObject.Find("PlayerNamesPanel");
+
+        if (isServer)
+        {
+            cells = GameObject.FindObjectsOfType<GameCell>();
+        }
+
+        foreach (Transform t in playerNamePanel.transform)
+        {
+            GameObject.Destroy(t.gameObject);
+        }
+
+        foreach (Player player in GameObject.FindObjectsOfType<Player>())
+        {
+            CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
+            CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
+        }
     }
 
     void Update()
     {
-        if (cells.Length == 0) {
-            cells = GameObject.FindObjectsOfType<GameCell>();
-        }
-
         foreach (Player player in players)
         {
             player.playerActive = player == activePlayer;
@@ -69,17 +81,6 @@ public class GameManager : NetworkBehaviour
                 }
             }
         }
-
-        foreach (Transform t in playerNamePanel.transform)
-        {
-            GameObject.Destroy(t.gameObject);
-        }
-
-        foreach (Player player in GameObject.FindObjectsOfType<Player>())
-        {
-            CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
-            CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
-        }
     }
 
     [Client]
@@ -96,7 +97,7 @@ public class GameManager : NetworkBehaviour
     [Server]
     public void StartGame()
     {
-        gameBoard.CreateBoard(10, 10, 1.05f);
+        gameBoard.SpawnBoard();
         foreach (Player player in players)
         {
             player.Rpc_StartGame();
