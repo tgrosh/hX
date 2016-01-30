@@ -5,14 +5,18 @@ using UnityEngine.Networking;
 
 public class GameBoard : NetworkBehaviour {
 
-    public GameObject emptyBoardSpace;
+    public GameCell emptyBoardSpace;
             
     [Server]
     public void SpawnBoard()
     {
         foreach (GameCell cell in transform.GetComponentsInChildren<GameCell>())
         {
-            NetworkServer.Spawn(cell.gameObject);
+            GameCell obj = (GameCell)Instantiate(emptyBoardSpace, cell.transform.position, cell.transform.localRotation);
+            obj.state = cell.state;
+            obj.ownerSeat = cell.ownerSeat;
+
+            NetworkServer.Spawn(obj.gameObject);
         }
     }
 }

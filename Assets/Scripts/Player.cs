@@ -7,7 +7,7 @@ public class Player : NetworkBehaviour
 {
     public static Player localPlayer;
     public static Player opponent;
-
+    
     [SyncVar]
     public Color color;
     [SyncVar(hook = "OnPlayerSetName")]
@@ -16,6 +16,8 @@ public class Player : NetworkBehaviour
     public bool playerActive = false;
     [SyncVar]
     public int score;
+    [SyncVar]
+    public PlayerSeat seat;
 
     // Use this for initialization
     void Start()
@@ -58,10 +60,10 @@ public class Player : NetworkBehaviour
     {
         if (GameManager.singleton.activePlayer == this)
         {
-            if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this.netId))
-            {
-                GameManager.singleton.EndPlayerTurn();
-            }
+            //if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this.netId))
+            //{
+            //    GameManager.singleton.EndPlayerTurn();
+            //}
         }
     }
 
@@ -81,7 +83,8 @@ public class Player : NetworkBehaviour
     public void Rpc_StartGame()
     {
         if (isLocalPlayer)
-        {            
+        {
+            GameObject.Find("Waiting").SetActive(false);
             //Camera.main.transform.LookAt(gameBoard);
         }        
     }

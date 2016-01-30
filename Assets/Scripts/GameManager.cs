@@ -36,6 +36,7 @@ public class GameManager : NetworkBehaviour
 
     public override void OnStartClient()
     {
+        gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
 
         if (isServer)
@@ -67,7 +68,7 @@ public class GameManager : NetworkBehaviour
         {
             foreach (GameCell cell in cells)
             {
-                if (cell.owner == NetworkInstanceId.Invalid)
+                if (cell.ownerSeat == PlayerSeat.Empty)
                 {
                     continue;
                 }
@@ -141,5 +142,11 @@ public class GameManager : NetworkBehaviour
     public Player GetPlayerOpponent(Player player)
     {        
         return players.Find((Player p) => { return p.netId != player.netId; });
+    }
+
+    [Server]
+    public Player PlayerAtSeat(PlayerSeat seat)
+    {
+        return players.Find((Player p) => { return p.seat == seat; });
     }
 }

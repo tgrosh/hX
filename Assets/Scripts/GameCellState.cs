@@ -9,6 +9,10 @@ namespace Assets.Scripts
     {
         Empty = 0,
         Area = 1,
-        Core = 2
+        Core = 2,
+        Base = 3,
+        BaseArea = 4,
+        Ship = 5,
+        MovementArea = 6
     }
 }
