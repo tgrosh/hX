@@ -14,6 +14,7 @@ public class GameCell : NetworkBehaviour
     public GameObject hex;
     public GameObject ship;
     public ParticleSystem selectedParticles;
+    public ParticleSystem shipParticles;
     
     [SyncVar]
     public GameCellState state = GameCellState.Empty;
@@ -28,9 +29,14 @@ public class GameCell : NetworkBehaviour
     private float cellAnimationTime = 0f;
     private bool animatingColor;
     private Color cellColorTarget = Color.white;
-    private Player ownerPlayer;
     private List<GameObject> adjacent = new List<GameObject>();
     private Ship associatedShip;
+    [SyncVar]
+    private GameCellState prevState;
+    [SyncVar]
+    private PlayerSeat prevSeat;
+    [SyncVar]
+    private NetworkInstanceId prevOwner;
 
     // Use this for initialization
     void Start()
@@ -38,7 +44,7 @@ public class GameCell : NetworkBehaviour
         if (isServer && ownerSeat != PlayerSeat.Empty) { 
             SetOwner(GameManager.singleton.PlayerAtSeat(ownerSeat));
         }
-    }
+    } 
 
     // Update is called once per frame
     void Update()
@@ -54,21 +60,36 @@ public class GameCell : NetworkBehaviour
             selectedParticles.gameObject.SetActive(false);
         }
 
+        if (state == GameCellState.Ship && !shipParticles.gameObject.activeInHierarchy)
+        {
+            shipParticles.gameObject.SetActive(true);
+        }
+        else if (state != GameCellState.Ship && shipParticles.gameObject.activeInHierarchy)
+        {
+            shipParticles.gameObject.SetActive(false);
+        }
+
         if (owner != NetworkInstanceId.Invalid)
         {
             if (state == GameCellState.Base && !cellMaterial.name.Contains(BaseMaterial.name))
             {
-                SetCellColor(BaseMaterial);
+                SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseMaterial);
                 animatingColor = true;
             }
             else if (state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
             {
-                SetCellColor(BaseAreaMaterial);
+                SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseAreaMaterial);
                 animatingColor = true;
             }
             else if (state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
             {
-                hex.GetComponent<Renderer>().material = MovementAreaMaterial;
+                SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
+            }
+            else if (state == GameCellState.Ship && !cellMaterial.name.Contains(ShipMaterial.name))
+            {
+                if (prevState != GameCellState.BaseArea) { 
+                    SetCellMaterial(ShipMaterial.color, ShipMaterial);
+                }
             }
 
             if (animatingColor && cellAnimationTime / cellAnimationSpeed < .9f)
@@ -94,18 +115,20 @@ public class GameCell : NetworkBehaviour
         }
     }
     
-    private void SetCellColor(Material material)
+    private void SetCellMaterial(Color color, Material material)
     {
-        ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
-        cellColorTarget = ownerPlayer.color;
+        cellColorTarget = color;
         hex.GetComponent<Renderer>().material = material;
     }
 
     [Server]
     private void SetOwner(Player player)
     {
+        prevOwner = owner;
+        prevSeat = ownerSeat;
+
         if (player == null)
-        {
+        {   
             owner = NetworkInstanceId.Invalid;
             ownerSeat = PlayerSeat.Empty;
         }
@@ -122,34 +145,20 @@ public class GameCell : NetworkBehaviour
         bool result = (this.state != state);
 
         SetOwner(player);
+        prevState = this.state;
         this.state = state;
 
         return result;
     }
-
-    //[Server]
-    //bool SetAdjacentCells(GameCell cell, NetworkInstanceId adjacentPlayerId, GameCellState adjacentCellState, NetworkInstanceId newPlayerId, GameCellState newCellState, bool continueCascade)
-    //{
-    //    bool result = false;
-
-    //    foreach (GameObject obj in cell.adjacent)
-    //    {
-    //        GameCell adjacentCell = obj.GetComponent<GameCell>();
-
-    //        if (adjacentCell.state == adjacentCellState && adjacentCell.owner == adjacentPlayerId)
-    //        {
-    //            result = SetCell(adjacentCell, newPlayerId, newCellState) || result;
-
-    //            if (continueCascade)
-    //            {
-    //                SetAdjacentCells(adjacentCell, adjacentPlayerId, adjacentCellState, newPlayerId, newCellState, continueCascade);
-    //            }
-    //        }
-    //    }
-
-    //    return result;
-    //}
     
+    [Server]
+    public void Revert()
+    {
+        state = prevState;
+        ownerSeat = prevSeat;
+        owner = prevOwner;
+    }
+
     [Server]
     public bool Select(Player player)
     {
@@ -157,8 +166,9 @@ public class GameCell : NetworkBehaviour
         {
             //clicking on my own base area, place ship
             SetCell(player, GameCellState.Ship);
-            GameObject objShip = (GameObject)Instantiate(ship, transform.position, Quaternion.identity);
+            GameObject objShip = (GameObject)Instantiate(ship, transform.position, Quaternion.identity);            
             associatedShip = objShip.GetComponent<Ship>();
+            associatedShip.color = player.color;
             NetworkServer.Spawn(objShip);
             return true;
         }
@@ -187,10 +197,22 @@ public class GameCell : NetworkBehaviour
                     GameCell cell = obj.GetComponent<GameCell>();
                     if (cell.state == GameCellState.MovementArea)
                     {
-                        cell.SetCell(null, GameCellState.Empty);
+                        cell.Revert();
                     }
                 }
             }
+        }
+
+        if (state == GameCellState.MovementArea && owner == player.netId)
+        {
+            //move the ship
+            state = GameCellState.Ship;
+            associatedShip = GameManager.singleton.selectedCell.associatedShip;
+            GameManager.singleton.selectedCell.associatedShip = null;
+            GameManager.singleton.selectedCell.Revert();
+            GameManager.singleton.selectedCell = null;
+            associatedShip.MoveTo(this.netId);
+            return true;
         }
 
         return false;

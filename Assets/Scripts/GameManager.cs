@@ -68,6 +68,14 @@ public class GameManager : NetworkBehaviour
                 {
                     cell.selected = cell == selectedCell;
                 }
+                else
+                {
+                    cell.selected = false;
+                    if (cell.state == GameCellState.MovementArea)
+                    {
+                        cell.Revert();
+                    }
+                }
             }
         }
     }
