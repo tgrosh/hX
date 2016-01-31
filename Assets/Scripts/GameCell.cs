@@ -13,32 +13,30 @@ public class GameCell : NetworkBehaviour
     public Material MovementAreaMaterial;
     public GameObject hex;
     public GameObject ship;
+    public ParticleSystem selectedParticles;
     
-    private Vector3 boardPosition;
-    private float cellAnimationSpeed = 3f;
-    private float cellAnimationTime = 0f;
-    //private Vector3 cellPopoutDestination;
-    //private float cellPopoutZArea = -.4f;
-    //private float cellPopoutZCore = -.8f;
-    private bool animating;
-    private Color cellColorTarget = Color.white;
-    Player ownerPlayer;
-
     [SyncVar]
     public GameCellState state = GameCellState.Empty;
     [SyncVar]
     public PlayerSeat ownerSeat = PlayerSeat.Empty;
     [SyncVar]
     public NetworkInstanceId owner = NetworkInstanceId.Invalid;
-
+    [SyncVar]
+    public bool selected = false;
+    
+    private float cellAnimationSpeed = 3f;
+    private float cellAnimationTime = 0f;
+    private bool animatingColor;
+    private Color cellColorTarget = Color.white;
+    private Player ownerPlayer;
     private List<GameObject> adjacent = new List<GameObject>();
+    private Ship associatedShip;
 
     // Use this for initialization
     void Start()
     {
-        boardPosition = transform.position;
         if (isServer && ownerSeat != PlayerSeat.Empty) { 
-            owner = GameManager.singleton.PlayerAtSeat(ownerSeat).netId;
+            SetOwner(GameManager.singleton.PlayerAtSeat(ownerSeat));
         }
     }
 
@@ -47,58 +45,55 @@ public class GameCell : NetworkBehaviour
     {
         Material cellMaterial = hex.GetComponent<Renderer>().material;
 
+        if (selected && !selectedParticles.gameObject.activeInHierarchy)
+        {
+            selectedParticles.gameObject.SetActive(true);
+        }
+        else if (!selected && selectedParticles.gameObject.activeInHierarchy)
+        {
+            selectedParticles.gameObject.SetActive(false);
+        }
+
         if (owner != NetworkInstanceId.Invalid)
         {
             if (state == GameCellState.Base && !cellMaterial.name.Contains(BaseMaterial.name))
             {
                 SetCellColor(BaseMaterial);
-                animating = true;
+                animatingColor = true;
             }
             else if (state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
             {
                 SetCellColor(BaseAreaMaterial);
-                animating = true;
+                animatingColor = true;
+            }
+            else if (state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
+            {
+                hex.GetComponent<Renderer>().material = MovementAreaMaterial;
             }
 
-            //if (state == GameCellState.Core && !cellMaterial.name.Contains(Core.name))
-            //{
-            //    ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
-            //    cellColorTarget = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, hex.GetComponent<Renderer>().material.color.a);
-            //    cellPopoutDestination = boardPosition + new Vector3(0, 0, cellPopoutZCore);
-            //    hex.GetComponent<Renderer>().material = Core;
-            //    animating = true;
-            //}
-            //else if (state == GameCellState.Area && !cellMaterial.name.Contains(Area.name))
-            //{
-            //    ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
-            //    cellColorTarget = new Color(ownerPlayer.color.r, ownerPlayer.color.g, ownerPlayer.color.b, hex.GetComponent<Renderer>().material.color.a);
-            //    cellPopoutDestination = boardPosition + new Vector3(0, 0, cellPopoutZArea);
-            //    hex.GetComponent<Renderer>().material = Area;
-            //    animating = true;
-            //}
-
-            if (animating && cellAnimationTime / cellAnimationSpeed < .9f)
+            if (animatingColor && cellAnimationTime / cellAnimationSpeed < .9f)
             {
-                //transform.position = Vector3.Lerp(transform.position, cellPopoutDestination, cellAnimationSpeed * Time.deltaTime);
                 hex.GetComponent<Renderer>().material.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
 
                 cellAnimationTime += Time.deltaTime;
             }
             else if (cellAnimationTime < cellAnimationSpeed)
             {
-                //transform.position = cellPopoutDestination;
                 hex.GetComponent<Renderer>().material.color = cellColorTarget;
 
                 cellAnimationTime = 0;
-                animating = false;
+                animatingColor = false;
             }
         }
         else
         {
-            transform.position = boardPosition;
+            if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
+            {
+                hex.GetComponent<Renderer>().material = Empty;
+            }
         }
     }
-
+    
     private void SetCellColor(Material material)
     {
         ownerPlayer = ClientScene.FindLocalObject(owner).GetComponent<Player>();
@@ -106,150 +101,31 @@ public class GameCell : NetworkBehaviour
         hex.GetComponent<Renderer>().material = material;
     }
 
+    [Server]
+    private void SetOwner(Player player)
+    {
+        if (player == null)
+        {
+            owner = NetworkInstanceId.Invalid;
+            ownerSeat = PlayerSeat.Empty;
+        }
+        else
+        {
+            owner = player.netId;
+            ownerSeat = player.seat;
+        }
+    }
+    
+    [Server]
+    public bool SetCell(Player player, GameCellState state)
+    {
+        bool result = (this.state != state);
 
-    #region Old
-    //[Server]
-    //public bool Select(NetworkInstanceId playerId)
-    //{
-    //    GameRule rule = null;
+        SetOwner(player);
+        this.state = state;
 
-    //    if (state == GameCellState.Empty)
-    //    {
-    //        rule = GameRuleManager.singleton.ruleEmpty;
-    //    }
-    //    else if (owner == playerId && state == GameCellState.Area)
-    //    {
-    //        rule = GameRuleManager.singleton.ruleOwnArea;
-    //    }
-    //    else if (owner == playerId && state == GameCellState.Core)
-    //    {
-    //        rule = GameRuleManager.singleton.ruleOwnCore;
-    //    }
-    //    else if (owner != playerId && state == GameCellState.Area)
-    //    {
-    //        rule = GameRuleManager.singleton.ruleEnemyArea;
-    //    }
-    //    else if (owner != playerId && state == GameCellState.Core)
-    //    {
-    //        rule = GameRuleManager.singleton.ruleEnemyCore;
-    //    }
-
-    //    return ApplyRule(playerId, rule);
-    //}
-
-    //[Server]
-    //bool ApplyRule(NetworkInstanceId playerId, GameRule rule)
-    //{
-    //    bool result = false;
-
-    //    if (rule.clickResult == CellAction.MakeOwnArea)
-    //    {
-    //        result = SetCell(playerId, GameCellState.Area);
-    //    }
-    //    else if (rule.clickResult == CellAction.MakeOwnCore)
-    //    {
-    //        result = SetCell(playerId, GameCellState.Core);
-    //    }
-    //    else if (rule.clickResult == CellAction.MakeEmpty)
-    //    {
-    //        result = SetCell(NetworkInstanceId.Invalid, GameCellState.Empty);
-    //    }
-    //    else if (rule.clickResult == CellAction.MakeEnemyArea)
-    //    {
-    //        result = SetCell(GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Empty);
-    //    }
-    //    else if (rule.clickResult == CellAction.MakeEnemyCore)
-    //    {
-    //        result = SetCell(GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Empty);
-    //    }
-
-    //    if (rule.cascadeEmptyResult == CellAction.MakeOwnArea)
-    //    {
-    //        result = SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, playerId, GameCellState.Area, rule.continueEmptyCascade) || result;
-    //    }
-    //    else if (rule.cascadeEmptyResult == CellAction.MakeOwnCore)
-    //    {
-    //        result = SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, playerId, GameCellState.Core, rule.continueEmptyCascade) || result;
-    //    }
-    //    else if (rule.cascadeEmptyResult == CellAction.MakeEnemyArea)
-    //    {
-    //        result = SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueEmptyCascade) || result;
-    //    }
-    //    else if (rule.cascadeEmptyResult == CellAction.MakeEnemyCore)
-    //    {
-    //        result = SetAdjacentCells(this, NetworkInstanceId.Invalid, GameCellState.Empty, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueEmptyCascade) || result;
-    //    }
-
-    //    if (rule.cascadeOwnAreaResult == CellAction.MakeEmpty)
-    //    {
-    //        result = SetAdjacentCells(this, playerId, GameCellState.Empty, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueOwnAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeOwnAreaResult == CellAction.MakeOwnCore)
-    //    {
-    //        result = SetAdjacentCells(this, playerId, GameCellState.Area, playerId, GameCellState.Core, rule.continueOwnAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyArea)
-    //    {
-    //        result = SetAdjacentCells(this, playerId, GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueOwnAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyCore)
-    //    {
-    //        result = SetAdjacentCells(this, playerId, GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueOwnAreaCascade) || result;
-    //    }
-
-    //    if (rule.cascadeEnemyAreaResult == CellAction.MakeEmpty)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueEnemyAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeEnemyAreaResult == CellAction.MakeOwnArea)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, playerId, GameCellState.Area, rule.continueEnemyAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeEnemyAreaResult == CellAction.MakeOwnCore)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, playerId, GameCellState.Core, rule.continueEnemyAreaCascade) || result;
-    //    }
-    //    else if (rule.cascadeOwnAreaResult == CellAction.MakeEnemyCore)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, rule.continueEnemyAreaCascade) || result;
-    //    }
-
-    //    if (rule.cascadeEnemyCoreResult == CellAction.MakeEmpty)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, NetworkInstanceId.Invalid, GameCellState.Empty, rule.continueEnemyCoreCascade) || result;
-    //    }
-    //    else if (rule.cascadeEnemyCoreResult == CellAction.MakeOwnArea)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, playerId, GameCellState.Area, rule.continueEnemyCoreCascade) || result;
-    //    }
-    //    else if (rule.cascadeEnemyCoreResult == CellAction.MakeOwnCore)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, playerId, GameCellState.Core, rule.continueEnemyCoreCascade) || result;
-    //    }
-    //    else if (rule.cascadeEnemyCoreResult == CellAction.MakeEnemyArea)
-    //    {
-    //        result = SetAdjacentCells(this, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Core, GameManager.singleton.GetPlayerOpponent(playerId), GameCellState.Area, rule.continueEnemyCoreCascade) || result;
-    //    }
-
-    //    return result;
-    //}
-
-    //[Server]
-    //bool SetCell(NetworkInstanceId playerId, GameCellState state)
-    //{
-    //    return SetCell(this, playerId, state);
-    //}
-
-    //[Server]
-    //bool SetCell(GameCell cell, NetworkInstanceId playerId, GameCellState state)
-    //{
-    //    bool result = (cell.owner != playerId || cell.state != state);
-
-    //    cell.owner = playerId;
-    //    cell.state = state;
-
-    //    return result;
-    //}
+        return result;
+    }
 
     //[Server]
     //bool SetAdjacentCells(GameCell cell, NetworkInstanceId adjacentPlayerId, GameCellState adjacentCellState, NetworkInstanceId newPlayerId, GameCellState newCellState, bool continueCascade)
@@ -273,7 +149,52 @@ public class GameCell : NetworkBehaviour
 
     //    return result;
     //}
-    #endregion
+    
+    [Server]
+    public bool Select(Player player)
+    {
+        if (state == GameCellState.BaseArea && owner == player.netId)
+        {
+            //clicking on my own base area, place ship
+            SetCell(player, GameCellState.Ship);
+            GameObject objShip = (GameObject)Instantiate(ship, transform.position, Quaternion.identity);
+            associatedShip = objShip.GetComponent<Ship>();
+            NetworkServer.Spawn(objShip);
+            return true;
+        }
+
+        if (state == GameCellState.Ship && owner == player.netId)
+        {
+            //clicking on my ship space, select it
+            selected = !selected;
+            GameManager.singleton.selectedCell = selected ? this : null;
+
+            if (selected)
+            {
+                foreach (GameObject obj in associatedShip.movementCells)
+                {
+                    GameCell cell = obj.GetComponent<GameCell>();
+                    if (cell.state == GameCellState.Empty)
+                    {
+                        cell.SetCell(player, GameCellState.MovementArea);
+                    }                    
+                }
+            }
+            else
+            {
+                foreach (GameObject obj in associatedShip.movementCells)
+                {
+                    GameCell cell = obj.GetComponent<GameCell>();
+                    if (cell.state == GameCellState.MovementArea)
+                    {
+                        cell.SetCell(null, GameCellState.Empty);
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 
     void OnTriggerEnter(Collider other)
     {

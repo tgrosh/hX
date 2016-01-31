@@ -15,6 +15,7 @@ public class GameBoard : NetworkBehaviour {
             GameCell obj = (GameCell)Instantiate(emptyBoardSpace, cell.transform.position, cell.transform.localRotation);
             obj.state = cell.state;
             obj.ownerSeat = cell.ownerSeat;
+            GameManager.singleton.cells.Add(obj);
 
             NetworkServer.Spawn(obj.gameObject);
         }

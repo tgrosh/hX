@@ -14,13 +14,14 @@ public class GameManager : NetworkBehaviour
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
+    public GameCell selectedCell;
 
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
 
     private GameObject playerNamePanel;
-    private GameCell[] cells = new GameCell[]{};
-
+    public List<GameCell> cells = new List<GameCell>();
+    
     public Player activePlayer
     {
         get
@@ -38,12 +39,7 @@ public class GameManager : NetworkBehaviour
     {
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
-
-        if (isServer)
-        {
-            cells = GameObject.FindObjectsOfType<GameCell>();
-        }
-
+        
         foreach (Transform t in playerNamePanel.transform)
         {
             GameObject.Destroy(t.gameObject);
@@ -68,17 +64,9 @@ public class GameManager : NetworkBehaviour
         {
             foreach (GameCell cell in cells)
             {
-                if (cell.ownerSeat == PlayerSeat.Empty)
+                if (selectedCell != null)
                 {
-                    continue;
-                }
-                if (cell.state == GameCellState.Area)
-                {
-                    ClientScene.FindLocalObject(cell.owner).GetComponent<Player>().score += 100;
-                }
-                else if (cell.state == GameCellState.Core)
-                {
-                    ClientScene.FindLocalObject(cell.owner).GetComponent<Player>().score += 1000;
+                    cell.selected = cell == selectedCell;
                 }
             }
         }

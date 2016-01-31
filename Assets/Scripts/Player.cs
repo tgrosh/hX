@@ -60,10 +60,10 @@ public class Player : NetworkBehaviour
     {
         if (GameManager.singleton.activePlayer == this)
         {
-            //if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this.netId))
-            //{
-            //    GameManager.singleton.EndPlayerTurn();
-            //}
+            if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this))
+            {
+                GameManager.singleton.EndPlayerTurn();
+            }
         }
     }
 

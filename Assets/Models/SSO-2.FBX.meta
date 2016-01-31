@@ -1,0 +1,164 @@
+fileFormatVersion: 2
+guid: a34d646087ba7fb4b87cb5c695e4e7fb
+timeCreated: 1454186816
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Bone001
+    100002: Bone001(mirrored)
+    100004: Bone002
+    100006: Bone002(mirrored)
+    100008: Bone003
+    100010: Bone003(mirrored)
+    100012: Box003
+    100014: Box004
+    100016: Box005
+    100018: Box006
+    100020: GLASS
+    100022: Line001
+    100024: Object002
+    100026: Object003
+    100028: Object007
+    100030: Object008
+    100032: //RootNode
+    100034: SSO-2
+    100036: SSO-2_MeshPart0
+    100038: SSO-2_MeshPart1
+    100040: SSO-2_MeshPart2
+    100042: SSO-2_MeshPart3
+    100044: SSO-2_MeshPart4
+    400000: Bone001
+    400002: Bone001(mirrored)
+    400004: Bone002
+    400006: Bone002(mirrored)
+    400008: Bone003
+    400010: Bone003(mirrored)
+    400012: Box003
+    400014: Box004
+    400016: Box005
+    400018: Box006
+    400020: GLASS
+    400022: Line001
+    400024: Object002
+    400026: Object003
+    400028: Object007
+    400030: Object008
+    400032: //RootNode
+    400034: SSO-2
+    400036: SSO-2_MeshPart0
+    400038: SSO-2_MeshPart1
+    400040: SSO-2_MeshPart2
+    400042: SSO-2_MeshPart3
+    400044: SSO-2_MeshPart4
+    2300000: Box003
+    2300002: Box004
+    2300004: Box005
+    2300006: Box006
+    2300008: GLASS
+    2300010: Line001
+    2300012: Object002
+    2300014: Object003
+    2300016: Object007
+    2300018: Object008
+    2300020: SSO-2_MeshPart0
+    2300022: SSO-2_MeshPart1
+    2300024: SSO-2_MeshPart2
+    2300026: SSO-2_MeshPart3
+    2300028: SSO-2_MeshPart4
+    3300000: Box003
+    3300002: Box004
+    3300004: Box005
+    3300006: Box006
+    3300008: GLASS
+    3300010: Line001
+    3300012: Object002
+    3300014: Object003
+    3300016: Object007
+    3300018: Object008
+    3300020: SSO-2_MeshPart0
+    3300022: SSO-2_MeshPart1
+    3300024: SSO-2_MeshPart2
+    3300026: SSO-2_MeshPart3
+    3300028: SSO-2_MeshPart4
+    4300000: SSO-2_MeshPart0
+    4300002: SSO-2_MeshPart1
+    4300004: SSO-2_MeshPart2
+    4300006: SSO-2_MeshPart3
+    4300008: SSO-2_MeshPart4
+    4300010: Object002
+    4300012: Line001
+    4300014: GLASS
+    4300016: Object003
+    4300018: Object008
+    4300020: Box003
+    4300022: Box004
+    4300024: Object007
+    4300026: Box006
+    4300028: Box005
+    7400000: Take 001
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
