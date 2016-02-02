@@ -4,6 +4,7 @@ using Assets.Scripts;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
 
 public class GameManager : NetworkBehaviour
 {
@@ -11,6 +12,7 @@ public class GameManager : NetworkBehaviour
 
     public GameBoard gameBoard;
     public GameObject PlayerName;
+    public GameObject ResourceCounter;
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
@@ -20,7 +22,11 @@ public class GameManager : NetworkBehaviour
     public List<Player> players = new List<Player>();
 
     private GameObject playerNamePanel;
+    private GameObject resourceCountPanel;
     public List<GameCell> cells = new List<GameCell>();
+
+    public delegate void TurnStart();
+    public static event TurnStart OnTurnStart;
     
     public Player activePlayer
     {
@@ -39,16 +45,25 @@ public class GameManager : NetworkBehaviour
     {
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
+        resourceCountPanel = GameObject.Find("ResourceCountPanel");
         
-        foreach (Transform t in playerNamePanel.transform)
-        {
-            GameObject.Destroy(t.gameObject);
-        }
+        //foreach (Transform t in playerNamePanel.transform)
+        //{
+        //    GameObject.Destroy(t.gameObject);
+        //}
 
-        foreach (Player player in GameObject.FindObjectsOfType<Player>())
+        //foreach (Player player in GameObject.FindObjectsOfType<Player>())
+        //{
+        //    CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
+        //    CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
+        //}
+
+        foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
         {
-            CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
-            CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
+            if (t != ResourceType.None)
+            {
+                CreateResourceCounter(t);
+            }
         }
     }
 
@@ -81,6 +96,24 @@ public class GameManager : NetworkBehaviour
     }
 
     [Client]
+    private void CreateResourceCounter(ResourceType type)
+    {
+        GameObject objCounter = Instantiate(ResourceCounter);
+        objCounter.name = type.ToString();
+        Text name = objCounter.transform.FindChild("ResourceName").GetComponent<Text>();
+        objCounter.transform.FindChild("ResourceName").GetComponent<Text>().text = type.ToString();
+        objCounter.transform.FindChild("Count").GetComponent<Text>().text = "0";
+        objCounter.transform.FindChild("Image").GetComponent<Image>().color = Resource.GetColor(type);
+        objCounter.transform.SetParent(resourceCountPanel.transform);
+    }
+
+    [Client]
+    private void UpdateResourceCount(ResourceType type, int count)
+    {
+        resourceCountPanel.transform.FindChild(type.ToString()).FindChild("Count").GetComponent<Text>().text = count.ToString();
+    }
+
+    [Client]
     private void CreatePlayerNameText(string text, Color color, int fontSize)
     {
         GameObject objPlayerName = Instantiate(PlayerName);
@@ -93,11 +126,15 @@ public class GameManager : NetworkBehaviour
 
     [Server]
     public void StartGame()
-    {
+    {   
         gameBoard.SpawnBoard();
         foreach (Player player in players)
         {
             player.Rpc_StartGame();
+        }
+        if (OnTurnStart != null)
+        {
+            OnTurnStart();
         }
     }
 
@@ -108,6 +145,10 @@ public class GameManager : NetworkBehaviour
         if (activePlayerIndex >= players.Count)
         {
             activePlayerIndex = 0;
+        }
+        if (OnTurnStart != null)
+        {
+            OnTurnStart();
         }
     }
 

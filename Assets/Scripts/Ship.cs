@@ -2,12 +2,17 @@
 using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using Assets.Scripts;
+using System;
 
 public class Ship : NetworkBehaviour {
-    public float range = 10f; //not used yet
-    public List<GameObject> movementCells = new List<GameObject>();
+    private float collectionRange = 2.2f;
+    public List<GameCell> nearbyCells = new List<GameCell>();
+    public List<Resource> nearbyResources = new List<Resource>();
+
     [SyncVar]
     public Color color;
+    public Player owner;
 
     [SyncVar]
     private NetworkInstanceId destination = NetworkInstanceId.Invalid;
@@ -20,13 +25,27 @@ public class Ship : NetworkBehaviour {
     private Vector3 targetPoint;
     private bool isColorSet;
 
+    private int capacity = 20;
+    private List<ResourceType> cargo;
+
 	// Use this for initialization
 	void Start () {
         origPosition = transform.position;
         transform.position = transform.position + new Vector3(0, 0, 1);
         animatingEntrance = true;
+        cargo = new List<ResourceType>(capacity);
+
+        GameManager.OnTurnStart += GameManager_OnTurnStart;
 	}
-	
+
+    void GameManager_OnTurnStart()
+    {
+        if (GameManager.singleton.activePlayer == owner)
+        {
+            CollectAvailableResources();
+        }
+    }
+    	
 	// Update is called once per frame
 	void Update () {
         if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
@@ -54,7 +73,7 @@ public class Ship : NetworkBehaviour {
                 
                 if (transform.position != targetPoint && moveTime / moveSpeed < .95f)
                 {
-                    transform.position = Vector3.Slerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
+                    transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
                     transform.rotation = look;
                     moveTime += Time.deltaTime;
                 }
@@ -72,6 +91,44 @@ public class Ship : NetworkBehaviour {
             isColorSet = true;
         }
 	}
+    
+    private void CollectAvailableResources()
+    {
+        foreach (Resource resource in nearbyResources)
+        {
+            float distance = Vector3.Distance(resource.transform.position, transform.position);
+            if (distance <= collectionRange)
+            {
+                if (cargo.Count < capacity)
+                {
+                    ResourceType collectedResource = resource.type;
+                    int collectedCount = resource.Collect(capacity - cargo.Count);
+
+                    for (int x = 0; x < collectedCount; x++)
+                    {
+                        cargo.Add(collectedResource);
+                    }
+
+                    Debug.Log("Player " + owner.seat + "'s ship now loaded with " + cargo.Count + " resources");
+
+                    foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+                    {
+                        Debug.Log(t + ": " + GetCargoCount(t));
+                    }
+                }
+                //Debug.Log("Player " + owner.seat + " has resource in Range (" + distance + "m): " + resource.type);
+            }
+        }
+    }
+
+    public int GetCargoCount(ResourceType type)
+    {
+        int result = 0;
+
+        result = cargo.FindAll((ResourceType t) => { return t == type; }).Count;
+
+        return result;
+    }
 
     [Client]
     private void SetColor(Color color)
@@ -95,17 +152,26 @@ public class Ship : NetworkBehaviour {
     
     void OnTriggerEnter(Collider other)
     {
-        if (!movementCells.Contains(other.gameObject))
+        if (other.gameObject.GetComponent<GameCell>() && !nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
         {
-            movementCells.Add(other.gameObject);
+            nearbyCells.Add(other.gameObject.GetComponent<GameCell>());
+        }
+
+        if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
+        {
+            nearbyResources.Add(other.transform.parent.GetComponent<Resource>());
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (movementCells.Contains(other.gameObject))
+        if (nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
         {
-            movementCells.Remove(other.gameObject);
+            nearbyCells.Remove(other.gameObject.GetComponent<GameCell>());
+        }
+        if (other.transform.parent && nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
+        {
+            nearbyResources.Remove(other.transform.parent.GetComponent<Resource>());
         }
     }
 }

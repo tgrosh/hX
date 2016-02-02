@@ -133,7 +133,7 @@ public class GameCell : NetworkBehaviour
     
     private void SetCellMaterial(Color color, Material material)
     {
-        Debug.Log("setting " + state + " cell to " + material.name + " with color " + color);
+        //Debug.Log("setting " + state + " cell to " + material.name + " with color " + color);
         cellColorTarget = color;
         hex.GetComponent<Renderer>().material = material;
     }
@@ -187,6 +187,7 @@ public class GameCell : NetworkBehaviour
             GameObject objShip = (GameObject)Instantiate(shipPrefab, transform.position, Quaternion.identity);            
             associatedShip = objShip.GetComponent<Ship>();
             associatedShip.color = player.color;
+            associatedShip.owner = player;
             NetworkServer.Spawn(objShip);
             return true;
         }
@@ -199,9 +200,8 @@ public class GameCell : NetworkBehaviour
 
             if (selected)
             {
-                foreach (GameObject obj in associatedShip.movementCells)
+                foreach (GameCell cell in associatedShip.nearbyCells)
                 {
-                    GameCell cell = obj.GetComponent<GameCell>();
                     if (cell.state == GameCellState.Empty)
                     {
                         cell.SetCell(player, GameCellState.MovementArea);
@@ -210,9 +210,8 @@ public class GameCell : NetworkBehaviour
             }
             else
             {
-                foreach (GameObject obj in associatedShip.movementCells)
+                foreach (GameCell cell in associatedShip.nearbyCells)
                 {
-                    GameCell cell = obj.GetComponent<GameCell>();
                     if (cell.state == GameCellState.MovementArea)
                     {
                         cell.Revert();
