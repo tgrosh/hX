@@ -4,6 +4,7 @@ using Assets.Scripts;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
+[ExecuteInEditMode]
 public class GameCell : NetworkBehaviour
 {
     public Material Empty;
@@ -62,7 +63,7 @@ public class GameCell : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        Material cellMaterial = hex.GetComponent<Renderer>().material;
+        Material cellMaterial = hex.GetComponent<Renderer>().sharedMaterial;
 
         if (selected && !selectedParticles.gameObject.activeInHierarchy)
         {
@@ -82,49 +83,70 @@ public class GameCell : NetworkBehaviour
             shipParticles.gameObject.SetActive(false);
         }
 
-        //if (state == GameCellState.Resource && !cellMaterial.name.Contains(ResourceMaterial.name) && cellMaterial.color != Resource.GetColor(resourceType))
-        //{
-        //    SetCellMaterial(Resource.GetColor(resourceType), ResourceMaterial);
-        //}
-
-        if (owner != NetworkInstanceId.Invalid)
+        //Live
+        if (Application.isPlaying)
         {
-            if (state == GameCellState.Base && !cellMaterial.name.Contains(BaseMaterial.name))
+            if (owner != NetworkInstanceId.Invalid)
             {
-                SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseMaterial);
+                if (state == GameCellState.Base && !cellMaterial.name.Contains(BaseMaterial.name))
+                {
+                    SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseMaterial);
+                }
+                else if (state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
+                {
+                    SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseAreaMaterial);
+                }
+                else if (state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
+                {
+                    SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
+                }
+                else if (state == GameCellState.Ship && !cellMaterial.name.Contains(ShipMaterial.name))
+                {
+                    if (prevState != GameCellState.BaseArea)
+                    {
+                        SetCellMaterial(ShipMaterial.color, ShipMaterial);
+                    }
+                }
             }
-            else if (state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
+            else
             {
-                SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseAreaMaterial);
-            }
-            else if (state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
-            {
-                SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
-            }
-            else if (state == GameCellState.Ship && !cellMaterial.name.Contains(ShipMaterial.name))
-            {
-                if (prevState != GameCellState.BaseArea) { 
-                    SetCellMaterial(ShipMaterial.color, ShipMaterial);
+                if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
+                {
+                    SetCellMaterial(Color.clear, Empty);
                 }
             }
         }
         else
         {
-            if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
+            //Design Time
+            if (state == GameCellState.Base)
+            {
+                SetCellMaterial(Color.blue, BaseMaterial);
+            }
+            else if (state == GameCellState.BaseArea)
+            {
+                SetCellMaterial(Color.blue, BaseAreaMaterial);
+            }
+            else if (state == GameCellState.Resource)
+            {
+                SetCellMaterial(Resource.GetColor(resourceType), ResourceMaterial);
+            }
+            else if (state == GameCellState.Empty)
             {
                 SetCellMaterial(Color.clear, Empty);
             }
         }
+        
 
         if (cellColorTarget != Color.clear && animatingColor && cellAnimationTime / cellAnimationSpeed < .9f)
         {
-            hex.GetComponent<Renderer>().material.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
+            hex.GetComponent<Renderer>().sharedMaterial.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
 
             cellAnimationTime += Time.deltaTime;
         }
         else if (cellColorTarget != Color.clear && cellAnimationTime < cellAnimationSpeed)
         {
-            hex.GetComponent<Renderer>().material.color = cellColorTarget;
+            hex.GetComponent<Renderer>().sharedMaterial.color = cellColorTarget;
 
             cellAnimationTime = 0;
             animatingColor = false;
@@ -135,7 +157,7 @@ public class GameCell : NetworkBehaviour
     {
         //Debug.Log("setting " + state + " cell to " + material.name + " with color " + color);
         cellColorTarget = color;
-        hex.GetComponent<Renderer>().material = material;
+        hex.GetComponent<Renderer>().sharedMaterial = new Material(material);
     }
 
     [Server]

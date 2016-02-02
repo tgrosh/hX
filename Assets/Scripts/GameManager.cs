@@ -100,7 +100,6 @@ public class GameManager : NetworkBehaviour
     {
         GameObject objCounter = Instantiate(ResourceCounter);
         objCounter.name = type.ToString();
-        Text name = objCounter.transform.FindChild("ResourceName").GetComponent<Text>();
         objCounter.transform.FindChild("ResourceName").GetComponent<Text>().text = type.ToString();
         objCounter.transform.FindChild("Count").GetComponent<Text>().text = "0";
         objCounter.transform.FindChild("Image").GetComponent<Image>().color = Resource.GetColor(type);

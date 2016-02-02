@@ -56,15 +56,13 @@ public class Resource : NetworkBehaviour {
         //halo.GetComponent<ParticleSystem>().startColor = color;
     }
 
-    [Client]
     public static Color GetColor(ResourceType type)
     {
         //move this to the resource late
-        if (type == ResourceType.Blue) return Color.blue;
-        if (type == ResourceType.Green) return Color.green;
-        if (type == ResourceType.Purple) return Color.magenta;
-        if (type == ResourceType.Red) return Color.red;
-        if (type == ResourceType.Yellow) return Color.yellow;
+        if (type == ResourceType.Trillium) return Color.blue;
+        if (type == ResourceType.Hydrazine) return Color.green;
+        if (type == ResourceType.Workers) return Color.magenta;
+        if (type == ResourceType.Supplies) return Color.yellow;
 
         return Color.black;
     }

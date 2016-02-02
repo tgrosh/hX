@@ -8,10 +8,9 @@ namespace Assets.Scripts
     public enum ResourceType
     {
         None,
-        Blue,
-        Green,
-        Red,
-        Purple,
-        Yellow
+        Trillium,
+        Hydrazine,
+        Supplies,
+        Workers
     }
 }
