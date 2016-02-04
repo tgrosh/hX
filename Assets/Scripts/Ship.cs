@@ -7,9 +7,11 @@ using System;
 
 public class Ship : NetworkBehaviour {
     private float collectionRange = 2.2f;
+    private float cargoDropRange = 2.2f;
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
-
+    public Base nearbyBase;
+        
     [SyncVar]
     public Color color;
     public Player owner;
@@ -25,24 +27,25 @@ public class Ship : NetworkBehaviour {
     private Vector3 targetPoint;
     private bool isColorSet;
 
-    private int capacity = 20;
-    private List<ResourceType> cargo;
+    public CargoHold cargoHold = new CargoHold();
 
 	// Use this for initialization
-	void Start () {
+    void Start()
+    {
         origPosition = transform.position;
         transform.position = transform.position + new Vector3(0, 0, 1);
-        animatingEntrance = true;
-        cargo = new List<ResourceType>(capacity);
+        animatingEntrance = true;        
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
 	}
 
+    [Server]
     void GameManager_OnTurnStart()
     {
         if (GameManager.singleton.activePlayer == owner)
         {
             CollectAvailableResources();
+            TransferResources();
         }
     }
     	
@@ -92,6 +95,7 @@ public class Ship : NetworkBehaviour {
         }
 	}
     
+    [Server]
     private void CollectAvailableResources()
     {
         foreach (Resource resource in nearbyResources)
@@ -99,37 +103,32 @@ public class Ship : NetworkBehaviour {
             float distance = Vector3.Distance(resource.transform.position, transform.position);
             if (distance <= collectionRange)
             {
-                if (cargo.Count < capacity)
+                if (!cargoHold.IsFull)
                 {
                     ResourceType collectedResource = resource.type;
-                    int collectedCount = resource.Collect(capacity - cargo.Count);
+                    int collectedCount = resource.Collect(cargoHold.AvailableCapacity);
 
-                    for (int x = 0; x < collectedCount; x++)
-                    {
-                        cargo.Add(collectedResource);
-                    }
-
-                    Debug.Log("Player " + owner.seat + "'s ship now loaded with " + cargo.Count + " resources");
-
-                    foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
-                    {
-                        Debug.Log(t + ": " + GetCargoCount(t));
-                    }
+                    cargoHold.Add(collectedResource, collectedCount);
                 }
-                //Debug.Log("Player " + owner.seat + " has resource in Range (" + distance + "m): " + resource.type);
             }
         }
     }
 
-    public int GetCargoCount(ResourceType type)
+    [Server]
+    private void TransferResources()
     {
-        int result = 0;
+        if (nearbyBase != null)
+        {
+            Debug.Log("Ship (" + this.netId + ") transferring resources to Base (" + nearbyBase.netId + ")");
 
-        result = cargo.FindAll((ResourceType t) => { return t == type; }).Count;
-
-        return result;
+            float distance = Vector3.Distance(nearbyBase.transform.position, transform.position);
+            if (distance <= cargoDropRange)
+            {
+                cargoHold.Transfer(nearbyBase.cargoHold);
+            }
+        }
     }
-
+    
     [Client]
     private void SetColor(Color color)
     {        
@@ -145,11 +144,12 @@ public class Ship : NetworkBehaviour {
         }
     }
 
+    [Server]
     public void MoveTo(NetworkInstanceId cellId)
     {
         this.destination = cellId;
     }
-    
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<GameCell>() && !nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
@@ -160,6 +160,11 @@ public class Ship : NetworkBehaviour {
         if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
             nearbyResources.Add(other.transform.parent.GetComponent<Resource>());
+        }
+
+        if (other.transform.GetComponent<Base>() && nearbyBase == null)
+        {
+            nearbyBase = other.transform.GetComponent<Base>();
         }
     }
 
@@ -173,5 +178,9 @@ public class Ship : NetworkBehaviour {
         {
             nearbyResources.Remove(other.transform.parent.GetComponent<Resource>());
         }
-    }
+        if (nearbyBase == other.transform.GetComponent<Base>())
+        {
+            nearbyBase = null;
+        }
+    }    
 }

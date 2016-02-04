@@ -12,7 +12,6 @@ namespace Assets.Scripts
         Core = 2,
         Base = 3,
         BaseArea = 4,
-        Ship = 5,
         MovementArea = 6,
         Resource = 7
     }

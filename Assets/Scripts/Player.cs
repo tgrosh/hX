@@ -19,6 +19,8 @@ public class Player : NetworkBehaviour
     [SyncVar]
     public PlayerSeat seat;
 
+    public Base playerBase;
+
     // Use this for initialization
     void Start()
     {

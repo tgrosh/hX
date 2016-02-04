@@ -13,9 +13,10 @@ public class GameCell : NetworkBehaviour
     public Material ShipMaterial;
     public Material MovementAreaMaterial;
     public Material ResourceMaterial;
-    public GameObject hex;
-    public GameObject shipPrefab;
-    public GameObject resourceLocationPrefab;
+    public GameObject prefabHex;
+    public GameObject prefabShip;
+    public GameObject prefabResourceLocation;
+    public GameObject prefabBase;
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
@@ -29,6 +30,8 @@ public class GameCell : NetworkBehaviour
     public bool selected = false;
     [SyncVar]
     public ResourceType resourceType = ResourceType.None;
+    [SyncVar]
+    public bool hasShip = false;
 
     private float cellAnimationSpeed = 3f;
     private float cellAnimationTime = 0f;
@@ -37,6 +40,7 @@ public class GameCell : NetworkBehaviour
     private List<GameObject> adjacent = new List<GameObject>();
     private Ship associatedShip;
     private Resource associatedResourceLocation;
+    private Base associatedBase;
     [SyncVar]
     private GameCellState prevState;
     [SyncVar]
@@ -47,45 +51,59 @@ public class GameCell : NetworkBehaviour
     // Use this for initialization
     void Start()
     {
-        if (isServer && ownerSeat != PlayerSeat.Empty) { 
-            SetOwner(GameManager.singleton.PlayerAtSeat(ownerSeat));
-        }
-
-        if (isServer && state == GameCellState.Resource)
+        if (isServer)
         {
-            GameObject objResourceLocation = (GameObject)Instantiate(resourceLocationPrefab, transform.position, Quaternion.identity);
-            associatedResourceLocation = objResourceLocation.GetComponent<Resource>();
-            associatedResourceLocation.type = resourceType;
-            NetworkServer.Spawn(objResourceLocation);
-        }        
+            if (ownerSeat != PlayerSeat.Empty)
+            {
+                SetOwner(GameManager.singleton.PlayerAtSeat(ownerSeat));
+            }
+
+            if (state == GameCellState.Resource)
+            {
+                GameObject objResourceLocation = (GameObject)Instantiate(prefabResourceLocation, transform.position, Quaternion.identity);
+                associatedResourceLocation = objResourceLocation.GetComponent<Resource>();
+                associatedResourceLocation.type = resourceType;
+                NetworkServer.Spawn(objResourceLocation);
+            }
+
+            if (state == GameCellState.Base)
+            {
+                GameObject objBase = (GameObject)Instantiate(prefabBase, transform.position, Quaternion.identity);
+                associatedBase = objBase.GetComponent<Base>();
+                associatedBase.color = GameManager.singleton.PlayerAtSeat(ownerSeat).color;
+                associatedBase.owner = owner;
+                NetworkServer.Spawn(objBase);
+            }  
+        }
+            
     } 
 
     // Update is called once per frame
     void Update()
     {
-        Material cellMaterial = hex.GetComponent<Renderer>().sharedMaterial;
-
-        if (selected && !selectedParticles.gameObject.activeInHierarchy)
-        {
-            selectedParticles.gameObject.SetActive(true);
-        }
-        else if (!selected && selectedParticles.gameObject.activeInHierarchy)
-        {
-            selectedParticles.gameObject.SetActive(false);
-        }
-
-        if (state == GameCellState.Ship && !shipParticles.gameObject.activeInHierarchy)
-        {
-            shipParticles.gameObject.SetActive(true);
-        }
-        else if (state != GameCellState.Ship && shipParticles.gameObject.activeInHierarchy)
-        {
-            shipParticles.gameObject.SetActive(false);
-        }
-
         //Live
         if (Application.isPlaying)
         {
+            Material cellMaterial = prefabHex.GetComponent<Renderer>().material;
+
+            if (selected && !selectedParticles.gameObject.activeInHierarchy)
+            {
+                selectedParticles.gameObject.SetActive(true);
+            }
+            else if (!selected && selectedParticles.gameObject.activeInHierarchy)
+            {
+                selectedParticles.gameObject.SetActive(false);
+            }
+
+            if (hasShip && !shipParticles.gameObject.activeInHierarchy)
+            {
+                shipParticles.gameObject.SetActive(true);
+            }
+            else if (!hasShip && shipParticles.gameObject.activeInHierarchy)
+            {
+                shipParticles.gameObject.SetActive(false);
+            }
+
             if (owner != NetworkInstanceId.Invalid)
             {
                 if (state == GameCellState.Base && !cellMaterial.name.Contains(BaseMaterial.name))
@@ -100,20 +118,29 @@ public class GameCell : NetworkBehaviour
                 {
                     SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
                 }
-                else if (state == GameCellState.Ship && !cellMaterial.name.Contains(ShipMaterial.name))
-                {
-                    if (prevState != GameCellState.BaseArea)
-                    {
-                        SetCellMaterial(ShipMaterial.color, ShipMaterial);
-                    }
-                }
             }
-            else
+
+            if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
             {
-                if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
-                {
-                    SetCellMaterial(Color.clear, Empty);
-                }
+                SetCellMaterial(Color.clear, Empty);
+            }
+            else if (state == GameCellState.Resource && !cellMaterial.name.Contains(ResourceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, ResourceMaterial);
+            }
+
+            if (cellColorTarget != Color.clear && animatingColor && cellAnimationTime / cellAnimationSpeed < .9f)
+            {
+                prefabHex.GetComponent<Renderer>().material.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
+
+                cellAnimationTime += Time.deltaTime;
+            }
+            else if (cellColorTarget != Color.clear && cellAnimationTime < cellAnimationSpeed)
+            {
+                prefabHex.GetComponent<Renderer>().material.color = cellColorTarget;
+
+                cellAnimationTime = 0;
+                animatingColor = false;
             }
         }
         else
@@ -121,35 +148,25 @@ public class GameCell : NetworkBehaviour
             //Design Time
             if (state == GameCellState.Base)
             {
-                SetCellMaterial(Color.blue, BaseMaterial);
+                cellColorTarget = Color.blue;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(BaseMaterial);
             }
             else if (state == GameCellState.BaseArea)
             {
-                SetCellMaterial(Color.blue, BaseAreaMaterial);
+                cellColorTarget = Color.blue;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(BaseAreaMaterial);
             }
             else if (state == GameCellState.Resource)
             {
-                SetCellMaterial(Resource.GetColor(resourceType), ResourceMaterial);
+                cellColorTarget = Resource.GetColor(resourceType);
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(ResourceMaterial);
             }
             else if (state == GameCellState.Empty)
             {
-                SetCellMaterial(Color.clear, Empty);
+                //cellColorTarget = Color.clear;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
             }
-        }
-        
-
-        if (cellColorTarget != Color.clear && animatingColor && cellAnimationTime / cellAnimationSpeed < .9f)
-        {
-            hex.GetComponent<Renderer>().sharedMaterial.color = Color.Lerp(cellMaterial.color, cellColorTarget, cellAnimationSpeed * Time.deltaTime);
-
-            cellAnimationTime += Time.deltaTime;
-        }
-        else if (cellColorTarget != Color.clear && cellAnimationTime < cellAnimationSpeed)
-        {
-            hex.GetComponent<Renderer>().sharedMaterial.color = cellColorTarget;
-
-            cellAnimationTime = 0;
-            animatingColor = false;
+            prefabHex.GetComponent<Renderer>().sharedMaterial.color = cellColorTarget;
         }
     }
     
@@ -157,7 +174,7 @@ public class GameCell : NetworkBehaviour
     {
         //Debug.Log("setting " + state + " cell to " + material.name + " with color " + color);
         cellColorTarget = color;
-        hex.GetComponent<Renderer>().sharedMaterial = new Material(material);
+        prefabHex.GetComponent<Renderer>().material = material;
     }
 
     [Server]
@@ -202,19 +219,7 @@ public class GameCell : NetworkBehaviour
     [Server]
     public bool Select(Player player)
     {
-        if (state == GameCellState.BaseArea && owner == player.netId)
-        {
-            //clicking on my own base area, place ship
-            SetCell(player, GameCellState.Ship);
-            GameObject objShip = (GameObject)Instantiate(shipPrefab, transform.position, Quaternion.identity);            
-            associatedShip = objShip.GetComponent<Ship>();
-            associatedShip.color = player.color;
-            associatedShip.owner = player;
-            NetworkServer.Spawn(objShip);
-            return true;
-        }
-
-        if (state == GameCellState.Ship && owner == player.netId)
+        if (hasShip && owner == player.netId)
         {
             //clicking on my ship space, select it
             selected = !selected;
@@ -224,10 +229,10 @@ public class GameCell : NetworkBehaviour
             {
                 foreach (GameCell cell in associatedShip.nearbyCells)
                 {
-                    if (cell.state == GameCellState.Empty)
+                    if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
                     {
                         cell.SetCell(player, GameCellState.MovementArea);
-                    }                    
+                    }
                 }
             }
             else
@@ -241,13 +246,27 @@ public class GameCell : NetworkBehaviour
                 }
             }
         }
-
-        if (state == GameCellState.MovementArea && owner == player.netId)
+        else if (state == GameCellState.BaseArea && owner == player.netId)
+        {
+            //clicking on my own base area, place ship
+            SetCell(player, GameCellState.BaseArea);
+            hasShip = true;
+            GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);            
+            associatedShip = objShip.GetComponent<Ship>();
+            associatedShip.color = player.color;
+            associatedShip.owner = player;
+            NetworkServer.Spawn(objShip);
+            return true;
+        }
+        else if (state == GameCellState.MovementArea && owner == player.netId)
         {
             //move the ship
-            state = GameCellState.Ship;
+            Revert();
+            SetOwner(player);
+            hasShip = true;
             associatedShip = GameManager.singleton.selectedCell.associatedShip;
             GameManager.singleton.selectedCell.associatedShip = null;
+            GameManager.singleton.selectedCell.hasShip = false;
             GameManager.singleton.selectedCell.Revert();
             GameManager.singleton.selectedCell = null;
             associatedShip.MoveTo(this.netId);

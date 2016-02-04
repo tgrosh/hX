@@ -27,6 +27,8 @@ public class GameManager : NetworkBehaviour
 
     public delegate void TurnStart();
     public static event TurnStart OnTurnStart;
+
+    private bool playerBaseLocated = false;
     
     public Player activePlayer
     {
@@ -47,17 +49,6 @@ public class GameManager : NetworkBehaviour
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         resourceCountPanel = GameObject.Find("ResourceCountPanel");
         
-        //foreach (Transform t in playerNamePanel.transform)
-        //{
-        //    GameObject.Destroy(t.gameObject);
-        //}
-
-        //foreach (Player player in GameObject.FindObjectsOfType<Player>())
-        //{
-        //    CreatePlayerNameText(player.playerName, player.playerActive == true ? player.color : Color.gray, 34);
-        //    CreatePlayerNameText(player.score.ToString(), player.playerActive == true ? player.color : Color.gray, 24);
-        //}
-
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
         {
             if (t != ResourceType.None)
@@ -67,12 +58,29 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    void localPlayerBase_OnResourceDumped(Base playerBase, ResourceType resource)
+    {
+        UpdateResourceCounts(playerBase.cargoHold, resource);
+    }
+
+    void localPlayerBase_OnResourceAdded(Base playerBase, ResourceType resource)
+    {
+        UpdateResourceCounts(playerBase.cargoHold, resource);
+    }
+
     void Update()
     {
         foreach (Player player in players)
         {
             player.playerActive = player == activePlayer;
             player.score = 0;
+        }
+
+        if (!playerBaseLocated && Player.localPlayer != null && Player.localPlayer.playerBase != null)
+        {
+            Player.localPlayer.playerBase.OnResourceAdded += localPlayerBase_OnResourceAdded;
+            Player.localPlayer.playerBase.OnResourceDumped += localPlayerBase_OnResourceDumped;
+            playerBaseLocated = true;
         }
 
         if (isServer)
@@ -107,9 +115,12 @@ public class GameManager : NetworkBehaviour
     }
 
     [Client]
-    private void UpdateResourceCount(ResourceType type, int count)
+    private void UpdateResourceCounts(CargoHold cargoHold, ResourceType resource)
     {
-        resourceCountPanel.transform.FindChild(type.ToString()).FindChild("Count").GetComponent<Text>().text = count.ToString();
+        if (resource != ResourceType.None)
+        {
+            resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text = cargoHold.GetCargo(resource).Count.ToString();
+        }     
     }
 
     [Client]
