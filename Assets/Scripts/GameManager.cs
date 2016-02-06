@@ -17,7 +17,7 @@ public class GameManager : NetworkBehaviour
     public int numCols = 10;
     public float boardSpacing = 1.05f;
     public GameCell selectedCell;
-
+    
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
 

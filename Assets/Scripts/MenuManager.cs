@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Assets.Scripts;
 
 public class MenuManager : MonoBehaviour
 {
@@ -11,8 +12,30 @@ public class MenuManager : MonoBehaviour
     public GameRule ruleEnemyArea;
     public GameRule ruleEnemyCore;
 
+    private GameObject hotbar;    
+
     void Start()
-    {     
+    {
+
+    }
+
+    void Update()
+    {
+        hotbar = GameObject.Find("Hotbar");
+        if (hotbar != null)
+        {
+            foreach (Toggle t in hotbar.GetComponentsInChildren<Toggle>())
+            {
+                if (t.isOn)
+                {
+                    t.image.color = t.colors.highlightedColor;
+                }
+                else
+                {
+                    t.image.color = t.colors.normalColor;
+                }
+            }
+        }
     }
 
     public void CreateMultiplayerGame()
@@ -58,5 +81,10 @@ public class MenuManager : MonoBehaviour
     public void ShowGameSetup(bool show)
     {
         GameSetupPanel.SetActive(show);
+    }
+
+    public void ToggleShip(bool isOn)
+    {
+        Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
     }
 }

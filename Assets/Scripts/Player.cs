@@ -21,6 +21,9 @@ public class Player : NetworkBehaviour
 
     public Base playerBase;
 
+    [SyncVar]
+    public bool isBuyingShip;
+
     // Use this for initialization
     void Start()
     {
@@ -34,6 +37,42 @@ public class Player : NetworkBehaviour
         {
             opponent = this;
         }
+    }
+    
+    public bool CanAfford(Purchase purchase)
+    {
+        bool result = true;
+
+        if (playerBase == null) return false;
+
+        foreach (PurchaseCost cost in purchase.cost)
+        {
+            result = playerBase.cargoHold.GetCargo(cost.resource).Count >= cost.quantity && result;
+        }
+
+        return result;
+    }
+
+    public bool Purchase(Purchase purchase)
+    {
+        bool result = true;
+
+        if (playerBase == null) return false;
+
+        if (CanAfford(purchase))
+        {
+            foreach (PurchaseCost cost in purchase.cost)
+            {
+                playerBase.cargoHold.Dump(cost.resource, cost.quantity);
+            }
+            result = true;
+        }
+        else
+        {
+            result = false;
+        }        
+
+        return result;
     }
 
     [Client]
@@ -89,5 +128,11 @@ public class Player : NetworkBehaviour
             GameObject.Find("Waiting").SetActive(false);
             //Camera.main.transform.LookAt(gameBoard);
         }        
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingShip(bool isBuyingShip)
+    {
+        this.isBuyingShip = isBuyingShip;
     }
 }

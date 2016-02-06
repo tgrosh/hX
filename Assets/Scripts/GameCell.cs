@@ -250,13 +250,18 @@ public class GameCell : NetworkBehaviour
         {
             //clicking on my own base area, place ship
             SetCell(player, GameCellState.BaseArea);
-            hasShip = true;
-            GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);            
-            associatedShip = objShip.GetComponent<Ship>();
-            associatedShip.color = player.color;
-            associatedShip.owner = player;
-            NetworkServer.Spawn(objShip);
-            return true;
+
+            if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
+            {
+                player.isBuyingShip = false;
+                hasShip = true;
+                GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
+                associatedShip = objShip.GetComponent<Ship>();
+                associatedShip.color = player.color;
+                associatedShip.owner = player;
+                NetworkServer.Spawn(objShip);
+                return true;
+            }
         }
         else if (state == GameCellState.MovementArea && owner == player.netId)
         {

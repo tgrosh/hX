@@ -16,33 +16,34 @@ public class Base : NetworkBehaviour {
     public event ResourceDumped OnResourceDumped;
 
     private bool isColorSet;
-
+    
 	// Use this for initialization
 	void Start () {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
         cargoHold.OnResourceDumped += cargoHold_OnResourceDumped;
+
+        cargoHold.Add(ResourceType.Trillium, 2);
+        cargoHold.Add(ResourceType.Workers, 1);
+
+        NetworkServer.FindLocalObject(owner).GetComponent<Player>().playerBase = this;
 	}
-
-    [Client]
-    public override void OnStartClient()
-    {
-        if (owner == Player.localPlayer.netId) { 
-            Player.localPlayer.playerBase = this;
-        }
-    }
-
+    
     void cargoHold_OnResourceDumped(ResourceType resource)
     {
-        Debug.Log("Base (" + this.netId + ") dumped resource (" + resource + ")");
+        //Debug.Log("Base (" + this.netId + ") dumped resource (" + resource + ")");
         if (OnResourceDumped != null)
         {
-            OnResourceDumped(this, resource);            
+            OnResourceDumped(this, resource);
+        } 
+        if (isServer)
+        {
+            Rpc_DumpResource(resource);
         }
     }
 
     void cargoHold_OnResourceAdded(ResourceType resource)
     {
-        Debug.Log("Base (" + this.netId + ") added resource (" + resource + ")");
+        //Debug.Log("Base (" + this.netId + ") added resource (" + resource + ")");
         if (OnResourceAdded != null)
         {
             OnResourceAdded(this, resource);            
@@ -70,10 +71,20 @@ public class Base : NetworkBehaviour {
     [ClientRpc]
     public void Rpc_AddResource(ResourceType resource)
     {
-        Debug.Log("Base (" + this.netId + ") client has been informed of new resource (" + resource + ") in cargo hold");
+        //Debug.Log("Base (" + this.netId + ") client has been informed of new resource (" + resource + ") in cargo hold");
         if (!isServer)
         {
             cargoHold.Add(resource, 1);                        
+        }
+    }
+
+    [ClientRpc]
+    public void Rpc_DumpResource(ResourceType resource)
+    {
+        //Debug.Log("Base (" + this.netId + ") client has been informed of resource (" + resource + ") removed from cargo hold");
+        if (!isServer)
+        {
+            cargoHold.Dump(resource, 1);
         }
     }
 }
