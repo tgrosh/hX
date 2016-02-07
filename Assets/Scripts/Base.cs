@@ -22,10 +22,14 @@ public class Base : NetworkBehaviour {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
         cargoHold.OnResourceDumped += cargoHold_OnResourceDumped;
 
-        cargoHold.Add(ResourceType.Trillium, 2);
-        cargoHold.Add(ResourceType.Workers, 1);
+        if (isServer)
+        {
+            NetworkServer.FindLocalObject(owner).GetComponent<Player>().playerBase = this.netId;
 
-        NetworkServer.FindLocalObject(owner).GetComponent<Player>().playerBase = this;
+            //seed with initial values, enough to buy one ship
+            cargoHold.Add(ResourceType.Trillium, 2);
+            cargoHold.Add(ResourceType.Workers, 1);
+        }
 	}
     
     void cargoHold_OnResourceDumped(ResourceType resource)
@@ -37,7 +41,7 @@ public class Base : NetworkBehaviour {
         } 
         if (isServer)
         {
-            Rpc_DumpResource(resource);
+            NetworkServer.FindLocalObject(owner).GetComponent<Player>().Rpc_DumpResource(resource);
         }
     }
 
@@ -48,8 +52,9 @@ public class Base : NetworkBehaviour {
         {
             OnResourceAdded(this, resource);            
         }
-        if (isServer) { 
-            Rpc_AddResource(resource);
+        if (isServer)
+        {
+            NetworkServer.FindLocalObject(owner).GetComponent<Player>().Rpc_AddResource(resource);
         }
     }
 	
@@ -66,25 +71,5 @@ public class Base : NetworkBehaviour {
     private void SetColor(Color color)
     {
         transform.FindChild("Group01").FindChild("GeoSphere01").GetComponent<Renderer>().material.color = new Color(color.r,color.g,color.b,transform.FindChild("Group01").FindChild("GeoSphere01").GetComponent<Renderer>().material.color.a);
-    }
-    
-    [ClientRpc]
-    public void Rpc_AddResource(ResourceType resource)
-    {
-        //Debug.Log("Base (" + this.netId + ") client has been informed of new resource (" + resource + ") in cargo hold");
-        if (!isServer)
-        {
-            cargoHold.Add(resource, 1);                        
-        }
-    }
-
-    [ClientRpc]
-    public void Rpc_DumpResource(ResourceType resource)
-    {
-        //Debug.Log("Base (" + this.netId + ") client has been informed of resource (" + resource + ") removed from cargo hold");
-        if (!isServer)
-        {
-            cargoHold.Dump(resource, 1);
-        }
     }
 }

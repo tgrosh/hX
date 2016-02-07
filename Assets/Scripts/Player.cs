@@ -18,9 +18,8 @@ public class Player : NetworkBehaviour
     public int score;
     [SyncVar]
     public PlayerSeat seat;
-
-    public Base playerBase;
-
+    [SyncVar]
+    public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;
     [SyncVar]
     public bool isBuyingShip;
 
@@ -43,11 +42,11 @@ public class Player : NetworkBehaviour
     {
         bool result = true;
 
-        if (playerBase == null) return false;
+        if (playerBase == NetworkInstanceId.Invalid) return false;
 
         foreach (PurchaseCost cost in purchase.cost)
         {
-            result = playerBase.cargoHold.GetCargo(cost.resource).Count >= cost.quantity && result;
+            result = NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().cargoHold.GetCargo(cost.resource).Count >= cost.quantity && result;
         }
 
         return result;
@@ -57,13 +56,13 @@ public class Player : NetworkBehaviour
     {
         bool result = true;
 
-        if (playerBase == null) return false;
+        if (playerBase == NetworkInstanceId.Invalid) return false;
 
         if (CanAfford(purchase))
         {
             foreach (PurchaseCost cost in purchase.cost)
             {
-                playerBase.cargoHold.Dump(cost.resource, cost.quantity);
+                NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().cargoHold.Dump(cost.resource, cost.quantity);
             }
             result = true;
         }
@@ -73,6 +72,13 @@ public class Player : NetworkBehaviour
         }        
 
         return result;
+    }
+
+    public Base GetBase()
+    {
+        if (playerBase == NetworkInstanceId.Invalid) return null;
+
+        return ClientScene.FindLocalObject(playerBase).GetComponent<Base>();
     }
 
     [Client]
@@ -134,5 +140,23 @@ public class Player : NetworkBehaviour
     public void Cmd_SetIsBuyingShip(bool isBuyingShip)
     {
         this.isBuyingShip = isBuyingShip;
+    }
+
+    [ClientRpc]
+    public void Rpc_AddResource(ResourceType resource)
+    {
+        if (isLocalPlayer)
+        {
+            GameManager.singleton.IncrementResource(resource);
+        }
+    }
+
+    [ClientRpc]
+    public void Rpc_DumpResource(ResourceType resource)
+    {
+        if (isLocalPlayer)
+        {
+            GameManager.singleton.DecrementResource(resource);
+        }
     }
 }

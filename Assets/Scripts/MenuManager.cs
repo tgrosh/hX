@@ -28,11 +28,11 @@ public class MenuManager : MonoBehaviour
             {
                 if (t.isOn)
                 {
-                    t.image.color = t.colors.highlightedColor;
+                    t.image.color = Color.yellow;
                 }
                 else
                 {
-                    t.image.color = t.colors.normalColor;
+                    t.image.color = Color.white;
                 }
             }
         }

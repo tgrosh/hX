@@ -27,9 +27,7 @@ public class GameManager : NetworkBehaviour
 
     public delegate void TurnStart();
     public static event TurnStart OnTurnStart;
-
-    private bool playerBaseLocated = false;
-    
+        
     public Player activePlayer
     {
         get
@@ -57,17 +55,7 @@ public class GameManager : NetworkBehaviour
             }
         }
     }
-
-    void localPlayerBase_OnResourceDumped(Base playerBase, ResourceType resource)
-    {
-        UpdateResourceCounts(playerBase.cargoHold, resource);
-    }
-
-    void localPlayerBase_OnResourceAdded(Base playerBase, ResourceType resource)
-    {
-        UpdateResourceCounts(playerBase.cargoHold, resource);
-    }
-
+    
     void Update()
     {
         foreach (Player player in players)
@@ -75,14 +63,7 @@ public class GameManager : NetworkBehaviour
             player.playerActive = player == activePlayer;
             player.score = 0;
         }
-
-        if (!playerBaseLocated && Player.localPlayer != null && Player.localPlayer.playerBase != null)
-        {
-            Player.localPlayer.playerBase.OnResourceAdded += localPlayerBase_OnResourceAdded;
-            Player.localPlayer.playerBase.OnResourceDumped += localPlayerBase_OnResourceDumped;
-            playerBaseLocated = true;
-        }
-
+        
         if (isServer)
         {
             foreach (GameCell cell in cells)
@@ -113,16 +94,7 @@ public class GameManager : NetworkBehaviour
         objCounter.transform.FindChild("Image").GetComponent<Image>().color = Resource.GetColor(type);
         objCounter.transform.SetParent(resourceCountPanel.transform);
     }
-
-    [Client]
-    private void UpdateResourceCounts(CargoHold cargoHold, ResourceType resource)
-    {
-        if (resource != ResourceType.None)
-        {
-            resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text = cargoHold.GetCargo(resource).Count.ToString();
-        }     
-    }
-
+    
     [Client]
     private void CreatePlayerNameText(string text, Color color, int fontSize)
     {
@@ -195,5 +167,25 @@ public class GameManager : NetworkBehaviour
     public Player PlayerAtSeat(PlayerSeat seat)
     {
         return players.Find((Player p) => { return p.seat == seat; });
+    }
+
+    [Client]
+    public void IncrementResource(ResourceType resource)
+    {
+        if (resource != ResourceType.None)
+        {
+            int count = Convert.ToInt32(resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text);
+            resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text = (count + 1).ToString();
+        }
+    }
+
+    [Client]
+    public void DecrementResource(ResourceType resource)
+    {
+        if (resource != ResourceType.None)
+        {
+            int count = Convert.ToInt32(resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text);
+            resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text = (count - 1).ToString();
+        }
     }
 }

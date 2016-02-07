@@ -11,19 +11,16 @@ public class Resource : NetworkBehaviour {
     [SyncVar]
     private int amount = 10; //set later
     private int collectionRate = 3; //collecting per player per round
-    private Color color;
     private bool isColorSet;
     private float rotateSpeedMin = 5f;
     private float rotateSpeedMax = 15f;
     private float rotateSpeed;
     private Transform sphere;
-    //private Transform halo;
 
 	// Use this for initialization
 	void Start () {
         rotateSpeed = Random.Range(rotateSpeedMin, rotateSpeedMax);
         sphere = transform.FindChild("Sphere");
-        //halo = transform.FindChild("Halo");
 	}
 	
 	// Update is called once per frame
@@ -33,10 +30,6 @@ public class Resource : NetworkBehaviour {
         if (!isColorSet)
         {
             SetColor(Resource.GetColor(type));
-            //if (!halo.GetComponent<ParticleSystem>().isPlaying)
-            //{
-            //    halo.GetComponent<ParticleSystem>().Play();
-            //}
             isColorSet = true;
         }
 	}
@@ -51,9 +44,7 @@ public class Resource : NetworkBehaviour {
     [Client]
     private void SetColor(Color color)
     {
-        //set the sphere color (emission)
         sphere.GetComponent<Renderer>().material.SetColor("_EmissionColor", color);
-        //halo.GetComponent<ParticleSystem>().startColor = color;
     }
 
     public static Color GetColor(ResourceType type)
