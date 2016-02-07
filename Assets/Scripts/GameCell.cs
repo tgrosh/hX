@@ -16,6 +16,10 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabHex;
     public GameObject prefabShip;
     public GameObject prefabResourceLocation;
+    public GameObject prefabResourceLocationTrillium;
+    public GameObject prefabResourceLocationHydrazine;
+    public GameObject prefabResourceLocationSupplies;
+    public GameObject prefabResourceLocationWorkers;
     public GameObject prefabBase;
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
@@ -60,7 +64,28 @@ public class GameCell : NetworkBehaviour
 
             if (state == GameCellState.Resource)
             {
-                GameObject objResourceLocation = (GameObject)Instantiate(prefabResourceLocation, transform.position, Quaternion.identity);
+                GameObject objResourceLocation;
+
+                if (resourceType == ResourceType.Trillium)
+                {
+                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocationTrillium, transform.position, Quaternion.identity);
+                }
+                else if (resourceType == ResourceType.Hydrazine)
+                {
+                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocationHydrazine, transform.position, Quaternion.identity);
+                }
+                else if (resourceType == ResourceType.Supplies)
+                {
+                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocationSupplies, transform.position, Quaternion.identity);
+                }
+                else if (resourceType == ResourceType.Workers)
+                {
+                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocationWorkers, transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocation, transform.position, Quaternion.identity);
+                }                
                 associatedResourceLocation = objResourceLocation.GetComponent<Resource>();
                 associatedResourceLocation.type = resourceType;
                 NetworkServer.Spawn(objResourceLocation);
