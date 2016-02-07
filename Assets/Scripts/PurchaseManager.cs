@@ -8,7 +8,7 @@ namespace Assets.Scripts
     public class PurchaseManager
     {
         public static Purchase Ship = new Purchase(new List<PurchaseCost>() { 
-            new PurchaseCost(ResourceType.Trillium, 2), 
+            new PurchaseCost(ResourceType.Corium, 2), 
             new PurchaseCost(ResourceType.Workers, 1) 
         });
 

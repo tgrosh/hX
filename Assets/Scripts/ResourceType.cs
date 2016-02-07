@@ -8,7 +8,7 @@ namespace Assets.Scripts
     public enum ResourceType
     {
         None,
-        Trillium,
+        Corium,
         Hydrazine,
         Supplies,
         Workers

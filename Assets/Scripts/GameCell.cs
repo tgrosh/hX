@@ -66,7 +66,7 @@ public class GameCell : NetworkBehaviour
             {
                 GameObject objResourceLocation;
 
-                if (resourceType == ResourceType.Trillium)
+                if (resourceType == ResourceType.Corium)
                 {
                     objResourceLocation = (GameObject)Instantiate(prefabResourceLocationTrillium, transform.position, Quaternion.identity);
                 }

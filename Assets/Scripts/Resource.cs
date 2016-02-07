@@ -11,7 +11,6 @@ public class Resource : NetworkBehaviour {
     [SyncVar]
     private int amount = 10; //set later
     private int collectionRate = 3; //collecting per player per round
-    private bool isColorSet;
     private float rotateSpeedMin = 5f;
     private float rotateSpeedMax = 15f;
     private float rotateSpeed;
@@ -54,12 +53,6 @@ public class Resource : NetworkBehaviour {
         {
             Workers.Rotate(Vector3.one * Time.deltaTime * rotateSpeed);
         }
-
-        if (!isColorSet)
-        {
-            SetColor(Resource.GetColor(type));
-            isColorSet = true;
-        }
 	}
 
     public int Collect(int requestAmount)
@@ -78,10 +71,10 @@ public class Resource : NetworkBehaviour {
     public static Color GetColor(ResourceType type)
     {
         //move this to the resource late
-        if (type == ResourceType.Trillium) return Color.blue;
-        if (type == ResourceType.Hydrazine) return Color.green;
-        if (type == ResourceType.Workers) return Color.magenta;
-        if (type == ResourceType.Supplies) return Color.yellow;
+        if (type == ResourceType.Corium) return new Color(.75f, 0, 0);
+        if (type == ResourceType.Hydrazine) return new Color(0, .75f, 0);
+        if (type == ResourceType.Workers) return new Color(0, .5f, 1);
+        if (type == ResourceType.Supplies) return new Color(1, .8f, 0);
 
         return Color.black;
     }
