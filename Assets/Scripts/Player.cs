@@ -36,6 +36,16 @@ public class Player : NetworkBehaviour
         {
             opponent = this;
         }
+
+        if (isServer)
+        {
+            GameManager.OnTurnStart += GameManager_OnTurnStart;
+        }
+    }
+
+    void GameManager_OnTurnStart()
+    {
+        GameManager.singleton.activePlayer.Rpc_StartTurn();
     }
     
     public bool CanAfford(Purchase purchase)
@@ -132,8 +142,16 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameObject.Find("Waiting").SetActive(false);
-            //Camera.main.transform.LookAt(gameBoard);
         }        
+    }
+
+    [ClientRpc]
+    public void Rpc_StartTurn()
+    {
+        if (isLocalPlayer)
+        {
+            //what??
+        }
     }
 
     [Command]

@@ -5,6 +5,7 @@ using Assets.Scripts;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager singleton;
     public GameObject GameSetupPanel;
     public GameRule ruleEmpty;
     public GameRule ruleOwnArea;
@@ -16,12 +17,12 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-
+        singleton = this;
+        hotbar = GameObject.Find("Hotbar");
     }
 
     void Update()
-    {
-        hotbar = GameObject.Find("Hotbar");
+    {        
         if (hotbar != null)
         {
             foreach (Toggle t in hotbar.GetComponentsInChildren<Toggle>())
@@ -85,6 +86,7 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleShip(bool isOn)
     {
+        hotbar.transform.FindChild("ShipToggle").GetComponent<Toggle>().isOn = isOn;
         Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
     }
 }

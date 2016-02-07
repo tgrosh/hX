@@ -37,6 +37,8 @@ public class Ship : NetworkBehaviour {
         animatingEntrance = true;        
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
+
+        MenuManager.singleton.ToggleShip(false);
 	}
 
     [Server]
