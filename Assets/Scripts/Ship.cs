@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 using Assets.Scripts;
 using System;
+using UnityStandardAssets.Cameras;
 
 public class Ship : NetworkBehaviour {
     private float collectionRange = 2.2f;
@@ -90,6 +91,11 @@ public class Ship : NetworkBehaviour {
             }
         }
 
+        //if (isClient)
+        //{
+        //    Camera.main.GetComponent<AutoCam>().SetTarget(this.transform.FindChild("CameraTarget"));
+        //}
+
         if (!isColorSet)
         {
             SetColor(this.color);
@@ -109,6 +115,13 @@ public class Ship : NetworkBehaviour {
                 {
                     ResourceType collectedResource = resource.type;
                     int collectedCount = resource.Collect(cargoHold.AvailableCapacity);
+
+                    if (collectedCount > 0)
+                    {
+                        GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
+                        item.GetComponent<ResourceItem>().FlyTo(netId);
+                        NetworkServer.Spawn(item);
+                    } 
 
                     cargoHold.Add(collectedResource, collectedCount);
                 }

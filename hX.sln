@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hX.CSharp.Plugins", "hX.CSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hX.CSharp", "hX.CSharp.csproj", "{BB84FA10-2829-ED1E-0D13-0CCD922DC84A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hX.CSharp.Editor", "hX.CSharp.Editor.csproj", "{F07BB0FA-F05C-9682-17DC-B7EC0633B7B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{BB84FA10-2829-ED1E-0D13-0CCD922DC84A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB84FA10-2829-ED1E-0D13-0CCD922DC84A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB84FA10-2829-ED1E-0D13-0CCD922DC84A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F07BB0FA-F05C-9682-17DC-B7EC0633B7B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F07BB0FA-F05C-9682-17DC-B7EC0633B7B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F07BB0FA-F05C-9682-17DC-B7EC0633B7B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F07BB0FA-F05C-9682-17DC-B7EC0633B7B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

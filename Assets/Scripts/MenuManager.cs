@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using Assets.Scripts;
+using UnityEngine.Networking;
 
 public class MenuManager : MonoBehaviour
 {
@@ -86,7 +87,31 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleShip(bool isOn)
     {
-        hotbar.transform.FindChild("ShipToggle").GetComponent<Toggle>().isOn = isOn;
-        Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
+        if (hotbar != null)
+        {
+            hotbar.transform.FindChild("ShipToggle").GetComponent<Toggle>().isOn = isOn;
+        }
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
+        }        
+        if (isOn)
+        {
+            GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
+            GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination += MenuManager_OnCameraReachedDestination;
+        }
+        else
+        {
+            if (GameManager.singleton != null)
+            {
+                GameManager.singleton.ResetCamera();
+            }            
+        }
+    }
+
+    void MenuManager_OnCameraReachedDestination()
+    {
+        Debug.Log("Camera in Position");
+        GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination -= MenuManager_OnCameraReachedDestination;
     }
 }

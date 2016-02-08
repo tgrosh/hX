@@ -14,6 +14,7 @@ public class Base : NetworkBehaviour {
     public event ResourceAdded OnResourceAdded;
     public delegate void ResourceDumped(Base playerBase, ResourceType resource);
     public event ResourceDumped OnResourceDumped;
+    public Transform camTarget;
 
     private bool isColorSet;
     
@@ -21,6 +22,8 @@ public class Base : NetworkBehaviour {
 	void Start () {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
         cargoHold.OnResourceDumped += cargoHold_OnResourceDumped;
+
+        camTarget = transform.FindChild("CameraTarget");
 
         if (isServer)
         {

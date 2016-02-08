@@ -5,11 +5,12 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using UnityStandardAssets.Cameras;
 
 public class GameManager : NetworkBehaviour
 {
     public static GameManager singleton;
-
+    public AutoCam cam;
     public GameBoard gameBoard;
     public GameObject PlayerName;
     public GameObject ResourceCounter;
@@ -38,7 +39,7 @@ public class GameManager : NetworkBehaviour
 
     void Awake()
     {
-        singleton = this;
+        singleton = this;        
     }
 
     public override void OnStartClient()
@@ -46,7 +47,8 @@ public class GameManager : NetworkBehaviour
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         resourceCountPanel = GameObject.Find("ResourceCountPanel");
-        
+        cam = Camera.main.GetComponent<AutoCam>();
+
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
         {
             if (t != ResourceType.None)
@@ -54,6 +56,11 @@ public class GameManager : NetworkBehaviour
                 CreateResourceCounter(t);
             }
         }
+    }
+
+    public void ResetCamera()
+    {
+        cam.SetTarget(GameObject.Find("DefaultCameraTarget").transform);
     }
     
     void Update()
@@ -108,7 +115,7 @@ public class GameManager : NetworkBehaviour
 
     [Server]
     public void StartGame()
-    {   
+    {        
         gameBoard.SpawnBoard();
         foreach (Player player in players)
         {

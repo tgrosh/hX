@@ -7,6 +7,7 @@ public class Resource : NetworkBehaviour {
     [SyncVar]
     public ResourceType type;
     public int available { get { return amount; } }
+    public GameObject resourceItemPrefab;
 
     [SyncVar]
     private int amount = 10; //set later
@@ -14,45 +15,17 @@ public class Resource : NetworkBehaviour {
     private float rotateSpeedMin = 5f;
     private float rotateSpeedMax = 15f;
     private float rotateSpeed;
-    private Transform sphere;
-    private Transform TrilliumCrystal;
-    private Transform FuelTank;
-    private Transform Crate;
-    private Transform Workers;
+    public Transform sphere;
 
 	// Use this for initialization
 	void Start () {
         rotateSpeed = Random.Range(rotateSpeedMin, rotateSpeedMax);
         sphere = transform.FindChild("Sphere");
-        TrilliumCrystal = sphere.FindChild("TrilliumCrystal");
-        FuelTank = sphere.FindChild("fueltank");
-        Crate = sphere.FindChild("crate");
-        Workers = sphere.FindChild("Workers");
 	}
 	
 	// Update is called once per frame
 	void Update () {
         sphere.Rotate(Vector3.forward * Time.deltaTime * rotateSpeed);
-
-        if (TrilliumCrystal != null)
-        {
-            TrilliumCrystal.Rotate(Vector3.one * Time.deltaTime * rotateSpeed);
-        }
-
-        if (FuelTank != null)
-        {
-            FuelTank.Rotate(Vector3.one * Time.deltaTime * rotateSpeed);
-        }
-
-        if (Crate != null)
-        {
-            Crate.Rotate(Vector3.one * Time.deltaTime * rotateSpeed);
-        }
-
-        if (Workers != null)
-        {
-            Workers.Rotate(Vector3.one * Time.deltaTime * rotateSpeed);
-        }
 	}
 
     public int Collect(int requestAmount)

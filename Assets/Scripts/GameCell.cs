@@ -15,7 +15,6 @@ public class GameCell : NetworkBehaviour
     public Material ResourceMaterial;
     public GameObject prefabHex;
     public GameObject prefabShip;
-    public GameObject prefabResourceLocation;
     public GameObject prefabResourceLocationTrillium;
     public GameObject prefabResourceLocationHydrazine;
     public GameObject prefabResourceLocationSupplies;
@@ -78,14 +77,11 @@ public class GameCell : NetworkBehaviour
                 {
                     objResourceLocation = (GameObject)Instantiate(prefabResourceLocationSupplies, transform.position, Quaternion.identity);
                 }
-                else if (resourceType == ResourceType.Workers)
+                else
                 {
                     objResourceLocation = (GameObject)Instantiate(prefabResourceLocationWorkers, transform.position, Quaternion.identity);
                 }
-                else
-                {
-                    objResourceLocation = (GameObject)Instantiate(prefabResourceLocation, transform.position, Quaternion.identity);
-                }                
+             
                 associatedResourceLocation = objResourceLocation.GetComponent<Resource>();
                 associatedResourceLocation.type = resourceType;
                 NetworkServer.Spawn(objResourceLocation);
