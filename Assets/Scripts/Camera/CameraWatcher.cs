@@ -8,7 +8,6 @@ public class CameraWatcher : MonoBehaviour {
     public event CameraDestinationReached OnCameraReachedDestination;
 
     private bool atDestination = false;
-    private float distance;
 
 	// Use this for initialization
 	void Start () {

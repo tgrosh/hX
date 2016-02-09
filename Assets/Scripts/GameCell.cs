@@ -193,7 +193,6 @@ public class GameCell : NetworkBehaviour
     
     private void SetCellMaterial(Color color, Material material)
     {
-        //Debug.Log("setting " + state + " cell to " + material.name + " with color " + color);
         cellColorTarget = color;
         prefabHex.GetComponent<Renderer>().material = material;
     }

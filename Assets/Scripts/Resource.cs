@@ -6,11 +6,8 @@ using Assets.Scripts;
 public class Resource : NetworkBehaviour {
     [SyncVar]
     public ResourceType type;
-    public int available { get { return amount; } }
     public GameObject resourceItemPrefab;
 
-    [SyncVar]
-    private int amount = 10; //set later
     private int collectionRate = 3; //collecting per player per round
     private float rotateSpeedMin = 5f;
     private float rotateSpeedMax = 15f;
@@ -30,8 +27,7 @@ public class Resource : NetworkBehaviour {
 
     public int Collect(int requestAmount)
     {
-        int collection = Mathf.Min(new int[] { requestAmount, collectionRate, amount });
-        amount -= collection;
+        int collection = Mathf.Min(new int[] { requestAmount, collectionRate });
         return collection;
     }
 

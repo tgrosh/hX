@@ -118,6 +118,7 @@ public class Ship : NetworkBehaviour {
 
                     if (collectedCount > 0)
                     {
+                        GameManager.singleton.AddEvent("Player " + GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color) + " collected " + collectedCount + " " + GameManager.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type)));
                         GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
                         item.GetComponent<ResourceItem>().FlyTo(netId);
                         NetworkServer.Spawn(item);
@@ -134,8 +135,6 @@ public class Ship : NetworkBehaviour {
     {
         if (nearbyBase != null)
         {
-            Debug.Log("Ship (" + this.netId + ") transferring resources to Base (" + nearbyBase.netId + ")");
-
             float distance = Vector3.Distance(nearbyBase.transform.position, transform.position);
             if (distance <= cargoDropRange)
             {
@@ -197,5 +196,7 @@ public class Ship : NetworkBehaviour {
         {
             nearbyBase = null;
         }
-    }    
+    }
+
+    
 }

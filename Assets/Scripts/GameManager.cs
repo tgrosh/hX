@@ -14,6 +14,7 @@ public class GameManager : NetworkBehaviour
     public GameBoard gameBoard;
     public GameObject PlayerName;
     public GameObject ResourceCounter;
+    public GameObject EventLogEntryPrefab;
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
@@ -24,10 +25,13 @@ public class GameManager : NetworkBehaviour
 
     private GameObject playerNamePanel;
     private GameObject resourceCountPanel;
+    private GameObject eventLogPanel;
     public List<GameCell> cells = new List<GameCell>();
 
     public delegate void TurnStart();
     public static event TurnStart OnTurnStart;
+
+    public List<string> events = new List<string>();
         
     public Player activePlayer
     {
@@ -47,6 +51,7 @@ public class GameManager : NetworkBehaviour
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         resourceCountPanel = GameObject.Find("ResourceCountPanel");
+        eventLogPanel = GameObject.Find("EventLog");
         cam = Camera.main.GetComponent<AutoCam>();
 
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
@@ -90,7 +95,7 @@ public class GameManager : NetworkBehaviour
             }
         }
     }
-
+    
     [Client]
     private void CreateResourceCounter(ResourceType type)
     {
@@ -111,6 +116,37 @@ public class GameManager : NetworkBehaviour
         txt.color = color;
         txt.fontSize = fontSize;
         objPlayerName.transform.SetParent(playerNamePanel.transform);
+    }
+
+    [ClientRpc]
+    private void Rpc_AddEvent(string text)
+    {
+        eventLogPanel.transform.FindChild("MostRecentEvent").GetComponent<Text>().text = text;
+        events.Add(text);
+        PopulateEventLog(events);
+    }
+
+    [Client]
+    private void PopulateEventLog(List<string> events)
+    {
+        GameObject eventLogContent = GameObject.Find("EventLogContent");
+
+        foreach (Transform child in eventLogContent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (string s in events)
+        {
+            GameObject obj = Instantiate(EventLogEntryPrefab);
+            obj.GetComponent<Text>().text = s;
+            obj.transform.SetParent(eventLogContent.transform);
+        }
+    }
+
+    [Server]
+    public void AddEvent(string text) {
+        Rpc_AddEvent(text);
     }
 
     [Server]
@@ -194,5 +230,15 @@ public class GameManager : NetworkBehaviour
             int count = Convert.ToInt32(resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text);
             resourceCountPanel.transform.FindChild(resource.ToString()).FindChild("Count").GetComponent<Text>().text = (count - 1).ToString();
         }
+    }
+
+    public string CreateColoredText(String text, Color color)
+    {
+        return "<color=#" + ColorToHex(color) + ">" + text + "</color>";
+    }
+
+    public string ColorToHex(Color color)
+    {
+        return Convert.ToInt32(color.r * 255).ToString("X2") + Convert.ToInt32(color.g * 255).ToString("X2") + Convert.ToInt32(color.b * 255).ToString("X2");
     }
 }

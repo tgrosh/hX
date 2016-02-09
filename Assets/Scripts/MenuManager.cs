@@ -14,12 +14,17 @@ public class MenuManager : MonoBehaviour
     public GameRule ruleEnemyArea;
     public GameRule ruleEnemyCore;
 
-    private GameObject hotbar;    
+    private GameObject hotbar;
+    private GameObject FullEventLog;
+    private GameObject MostRecentEventLog;
+    private bool isFullLogOpen;
 
     void Start()
     {
         singleton = this;
         hotbar = GameObject.Find("Hotbar");
+        FullEventLog = GameObject.Find("FullEventLog");
+        MostRecentEventLog = GameObject.Find("MostRecentEvent");
     }
 
     void Update()
@@ -111,7 +116,22 @@ public class MenuManager : MonoBehaviour
 
     void MenuManager_OnCameraReachedDestination()
     {
-        Debug.Log("Camera in Position");
         GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination -= MenuManager_OnCameraReachedDestination;
+    }
+
+    public void ToggleEventLog()
+    {
+        if (!isFullLogOpen)
+        {
+            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 200);
+            MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+            isFullLogOpen = true;
+        }
+        else
+        {
+            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+            MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 40);
+            isFullLogOpen = false;
+        }
     }
 }
