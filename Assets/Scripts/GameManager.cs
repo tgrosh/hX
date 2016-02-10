@@ -129,20 +129,29 @@ public class GameManager : NetworkBehaviour
     {
         GameObject eventLogContent = GameObject.Find("EventLogContent");
         GameObject fullEventLog = GameObject.Find("FullEventLog");
+        float newHeight = 14;
 
         foreach (Transform child in eventLogContent.transform)
         {
             Destroy(child.gameObject);
         }
 
-        eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Max(14 + (14 * events.Count), 200));
+        
         //.GetRange(Mathf.Max(events.Count - 41, 0), Mathf.Min(40, events.Count))
         foreach (string s in events)
         {
             GameObject obj = Instantiate(EventLogEntryPrefab);
             obj.GetComponent<Text>().text = s;
+
+            //increase content area to be big enough to support the new item
+            eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 1200);
             obj.transform.SetParent(eventLogContent.transform);
+
+            newHeight += obj.GetComponent<RectTransform>().rect.height + 3;
+            newHeight = Mathf.Max(newHeight, 200);
+            eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, newHeight);
         }
+
         Canvas.ForceUpdateCanvases();
         fullEventLog.GetComponent<ScrollRect>().verticalScrollbar.value = 0f;
         Canvas.ForceUpdateCanvases();
