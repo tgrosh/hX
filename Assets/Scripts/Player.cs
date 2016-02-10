@@ -45,7 +45,10 @@ public class Player : NetworkBehaviour
 
     void GameManager_OnTurnStart()
     {
-        GameManager.singleton.activePlayer.Rpc_StartTurn();
+        if (GameManager.singleton.activePlayer == this)
+        {
+            Rpc_StartTurn();
+        }        
     }
     
     public bool CanAfford(Purchase purchase)
@@ -141,6 +144,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameObject.Find("Waiting").SetActive(false);
+            MenuManager.singleton.ShowResourceTracker();
         }        
     }
 
@@ -151,6 +155,7 @@ public class Player : NetworkBehaviour
         {
             GameManager.singleton.ResetCamera();
             GameObject.Find("Hotbar").GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 45f);
+            MenuManager.singleton.ShowYourTurn();
         }
     }
 

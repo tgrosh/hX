@@ -101,8 +101,10 @@ public class GameManager : NetworkBehaviour
         objCounter.name = type.ToString();
         objCounter.transform.FindChild("ResourceName").GetComponent<Text>().text = type.ToString();
         objCounter.transform.FindChild("Count").GetComponent<Text>().text = "0";
-        objCounter.transform.FindChild("Image").GetComponent<Image>().color = Resource.GetColor(type);
+        objCounter.transform.FindChild("Image").GetComponent<Image>().color = Resource.GetColor(type, .5f);
         objCounter.transform.SetParent(resourceCountPanel.transform);
+        objCounter.transform.localScale = Vector3.one;
+        objCounter.transform.localPosition = new Vector3(objCounter.transform.localPosition.x, objCounter.transform.localPosition.y, 0);
     }
     
     [Client]

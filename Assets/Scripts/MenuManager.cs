@@ -139,4 +139,14 @@ public class MenuManager : MonoBehaviour
     {
         Player.localPlayer.EndTurn();
     }
+
+    public void ShowResourceTracker()
+    {
+        GameObject.Find("ResourceTracker").GetComponent<Animator>().SetBool("IsOpen", true);
+    }
+
+    public void ShowYourTurn()
+    {
+        GameObject.Find("YourTurn").GetComponent<Animator>().SetTrigger("Start");
+    }
 }

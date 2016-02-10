@@ -47,4 +47,12 @@ public class Resource : NetworkBehaviour {
 
         return Color.black;
     }
+
+    public static Color GetColor(ResourceType type, float alpha)
+    {
+        Color color = GetColor(type);
+        color.a = alpha;
+
+        return color;
+    }
 }
