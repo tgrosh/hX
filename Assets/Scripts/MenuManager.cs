@@ -134,4 +134,9 @@ public class MenuManager : MonoBehaviour
             isFullLogOpen = false;
         }
     }
+
+    public void EndTurn()
+    {
+        Player.localPlayer.EndTurn();
+    }
 }

@@ -96,6 +96,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            GameObject.Find("Hotbar").GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
             GameManager.singleton.ResetCamera();
             Cmd_EndTurn();
         }
@@ -118,10 +119,7 @@ public class Player : NetworkBehaviour
     {
         if (GameManager.singleton.activePlayer == this)
         {
-            if (NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this))
-            {
-                GameManager.singleton.EndPlayerTurn();
-            }
+            NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this);
         }
     }
 
@@ -151,7 +149,8 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            //what??
+            GameManager.singleton.ResetCamera();
+            GameObject.Find("Hotbar").GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 45f);
         }
     }
 
