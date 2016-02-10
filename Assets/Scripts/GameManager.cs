@@ -128,25 +128,31 @@ public class GameManager : NetworkBehaviour
     private void PopulateEventLog(List<string> events)
     {
         GameObject eventLogContent = GameObject.Find("EventLogContent");
+        GameObject fullEventLog = GameObject.Find("FullEventLog");
 
         foreach (Transform child in eventLogContent.transform)
         {
             Destroy(child.gameObject);
         }
 
+        eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, Mathf.Max(14 + (14 * events.Count), 200));
+        //.GetRange(Mathf.Max(events.Count - 41, 0), Mathf.Min(40, events.Count))
         foreach (string s in events)
         {
             GameObject obj = Instantiate(EventLogEntryPrefab);
             obj.GetComponent<Text>().text = s;
             obj.transform.SetParent(eventLogContent.transform);
         }
+        Canvas.ForceUpdateCanvases();
+        fullEventLog.GetComponent<ScrollRect>().verticalScrollbar.value = 0f;
+        Canvas.ForceUpdateCanvases();
     }
 
     [Server]
     public void AddEvent(string text) {
         Rpc_AddEvent(text);
     }
-
+    
     [Server]
     public void StartGame()
     {        
@@ -164,11 +170,14 @@ public class GameManager : NetworkBehaviour
     [Server]
     public void EndPlayerTurn()
     {
+        GameManager.singleton.AddEvent(String.Format("Player {0}'s turn has ended", GameManager.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));                
         activePlayerIndex++;
         if (activePlayerIndex >= players.Count)
         {
             activePlayerIndex = 0;
         }
+
+        GameManager.singleton.AddEvent(String.Format("Player {0}'s turn has started", GameManager.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));
         if (OnTurnStart != null)
         {
             OnTurnStart();

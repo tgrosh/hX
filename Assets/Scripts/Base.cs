@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using Assets.Scripts;
 using System.Collections.Generic;
+using System;
 
 public class Base : NetworkBehaviour {
     [SyncVar]
@@ -15,6 +16,7 @@ public class Base : NetworkBehaviour {
     public delegate void ResourceDumped(Base playerBase, ResourceType resource);
     public event ResourceDumped OnResourceDumped;
     public Transform camTarget;
+    public DateTime lastResourceTime;
 
     private bool isColorSet;
     
@@ -22,7 +24,7 @@ public class Base : NetworkBehaviour {
 	void Start () {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
         cargoHold.OnResourceDumped += cargoHold_OnResourceDumped;
-
+        lastResourceTime = DateTime.Now;
         camTarget = transform.FindChild("CameraTarget");
 
         if (isServer)
@@ -50,7 +52,11 @@ public class Base : NetworkBehaviour {
 
     void cargoHold_OnResourceAdded(ResourceType resource)
     {
-        //Debug.Log("Base (" + this.netId + ") added resource (" + resource + ")");
+        if (DateTime.Now.AddSeconds(-5) > lastResourceTime)
+        {
+            GameManager.singleton.AddEvent(String.Format("Player {0} has delivered resources to their base", GameManager.singleton.CreateColoredText(NetworkServer.FindLocalObject(owner).GetComponent<Player>().seat.ToString(), NetworkServer.FindLocalObject(owner).GetComponent<Player>().color)));
+            lastResourceTime = DateTime.Now;
+        }
         if (OnResourceAdded != null)
         {
             OnResourceAdded(this, resource);            

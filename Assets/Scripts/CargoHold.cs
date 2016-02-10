@@ -40,7 +40,6 @@ namespace Assets.Scripts
                     }                    
                 }
 
-
                 return Math.Min(quantity, AvailableCapacity);
             }
 

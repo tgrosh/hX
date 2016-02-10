@@ -52,6 +52,7 @@ public class Ship : NetworkBehaviour {
     public override void OnStartClient()
     {
         cameraTarget = transform.FindChild("CameraTarget");
+        GameManager.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
     }
 
     [Server]
@@ -143,7 +144,9 @@ public class Ship : NetworkBehaviour {
 
                     if (collectedCount > 0)
                     {
-                        GameManager.singleton.AddEvent("Player " + GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color) + " collected " + collectedCount + " " + GameManager.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type)));
+                        GameManager.singleton.AddEvent(String.Format("Player {0} collected " + collectedCount + " {1}",
+                            GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color), 
+                            GameManager.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
                         GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
                         item.GetComponent<ResourceItem>().FlyTo(netId);
                         NetworkServer.Spawn(item);

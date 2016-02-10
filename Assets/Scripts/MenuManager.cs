@@ -24,7 +24,7 @@ public class MenuManager : MonoBehaviour
         singleton = this;
         hotbar = GameObject.Find("Hotbar");
         FullEventLog = GameObject.Find("FullEventLog");
-        MostRecentEventLog = GameObject.Find("MostRecentEvent");
+        MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
     }
 
     void Update()
@@ -123,14 +123,14 @@ public class MenuManager : MonoBehaviour
     {
         if (!isFullLogOpen)
         {
-            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 200);
+            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 202);
             MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             isFullLogOpen = true;
         }
         else
         {
             FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-            MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 40);
+            MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 32);
             isFullLogOpen = false;
         }
     }
