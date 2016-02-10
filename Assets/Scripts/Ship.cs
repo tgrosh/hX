@@ -12,6 +12,13 @@ public class Ship : NetworkBehaviour {
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public Base nearbyBase;
+    public Transform cameraTarget;
+
+    public delegate void ShipMoveEnd();
+    public static event ShipMoveEnd OnShipMoveEnd;
+
+    public delegate void ShipSpawnEnd();
+    public static event ShipSpawnEnd OnShipSpawnEnd;
         
     [SyncVar]
     public Color color;
@@ -42,6 +49,11 @@ public class Ship : NetworkBehaviour {
         MenuManager.singleton.ToggleShip(false);
 	}
 
+    public override void OnStartClient()
+    {
+        cameraTarget = transform.FindChild("CameraTarget");
+    }
+
     [Server]
     void GameManager_OnTurnStart()
     {
@@ -65,6 +77,12 @@ public class Ship : NetworkBehaviour {
 
             animationCurrentTime = 0;
             animatingEntrance = false;
+
+            GameManager.singleton.ResetCamera();
+            if (OnShipSpawnEnd != null)
+            {
+                OnShipSpawnEnd();
+            }
         }
         
         if (destination != NetworkInstanceId.Invalid)
@@ -85,8 +103,15 @@ public class Ship : NetworkBehaviour {
                 }
                 else if (transform.position != targetPoint)
                 {
+                    destination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
                     moveTime = 0;
+                    GameManager.singleton.ResetCamera();
+
+                    if (OnShipMoveEnd != null)
+                    {
+                        OnShipMoveEnd();
+                    }
                 }
             }
         }

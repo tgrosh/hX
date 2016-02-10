@@ -10,28 +10,37 @@ public class CameraZoom : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 100))
+	void Update () {        
+        if (Input.GetAxis("Mouse ScrollWheel") > 0) // forward
         {
-            GameObject.Find("DefaultCameraZoomTarget").transform.position = new Vector3(hit.point.x, hit.point.y, GameObject.Find("DefaultCameraZoomTarget").transform.position.z);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
 
-            if (Input.GetAxis("Mouse ScrollWheel") > 0) // forward
+            if (Physics.Raycast(ray, out hit, 100))
             {
-                if (GetComponent<AutoCam>().Target == GameObject.Find("DefaultCameraTarget").transform)
-                {
-                    GetComponent<AutoCam>().SetTarget(GameObject.Find("DefaultCameraZoomTarget").transform);
-                }
-            }
-            else if (Input.GetAxis("Mouse ScrollWheel") < 0)
-            {
-                if (GetComponent<AutoCam>().Target != GameObject.Find("DefaultCameraTarget").transform)
-                {
-                    GetComponent<AutoCam>().SetTarget(GameObject.Find("DefaultCameraTarget").transform);
-                }
+                GameObject.Find("DefaultCameraZoomTarget").transform.position = new Vector3(hit.point.x, hit.point.y, GameObject.Find("DefaultCameraZoomTarget").transform.position.z);
+                ZoomIn();
             }
         }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            ZoomOut();
+        }        
 	}
+
+    void ZoomIn()
+    {
+        if (GetComponent<AutoCam>().Target == GameObject.Find("DefaultCameraTarget").transform)
+        {
+            GetComponent<AutoCam>().SetTarget(GameObject.Find("DefaultCameraZoomTarget").transform);
+        }
+    }
+
+    void ZoomOut()
+    {
+        if (GetComponent<AutoCam>().Target != GameObject.Find("DefaultCameraTarget").transform)
+        {
+            GetComponent<AutoCam>().SetTarget(GameObject.Find("DefaultCameraTarget").transform);
+        }
+    }
 }

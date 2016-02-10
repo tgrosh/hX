@@ -25,7 +25,6 @@ public class GameManager : NetworkBehaviour
 
     private GameObject playerNamePanel;
     private GameObject resourceCountPanel;
-    private GameObject eventLogPanel;
     public List<GameCell> cells = new List<GameCell>();
 
     public delegate void TurnStart();
@@ -51,7 +50,6 @@ public class GameManager : NetworkBehaviour
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         resourceCountPanel = GameObject.Find("ResourceCountPanel");
-        eventLogPanel = GameObject.Find("EventLog");
         cam = Camera.main.GetComponent<AutoCam>();
 
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
@@ -121,7 +119,7 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     private void Rpc_AddEvent(string text)
     {
-        eventLogPanel.transform.FindChild("MostRecentEvent").GetComponent<Text>().text = text;
+        GameObject.Find("MostRecentEvent").GetComponent<Text>().text = text;
         events.Add(text);
         PopulateEventLog(events);
     }

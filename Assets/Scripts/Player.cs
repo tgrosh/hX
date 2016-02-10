@@ -96,6 +96,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            GameManager.singleton.ResetCamera();
             Cmd_EndTurn();
         }
     }

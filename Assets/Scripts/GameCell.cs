@@ -41,9 +41,10 @@ public class GameCell : NetworkBehaviour
     private bool animatingColor;
     private Color cellColorTarget = Color.clear;
     private List<GameObject> adjacent = new List<GameObject>();
-    private Ship associatedShip;
+    [SyncVar]
+    public NetworkInstanceId associatedShip;
     private Resource associatedResourceLocation;
-    private Base associatedBase;
+    public Base associatedBase;
     [SyncVar]
     private GameCellState prevState;
     [SyncVar]
@@ -247,7 +248,7 @@ public class GameCell : NetworkBehaviour
 
             if (selected)
             {
-                foreach (GameCell cell in associatedShip.nearbyCells)
+                foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
                 {
                     if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
                     {
@@ -257,7 +258,7 @@ public class GameCell : NetworkBehaviour
             }
             else
             {
-                foreach (GameCell cell in associatedShip.nearbyCells)
+                foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
                 {
                     if (cell.state == GameCellState.MovementArea)
                     {
@@ -276,10 +277,11 @@ public class GameCell : NetworkBehaviour
                 player.isBuyingShip = false;
                 hasShip = true;
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
-                associatedShip = objShip.GetComponent<Ship>();
-                associatedShip.color = player.color;
-                associatedShip.owner = player;
+                Ship ship = objShip.GetComponent<Ship>();
+                ship.color = player.color;
+                ship.owner = player;
                 NetworkServer.Spawn(objShip);
+                associatedShip = ship.netId;
                 return true;
             }
         }
@@ -290,11 +292,11 @@ public class GameCell : NetworkBehaviour
             SetOwner(player);
             hasShip = true;
             associatedShip = GameManager.singleton.selectedCell.associatedShip;
-            GameManager.singleton.selectedCell.associatedShip = null;
+            GameManager.singleton.selectedCell.associatedShip = NetworkInstanceId.Invalid;
             GameManager.singleton.selectedCell.hasShip = false;
             GameManager.singleton.selectedCell.Revert();
             GameManager.singleton.selectedCell = null;
-            associatedShip.MoveTo(this.netId);
+            NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().MoveTo(this.netId);
             return true;
         }
 
