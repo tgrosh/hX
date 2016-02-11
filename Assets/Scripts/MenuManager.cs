@@ -114,6 +114,15 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    public void ShipButtonClick()
+    {
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingShip(true);
+        }
+        Player.localPlayer.SelectCell(GameManager.singleton.selectedCell.netId);
+    }
+
     void MenuManager_OnCameraReachedDestination()
     {
         GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination -= MenuManager_OnCameraReachedDestination;
@@ -148,5 +157,19 @@ public class MenuManager : MonoBehaviour
     public void ShowYourTurn()
     {
         GameObject.Find("YourTurn").GetComponent<Animator>().SetTrigger("Start");
+    }
+
+    public void ToggleRadialMenu(Vector3 point)
+    {
+        GameObject menu = GameObject.Find("RadialMenu");
+
+        if (menu.transform.position.z != -1)
+        {
+            menu.transform.position = new Vector3(point.x, point.y, -1);
+        }
+        else
+        {
+            menu.transform.position = new Vector3(transform.position.x, transform.position.y, -1000);
+        }   
     }
 }
