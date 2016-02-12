@@ -114,6 +114,7 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    //used during radial menu
     public void ShipButtonClick()
     {
         if (Player.localPlayer != null)

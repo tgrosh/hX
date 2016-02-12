@@ -269,11 +269,9 @@ public class GameCell : NetworkBehaviour
         }
         else if (state == GameCellState.BaseArea && owner == player.netId)
         {
-            //clicking on my own base area, place ship
-            SetCell(player, GameCellState.BaseArea);
-
             if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
             {
+                SetCell(player, GameCellState.Empty);
                 player.isBuyingShip = false;
                 hasShip = true;
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);

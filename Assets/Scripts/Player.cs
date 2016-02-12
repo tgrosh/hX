@@ -162,6 +162,7 @@ public class Player : NetworkBehaviour
     [Command]
     public void Cmd_SetIsBuyingShip(bool isBuyingShip)
     {
+        NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuyingShip);
         this.isBuyingShip = isBuyingShip;
     }
 

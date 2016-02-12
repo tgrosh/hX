@@ -18,6 +18,8 @@ public class Base : NetworkBehaviour {
     public Transform camTarget;
     public DateTime lastResourceTime;
 
+    public List<GameCell> nearbyCells = new List<GameCell>();
+
     private bool isColorSet;
     
 	// Use this for initialization
@@ -76,9 +78,42 @@ public class Base : NetworkBehaviour {
         }
 	}
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.GetComponent<GameCell>() && !nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
+        {
+            nearbyCells.Add(other.gameObject.GetComponent<GameCell>());
+        }
+    }
+
     [Client]
     private void SetColor(Color color)
     {
         transform.FindChild("Group01").FindChild("GeoSphere01").GetComponent<Renderer>().material.color = new Color(color.r,color.g,color.b,transform.FindChild("Group01").FindChild("GeoSphere01").GetComponent<Renderer>().material.color.a);
+    }
+
+    [Server]
+    public void ToggleArea(bool show)
+    {
+        if (show)
+        {
+            foreach (GameCell cell in nearbyCells)
+            {
+                if (cell.state == GameCellState.Empty)
+                {
+                    cell.SetCell(NetworkServer.FindLocalObject(owner).GetComponent<Player>(), GameCellState.BaseArea);
+                }
+            }
+        }
+        else
+        {
+            foreach (GameCell cell in nearbyCells)
+            {
+                if (cell.state == GameCellState.BaseArea)
+                {
+                    cell.SetCell(null, GameCellState.Empty);
+                }
+            }
+        }
     }
 }
