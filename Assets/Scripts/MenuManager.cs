@@ -13,6 +13,7 @@ public class MenuManager : MonoBehaviour
     public GameRule ruleOwnCore;
     public GameRule ruleEnemyArea;
     public GameRule ruleEnemyCore;
+    public GameObject ShipTooltip;
 
     private GameObject hotbar;
     private GameObject FullEventLog;
@@ -25,6 +26,11 @@ public class MenuManager : MonoBehaviour
         hotbar = GameObject.Find("Hotbar");
         FullEventLog = GameObject.Find("FullEventLog");
         MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
+    }
+
+    void OnStartClient()
+    {
+        ShipTooltip.SetActive(false);
     }
 
     void Update()
@@ -174,8 +180,30 @@ public class MenuManager : MonoBehaviour
         }   
     }
 
-    internal void ToggleHotbar(bool show)
+    public void ToggleHotbar(bool show)
     {
         GameObject.Find("Hotbar").GetComponent<Animator>().SetBool("IsOpen", show);
+    }
+
+    public void ShowShipTooltip(Ship ship)
+    {
+        if (!ShipTooltip.activeInHierarchy) {
+            Vector3 screenPoint = Camera.main.WorldToViewportPoint(ship.transform.position);
+
+            ShipTooltip.transform.FindChild("ResourceTooltipCorium").transform.FindChild("Count").GetComponent<Text>().text = (ship.cargoHold.GetCargo(ResourceType.Corium).Count).ToString();
+            ShipTooltip.transform.FindChild("ResourceTooltipHydrazine").transform.FindChild("Count").GetComponent<Text>().text = (ship.cargoHold.GetCargo(ResourceType.Hydrazine).Count).ToString();
+            ShipTooltip.transform.FindChild("ResourceTooltipWorkers").transform.FindChild("Count").GetComponent<Text>().text = (ship.cargoHold.GetCargo(ResourceType.Workers).Count).ToString();
+            ShipTooltip.transform.FindChild("ResourceTooltipSupplies").transform.FindChild("Count").GetComponent<Text>().text = (ship.cargoHold.GetCargo(ResourceType.Supplies).Count).ToString();
+
+            ShipTooltip.SetActive(true);
+            ShipTooltip.GetComponentInChildren<RectTransform>().anchoredPosition = new Vector2(screenPoint.x, screenPoint.y + 35);
+            ShipTooltip.GetComponentInChildren<RectTransform>().anchorMin = screenPoint;
+            ShipTooltip.GetComponentInChildren<RectTransform>().anchorMax = screenPoint;
+        }
+    }
+
+    public void HideShipTooltip()
+    {
+        ShipTooltip.SetActive(false);
     }
 }

@@ -51,6 +51,8 @@ public class GameCell : NetworkBehaviour
     private PlayerSeat prevSeat;
     [SyncVar]
     private NetworkInstanceId prevOwner;
+    private float hoverTime;
+    private float tooltipDelay = 1f;
 
     // Use this for initialization
     void Start()
@@ -307,6 +309,24 @@ public class GameCell : NetworkBehaviour
         {
             adjacent.Add(other.gameObject);
         }
+    }
+
+    void OnMouseOver()
+    {
+        if (hasShip && owner == Player.localPlayer.netId && associatedShip != NetworkInstanceId.Invalid)
+        {
+            hoverTime += Time.deltaTime;
+            if (hoverTime > tooltipDelay)
+            {
+                MenuManager.singleton.ShowShipTooltip(ClientScene.FindLocalObject(associatedShip).GetComponent<Ship>());
+            }
+        }
+    }
+
+    void OnMouseExit()
+    {
+        hoverTime = 0;
+        MenuManager.singleton.HideShipTooltip();
     }
 
 }

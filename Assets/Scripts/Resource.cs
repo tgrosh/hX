@@ -42,7 +42,7 @@ public class Resource : NetworkBehaviour {
         //move this to the resource late
         if (type == ResourceType.Corium) return new Color(.75f, 0, 0);
         if (type == ResourceType.Hydrazine) return new Color(0, .75f, 0);
-        if (type == ResourceType.Workers) return new Color(0, .5f, 1);
+        if (type == ResourceType.Workers) return new Color(.5f, 0, 1);
         if (type == ResourceType.Supplies) return new Color(1, .8f, 0);
 
         return Color.black;

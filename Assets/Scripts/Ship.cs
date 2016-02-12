@@ -34,7 +34,7 @@ public class Ship : NetworkBehaviour {
     private float moveTime = 0f;
     private Vector3 targetPoint;
     private bool isColorSet;
-
+    
     public CargoHold cargoHold = new CargoHold();
 
 	// Use this for initialization
@@ -67,7 +67,7 @@ public class Ship : NetworkBehaviour {
             TransferResources();
         }
     }
-    	
+        	
 	// Update is called once per frame
 	void Update () {
         if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
