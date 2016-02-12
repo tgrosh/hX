@@ -99,7 +99,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            GameObject.Find("Hotbar").GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+            MenuManager.singleton.ToggleHotbar(false);
             GameManager.singleton.ResetCamera();
             Cmd_EndTurn();
         }
@@ -154,7 +154,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameManager.singleton.ResetCamera();
-            GameObject.Find("Hotbar").GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 45f);
+            MenuManager.singleton.ToggleHotbar(true);
             MenuManager.singleton.ShowYourTurn();
         }
     }

@@ -35,11 +35,11 @@ public class MenuManager : MonoBehaviour
             {
                 if (t.isOn)
                 {
-                    t.image.color = Color.yellow;
+                    t.image.color = Color.cyan;                    
                 }
                 else
                 {
-                    t.image.color = Color.white;
+                    t.image.color = t.colors.normalColor;
                 }
             }
         }
@@ -132,7 +132,7 @@ public class MenuManager : MonoBehaviour
     {
         if (!isFullLogOpen)
         {
-            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 202);
+            FullEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(24, 202);
             MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             isFullLogOpen = true;
         }
@@ -171,5 +171,10 @@ public class MenuManager : MonoBehaviour
         {
             menu.transform.position = new Vector3(transform.position.x, transform.position.y, -1000);
         }   
+    }
+
+    internal void ToggleHotbar(bool show)
+    {
+        GameObject.Find("Hotbar").GetComponent<Animator>().SetBool("IsOpen", show);
     }
 }
