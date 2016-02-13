@@ -12,5 +12,10 @@ namespace Assets.Scripts
             new PurchaseCost(ResourceType.Workers, 1) 
         });
 
+        public static Purchase Depot = new Purchase(new List<PurchaseCost>() { 
+            new PurchaseCost(ResourceType.Supplies, 2), 
+            new PurchaseCost(ResourceType.Hydrazine, 1) 
+        });
+
     }
 }

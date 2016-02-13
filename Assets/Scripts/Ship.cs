@@ -7,8 +7,9 @@ using System;
 using UnityStandardAssets.Cameras;
 
 public class Ship : NetworkBehaviour {
-    private float collectionRange = 2.2f;
-    private float cargoDropRange = 2.2f;
+    public float collectionRange = 2.2f;
+    public float buildRange = 2.2f;
+    public float cargoDropRange = 2.2f;
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public Base nearbyBase;
@@ -197,9 +198,10 @@ public class Ship : NetworkBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<GameCell>() && !nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
+        GameCell otherGameCell = other.gameObject.GetComponent<GameCell>();
+        if (otherGameCell != null && !nearbyCells.Contains(otherGameCell))
         {
-            nearbyCells.Add(other.gameObject.GetComponent<GameCell>());
+            nearbyCells.Add(otherGameCell);
         }
 
         if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))

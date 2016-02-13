@@ -156,6 +156,30 @@ public class MenuManager : MonoBehaviour
         Player.localPlayer.EndTurn();
     }
 
+    public void ToggleBuildDepot(bool isOn)
+    {
+        if (hotbar != null)
+        {
+            hotbar.transform.FindChild("DepotToggle").GetComponent<Toggle>().isOn = isOn;
+        }
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingDepot(isOn);
+        } 
+        //if (isOn)
+        //{
+        //    GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
+        //    GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination += MenuManager_OnCameraReachedDestination;
+        //}
+        //else
+        //{
+        //    if (GameManager.singleton != null)
+        //    {
+        //        GameManager.singleton.ResetCamera();
+        //    }
+        //}
+    }
+
     public void ShowResourceTracker()
     {
         GameObject.Find("ResourceTracker").GetComponent<Animator>().SetBool("IsOpen", true);

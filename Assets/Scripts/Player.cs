@@ -2,6 +2,7 @@
 using System.Collections;
 using Assets.Scripts;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class Player : NetworkBehaviour
 {
@@ -22,6 +23,9 @@ public class Player : NetworkBehaviour
     public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;
     [SyncVar]
     public bool isBuyingShip;
+    public List<Ship> ships = new List<Ship>();
+    [SyncVar]
+    public bool isBuyingDepot;
 
     // Use this for initialization
     void Start()
@@ -164,6 +168,40 @@ public class Player : NetworkBehaviour
     {
         NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuyingShip);
         this.isBuyingShip = isBuyingShip;
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingDepot(bool isBuyingDepot)
+    {
+        if (isBuyingDepot)
+        {
+            foreach (Ship ship in ships)
+            {
+                List<GameCell> nearbyNonShipCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasShip; });
+                foreach (GameCell cell in nearbyNonShipCells)
+                {
+                    if (Vector3.Distance(ship.transform.position, cell.transform.position) <= ship.buildRange)
+                    {
+                        List<GameCell> adjacentResources = cell.adjacentCells.FindAll((GameCell objCell) => { return objCell.state == GameCellState.Resource; });
+                        if (adjacentResources.Count == 1)
+                        {
+                            cell.SetCell(ship.owner, GameCellState.DepotBuildArea);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (GameCell cell in GameManager.singleton.cells)
+            {
+                if (cell.state == GameCellState.DepotBuildArea)
+                {
+                    cell.Revert();
+                }
+            }
+        }
+        this.isBuyingDepot = isBuyingDepot;
     }
 
     [ClientRpc]

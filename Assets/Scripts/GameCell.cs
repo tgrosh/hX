@@ -13,6 +13,7 @@ public class GameCell : NetworkBehaviour
     public Material ShipMaterial;
     public Material MovementAreaMaterial;
     public Material ResourceMaterial;
+    public Material DepotBuildAreaMaterial;
     public GameObject prefabHex;
     public GameObject prefabShip;
     public GameObject prefabResourceLocationTrillium;
@@ -20,6 +21,7 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabResourceLocationSupplies;
     public GameObject prefabResourceLocationWorkers;
     public GameObject prefabBase;
+    public GameObject prefabDepot;
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
@@ -40,9 +42,11 @@ public class GameCell : NetworkBehaviour
     private float cellAnimationTime = 0f;
     private bool animatingColor;
     private Color cellColorTarget = Color.clear;
-    private List<GameObject> adjacent = new List<GameObject>();
+    public List<GameCell> adjacentCells = new List<GameCell>();
     [SyncVar]
     public NetworkInstanceId associatedShip;
+    [SyncVar]
+    public NetworkInstanceId associatedDepot;
     private Resource associatedResourceLocation;
     public Base associatedBase;
     [SyncVar]
@@ -52,7 +56,7 @@ public class GameCell : NetworkBehaviour
     [SyncVar]
     private NetworkInstanceId prevOwner;
     private float hoverTime;
-    private float tooltipDelay = 1f;
+    private float tooltipDelay = 1f;    
 
     // Use this for initialization
     void Start()
@@ -142,6 +146,14 @@ public class GameCell : NetworkBehaviour
                 {
                     SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
                 }
+                else if (state == GameCellState.DepotBuildArea && !cellMaterial.name.Contains(DepotBuildAreaMaterial.name))
+                {
+                    SetCellMaterial(DepotBuildAreaMaterial.color, DepotBuildAreaMaterial);
+                }
+                else if (state == GameCellState.Depot && !cellMaterial.name.Contains(Empty.name))
+                {
+                    SetCellMaterial(Empty.color, Empty);
+                }
             }
 
             if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
@@ -217,8 +229,7 @@ public class GameCell : NetworkBehaviour
             ownerSeat = player.seat;
         }
     }
-
-    
+        
     [Server]
     public bool SetCell(Player player, GameCellState state)
     {
@@ -238,7 +249,7 @@ public class GameCell : NetworkBehaviour
         ownerSeat = prevSeat;
         owner = prevOwner;
     }
-
+    
     [Server]
     public bool Select(Player player)
     {
@@ -282,6 +293,7 @@ public class GameCell : NetworkBehaviour
                 ship.owner = player;
                 NetworkServer.Spawn(objShip);
                 associatedShip = ship.netId;
+                player.ships.Add(ship);
                 return true;
             }
         }
@@ -299,15 +311,33 @@ public class GameCell : NetworkBehaviour
             NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().MoveTo(this.netId);
             return true;
         }
+        else if (state == GameCellState.DepotBuildArea && owner == player.netId)
+        {
+            if (player.isBuyingDepot && player.Purchase(PurchaseManager.Depot))
+            {
+                SetCell(player, GameCellState.Depot);
+                player.isBuyingDepot = false;
+                GameObject objDepot = (GameObject)Instantiate(prefabDepot, transform.position, Quaternion.identity);
+                Depot depot = objDepot.GetComponent<Depot>();
+                depot.color = player.color;
+                depot.owner = player;
+                NetworkServer.Spawn(objDepot);
+                associatedDepot = depot.netId;
+                //player.depots.Add(depot);
+                return true;
+            }
+        }
 
         return false;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (!adjacent.Contains(other.gameObject))
+        GameCell cell = other.gameObject.GetComponent<GameCell>();
+
+        if (cell != null && !adjacentCells.Contains(cell))
         {
-            adjacent.Add(other.gameObject);
+            adjacentCells.Add(cell);
         }
     }
 

@@ -13,6 +13,8 @@ namespace Assets.Scripts
         Base = 3,
         BaseArea = 4,
         MovementArea = 6,
-        Resource = 7
+        Resource = 7,
+        Depot = 8,
+        DepotBuildArea = 9
     }
 }
