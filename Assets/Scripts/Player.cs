@@ -177,13 +177,13 @@ public class Player : NetworkBehaviour
         {
             foreach (Ship ship in ships)
             {
-                List<GameCell> nearbyNonShipCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasShip; });
-                foreach (GameCell cell in nearbyNonShipCells)
+                List<GameCell> nearbyBuildableCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasShip && objCell.state == GameCellState.Empty; });
+                foreach (GameCell cell in nearbyBuildableCells)
                 {
                     if (Vector3.Distance(ship.transform.position, cell.transform.position) <= ship.buildRange)
                     {
                         List<GameCell> adjacentResources = cell.adjacentCells.FindAll((GameCell objCell) => { return objCell.state == GameCellState.Resource; });
-                        if (adjacentResources.Count == 1)
+                        if (adjacentResources.Count > 0)
                         {
                             cell.SetCell(ship.owner, GameCellState.DepotBuildArea);
                         }

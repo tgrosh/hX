@@ -16,17 +16,13 @@ public class Base : NetworkBehaviour {
     public delegate void ResourceDumped(Base playerBase, ResourceType resource);
     public event ResourceDumped OnResourceDumped;
     public Transform camTarget;
-    public DateTime lastResourceTime;
-
     public List<GameCell> nearbyCells = new List<GameCell>();
-
     private bool isColorSet;
     
 	// Use this for initialization
 	void Start () {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
         cargoHold.OnResourceDumped += cargoHold_OnResourceDumped;
-        lastResourceTime = DateTime.Now;
         camTarget = transform.FindChild("CameraTarget");
 
         if (isServer)
@@ -34,8 +30,10 @@ public class Base : NetworkBehaviour {
             NetworkServer.FindLocalObject(owner).GetComponent<Player>().playerBase = this.netId;
 
             //seed with initial values, enough to buy one ship
-            cargoHold.Add(ResourceType.Corium, 2);
-            cargoHold.Add(ResourceType.Workers, 1);
+            cargoHold.Add(ResourceType.Corium, 10);
+            cargoHold.Add(ResourceType.Workers, 10);
+            cargoHold.Add(ResourceType.Supplies, 10);
+            cargoHold.Add(ResourceType.Hydrazine, 10);
         }
 	}
     
@@ -54,11 +52,6 @@ public class Base : NetworkBehaviour {
 
     void cargoHold_OnResourceAdded(ResourceType resource)
     {
-        if (DateTime.Now.AddSeconds(-5) > lastResourceTime)
-        {
-            GameManager.singleton.AddEvent(String.Format("Player {0} has delivered resources to their base", GameManager.singleton.CreateColoredText(NetworkServer.FindLocalObject(owner).GetComponent<Player>().seat.ToString(), NetworkServer.FindLocalObject(owner).GetComponent<Player>().color)));
-            lastResourceTime = DateTime.Now;
-        }
         if (OnResourceAdded != null)
         {
             OnResourceAdded(this, resource);            
