@@ -261,7 +261,7 @@ public class GameCell : NetworkBehaviour
                 {
                     NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().boosterCount++;
                     player.isBuyingBoosterUpgrade = false;
-                    UIManager.singleton.ToggleBoosterUpgrade(false);
+                    UIManager.singleton.hotbar.ToggleBoosterUpgrade(false);
                 }
             }
             else

@@ -29,7 +29,7 @@ public class Depot : NetworkBehaviour {
         transform.position = transform.position + new Vector3(0, 0, 1);
         animatingEntrance = true;
 
-        UIManager.singleton.ToggleBuildDepot(false);
+        UIManager.singleton.hotbar.ToggleBuildDepot(false);
 
         if (isServer)
         {

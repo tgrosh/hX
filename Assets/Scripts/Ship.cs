@@ -52,7 +52,7 @@ public class Ship : NetworkBehaviour {
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
 
-        UIManager.singleton.ToggleShip(false);
+        UIManager.singleton.hotbar.ToggleShip(false);
 
         if (isServer) { 
             GameManager.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));

@@ -15,15 +15,17 @@ public class UIManager : MonoBehaviour
     public GameRule ruleEnemyCore;
     public GameObject ShipTooltip;
 
-    private GameObject hotbar;
     private GameObject FullEventLog;
     private GameObject MostRecentEventLog;
     private bool isFullLogOpen;
+    public HotBar hotbar;
 
     void Start()
     {
         singleton = this;
-        hotbar = GameObject.Find("Hotbar");
+        if (GameObject.Find("Hotbar") != null) { 
+            hotbar = GameObject.Find("Hotbar").GetComponent<HotBar>();
+        }
         FullEventLog = GameObject.Find("FullEventLog");
         MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
     }
@@ -34,21 +36,7 @@ public class UIManager : MonoBehaviour
     }
 
     void Update()
-    {        
-        if (hotbar != null)
-        {
-            foreach (Toggle t in hotbar.GetComponentsInChildren<Toggle>())
-            {
-                if (t.isOn)
-                {
-                    t.image.color = Color.cyan;                    
-                }
-                else
-                {
-                    t.image.color = t.colors.normalColor;
-                }
-            }
-        }
+    {     
     }
 
     public void CreateMultiplayerGame()
@@ -96,38 +84,6 @@ public class UIManager : MonoBehaviour
         GameSetupPanel.SetActive(show);
     }
 
-    public void ToggleShip(bool isOn)
-    {
-        GameObject.Find("ShipToggle").GetComponent<Toggle>().isOn = isOn;
-
-        if (Player.localPlayer != null)
-        {
-            Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
-        }        
-        if (isOn)
-        {
-            GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
-            GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination += MenuManager_OnCameraReachedDestination;
-        }
-        else
-        {
-            if (GameManager.singleton != null)
-            {
-                GameManager.singleton.ResetCamera();
-            }            
-        }
-    }
-
-    public void ToggleBoosterUpgrade(bool isOn)
-    {
-        GameObject.Find("UpgradeBoosterToggle").GetComponent<Toggle>().isOn = isOn;
-
-        if (Player.localPlayer != null)
-        {
-            Player.localPlayer.Cmd_SetIsBuyingBoosterUpgrade(isOn);
-        }
-    }
-
     //used during radial menu
     public void ShipButtonClick()
     {
@@ -137,12 +93,7 @@ public class UIManager : MonoBehaviour
         }
         Player.localPlayer.SelectCell(GameManager.singleton.selectedCell.netId);
     }
-
-    void MenuManager_OnCameraReachedDestination()
-    {
-        GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination -= MenuManager_OnCameraReachedDestination;
-    }
-
+    
     public void ToggleEventLog()
     {
         if (!isFullLogOpen)
@@ -157,22 +108,7 @@ public class UIManager : MonoBehaviour
             MostRecentEventLog.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 32);
             isFullLogOpen = false;
         }
-    }
-
-    public void EndTurn()
-    {
-        Player.localPlayer.EndTurn();
-    }
-
-    public void ToggleBuildDepot(bool isOn)
-    {
-        GameObject.Find("DepotToggle").GetComponent<Toggle>().isOn = isOn;
-
-        if (Player.localPlayer != null)
-        {
-            Player.localPlayer.Cmd_SetIsBuyingDepot(isOn);
-        } 
-    }
+    }    
 
     public void ShowResourceTracker()
     {
@@ -196,11 +132,6 @@ public class UIManager : MonoBehaviour
         {
             menu.transform.position = new Vector3(transform.position.x, transform.position.y, -1000);
         }   
-    }
-
-    public void ToggleHotbar(bool show)
-    {
-        GameObject.Find("Hotbar").GetComponent<Animator>().SetBool("IsOpen", show);
     }
 
     public void ShowShipTooltip(Ship ship)

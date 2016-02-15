@@ -105,7 +105,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            UIManager.singleton.ToggleHotbar(false);
+            UIManager.singleton.hotbar.Toggle(false);
             GameManager.singleton.ResetCamera();
             Cmd_EndTurn();
         }
@@ -160,7 +160,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameManager.singleton.ResetCamera();
-            UIManager.singleton.ToggleHotbar(true);
+            UIManager.singleton.hotbar.Toggle(true);
             UIManager.singleton.ShowYourTurn();
         }
     }
