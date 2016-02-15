@@ -20,14 +20,15 @@ public class Player : NetworkBehaviour
     [SyncVar]
     public PlayerSeat seat;
     [SyncVar]
-    public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;
+    public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;       
     [SyncVar]
     public bool isBuyingShip;
-    public List<Ship> ships = new List<Ship>();
     [SyncVar]
     public bool isBuyingDepot;
     [SyncVar]
     public bool isBuyingBoosterUpgrade;
+
+    public List<Ship> ships = new List<Ship>();
 
     // Use this for initialization
     void Start()
@@ -47,6 +48,25 @@ public class Player : NetworkBehaviour
         {
             GameManager.OnTurnStart += GameManager_OnTurnStart;
         }
+
+        Depot.OnDepotStarted += Depot_OnDepotStarted;
+        Ship.OnShipStarted += Ship_OnShipStarted;
+        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
+    }
+
+    private void Ship_OnBoostersChanged(int count)
+    {
+        isBuyingBoosterUpgrade = false;
+    }
+
+    private void Ship_OnShipStarted(Ship ship)
+    {
+        isBuyingShip = false;
+    }
+
+    private void Depot_OnDepotStarted(Depot depot)
+    {
+        isBuyingDepot = false;
     }
 
     void GameManager_OnTurnStart()
@@ -144,27 +164,6 @@ public class Player : NetworkBehaviour
         GameManager.singleton.EndPlayerTurn();
     }
 
-    [ClientRpc]
-    public void Rpc_StartGame()
-    {
-        if (isLocalPlayer)
-        {
-            GameObject.Find("Waiting").SetActive(false);
-            UIManager.singleton.ShowResourceTracker();
-        }        
-    }
-
-    [ClientRpc]
-    public void Rpc_StartTurn()
-    {
-        if (isLocalPlayer)
-        {
-            GameManager.singleton.ResetCamera();
-            UIManager.singleton.hotbar.Toggle(true);
-            UIManager.singleton.ShowYourTurn();
-        }
-    }
-
     [Command]
     public void Cmd_SetIsBuyingShip(bool isBuyingShip)
     {
@@ -206,6 +205,12 @@ public class Player : NetworkBehaviour
         this.isBuyingDepot = isBuyingDepot;
     }
 
+    [Command]
+    public void Cmd_SetIsBuyingBoosterUpgrade(bool isBuyingBoosterUpgrade)
+    {
+        this.isBuyingBoosterUpgrade = isBuyingBoosterUpgrade;
+    }
+
     [ClientRpc]
     public void Rpc_AddResource(ResourceType resource)
     {
@@ -223,10 +228,25 @@ public class Player : NetworkBehaviour
             GameManager.singleton.DecrementResource(resource);
         }
     }
-
-    [Server]
-    public void Cmd_SetIsBuyingBoosterUpgrade(bool isBuyingBoosterUpgrade)
+    
+    [ClientRpc]
+    public void Rpc_StartGame()
     {
-        this.isBuyingBoosterUpgrade = isBuyingBoosterUpgrade;
+        if (isLocalPlayer)
+        {
+            GameObject.Find("Waiting").SetActive(false);
+            UIManager.singleton.ShowResourceTracker();
+        }
+    }
+
+    [ClientRpc]
+    public void Rpc_StartTurn()
+    {
+        if (isLocalPlayer)
+        {
+            GameManager.singleton.ResetCamera();
+            UIManager.singleton.hotbar.Toggle(true);
+            UIManager.singleton.ShowYourTurn();
+        }
     }
 }

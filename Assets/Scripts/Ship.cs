@@ -16,7 +16,7 @@ public class Ship : NetworkBehaviour {
     public List<Depot> nearbyDepots = new List<Depot>();
     public Base nearbyBase;
     public Transform cameraTarget;
-    public int boosterCount = 0;
+    private int boosterCount = 0;
     private CapsuleCollider capsuleCollider;
 
     public delegate void ShipMoveEnd();
@@ -24,7 +24,13 @@ public class Ship : NetworkBehaviour {
 
     public delegate void ShipSpawnEnd();
     public static event ShipSpawnEnd OnShipSpawnEnd;
-        
+
+    public delegate void ShipStarted(Ship ship);
+    public static event ShipStarted OnShipStarted;
+
+    public delegate void BoostersChanged(int count);
+    public static event BoostersChanged OnBoostersChanged;
+
     [SyncVar]
     public Color color;
     public Player owner;
@@ -51,11 +57,14 @@ public class Ship : NetworkBehaviour {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
-
-        UIManager.singleton.hotbar.ToggleShip(false);
-
+        
         if (isServer) { 
             GameManager.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+        }
+
+        if (OnShipStarted != null)
+        {
+            OnShipStarted(this);
         }
 	}
 
@@ -127,11 +136,6 @@ public class Ship : NetworkBehaviour {
                 }
             }
         }
-
-        //if (isClient)
-        //{
-        //    Camera.main.GetComponent<AutoCam>().SetTarget(this.transform.FindChild("CameraTarget"));
-        //}
 
         if (!isColorSet)
         {
@@ -216,6 +220,24 @@ public class Ship : NetworkBehaviour {
         this.destination = cellId;
     }
 
+    public int Boosters
+    {
+        get { return boosterCount; }
+        set {
+            boosterCount = value;
+            Rpc_BoosterChange(boosterCount);
+        }
+    }
+
+    [ClientRpc]
+    void Rpc_BoosterChange(int boosterCount)
+    {
+        if (OnBoostersChanged != null)
+        {
+            OnBoostersChanged(boosterCount);
+        }
+    }
+    
     void OnTriggerEnter(Collider other)
     {
         GameCell otherGameCell = other.gameObject.GetComponent<GameCell>();
@@ -255,6 +277,4 @@ public class Ship : NetworkBehaviour {
             nearbyBase = null;
         }
     }
-
-    
 }

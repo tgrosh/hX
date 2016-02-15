@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using Assets.Scripts;
 using UnityEngine.Networking;
 
-public class UIManager : MonoBehaviour
+public class UIManager : NetworkBehaviour
 {
     public static UIManager singleton;
     public GameObject GameSetupPanel;
@@ -30,9 +30,28 @@ public class UIManager : MonoBehaviour
         MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
     }
 
-    void OnStartClient()
+    public override void OnStartClient()
     {
         ShipTooltip.SetActive(false);
+
+        Depot.OnDepotStarted += Depot_OnDepotStarted;
+        Ship.OnShipStarted += Ship_OnShipStarted;
+        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
+    }
+
+    void Ship_OnBoostersChanged(int count)
+    {
+        hotbar.ToggleBoosterUpgrade(false);
+    }
+
+    void Ship_OnShipStarted(Ship ship)
+    {
+        hotbar.ToggleShip(false);
+    }
+
+    void Depot_OnDepotStarted(Depot depot)
+    {
+        hotbar.ToggleBuildDepot(false);
     }
 
     void Update()

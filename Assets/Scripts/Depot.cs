@@ -19,6 +19,9 @@ public class Depot : NetworkBehaviour {
     public List<Resource> nearbyResources = new List<Resource>();
     public CargoHold cargoHold = new CargoHold();
 
+    public delegate void DepotStarted(Depot depot);
+    public static event DepotStarted OnDepotStarted;
+
 	// Use this for initialization
     void Start()
     {
@@ -29,12 +32,15 @@ public class Depot : NetworkBehaviour {
         transform.position = transform.position + new Vector3(0, 0, 1);
         animatingEntrance = true;
 
-        UIManager.singleton.hotbar.ToggleBuildDepot(false);
-
         if (isServer)
         {
             GameManager.OnTurnStart += GameManager_OnTurnStart;
             GameManager.singleton.AddEvent(String.Format("Player {0} created a new Depot", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+        }
+
+        if (OnDepotStarted != null)
+        {
+            OnDepotStarted(this);
         }
     }
     

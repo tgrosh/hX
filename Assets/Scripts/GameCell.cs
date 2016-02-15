@@ -259,9 +259,7 @@ public class GameCell : NetworkBehaviour
             {
                 if (player.Purchase(PurchaseManager.UpgradeBooster))
                 {
-                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().boosterCount++;
-                    player.isBuyingBoosterUpgrade = false;
-                    UIManager.singleton.hotbar.ToggleBoosterUpgrade(false);
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Boosters++;
                 }
             }
             else
@@ -297,7 +295,6 @@ public class GameCell : NetworkBehaviour
             if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
             {
                 SetCell(player, GameCellState.Empty);
-                player.isBuyingShip = false;
                 hasShip = true;
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
                 Ship ship = objShip.GetComponent<Ship>();
@@ -328,7 +325,6 @@ public class GameCell : NetworkBehaviour
             if (player.isBuyingDepot && player.Purchase(PurchaseManager.Depot))
             {
                 SetCell(player, GameCellState.Depot);
-                player.isBuyingDepot = false;
                 GameObject objDepot = (GameObject)Instantiate(prefabDepot, transform.position, Quaternion.identity);
                 Depot depot = objDepot.GetComponent<Depot>();
                 depot.color = player.color;
