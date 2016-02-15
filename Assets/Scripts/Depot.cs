@@ -103,9 +103,7 @@ public class Depot : NetworkBehaviour {
     private void CollectAvailableResources()
     {
         foreach (Resource resource in nearbyResources)
-        {
-            float distance = Vector3.Distance(resource.transform.position, transform.position);
-            
+        {            
             if (!cargoHold.IsFull)
             {
                 ResourceType collectedResource = resource.type;

@@ -98,10 +98,8 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleShip(bool isOn)
     {
-        if (hotbar != null)
-        {
-            hotbar.transform.FindChild("ShipToggle").GetComponent<Toggle>().isOn = isOn;
-        }
+        GameObject.Find("ShipToggle").GetComponent<Toggle>().isOn = isOn;
+
         if (Player.localPlayer != null)
         {
             Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
@@ -117,6 +115,16 @@ public class MenuManager : MonoBehaviour
             {
                 GameManager.singleton.ResetCamera();
             }            
+        }
+    }
+
+    public void ToggleBoosterUpgrade(bool isOn)
+    {
+        GameObject.Find("UpgradeBoosterToggle").GetComponent<Toggle>().isOn = isOn;
+
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingBoosterUpgrade(isOn);
         }
     }
 
@@ -158,26 +166,12 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleBuildDepot(bool isOn)
     {
-        if (hotbar != null)
-        {
-            hotbar.transform.FindChild("DepotToggle").GetComponent<Toggle>().isOn = isOn;
-        }
+        GameObject.Find("DepotToggle").GetComponent<Toggle>().isOn = isOn;
+
         if (Player.localPlayer != null)
         {
             Player.localPlayer.Cmd_SetIsBuyingDepot(isOn);
         } 
-        //if (isOn)
-        //{
-        //    GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
-        //    GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination += MenuManager_OnCameraReachedDestination;
-        //}
-        //else
-        //{
-        //    if (GameManager.singleton != null)
-        //    {
-        //        GameManager.singleton.ResetCamera();
-        //    }
-        //}
     }
 
     public void ShowResourceTracker()

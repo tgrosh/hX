@@ -17,5 +17,10 @@ namespace Assets.Scripts
             new PurchaseCost(ResourceType.Hydrazine, 1) 
         });
 
+        public static Purchase UpgradeBooster = new Purchase(new List<PurchaseCost>() { 
+            new PurchaseCost(ResourceType.Corium, 2), 
+            new PurchaseCost(ResourceType.Hydrazine, 1) 
+        });
+
     }
 }

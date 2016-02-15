@@ -10,11 +10,14 @@ public class Ship : NetworkBehaviour {
     public float collectionRange = 2.2f;
     public float buildRange = 2.2f;
     public float cargoDropRange = 2.2f;
+    public float movementRange = 3.4f;
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
     public Base nearbyBase;
     public Transform cameraTarget;
+    public int boosterCount = 0;
+    private CapsuleCollider capsuleCollider;
 
     public delegate void ShipMoveEnd();
     public static event ShipMoveEnd OnShipMoveEnd;
@@ -44,7 +47,8 @@ public class Ship : NetworkBehaviour {
     {
         origPosition = transform.position;
         transform.position = transform.position + new Vector3(0, 0, 1);
-        animatingEntrance = true;        
+        animatingEntrance = true;
+        capsuleCollider = GetComponent<CapsuleCollider>();
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
 
@@ -72,6 +76,8 @@ public class Ship : NetworkBehaviour {
         	
 	// Update is called once per frame
 	void Update () {
+        capsuleCollider.radius = movementRange + (1.7f * boosterCount);
+
         if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
         {
             transform.position = Vector3.Lerp(transform.position, origPosition, animationSpeed * Time.deltaTime);

@@ -255,30 +255,42 @@ public class GameCell : NetworkBehaviour
     {
         if (hasShip && owner == player.netId)
         {
-            //clicking on my ship space, select it
-            selected = !selected;
-            GameManager.singleton.selectedCell = selected ? this : null;
-
-            if (selected)
+            if (player.isBuyingBoosterUpgrade)
             {
-                foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
+                if (player.Purchase(PurchaseManager.UpgradeBooster))
                 {
-                    if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
-                    {
-                        cell.SetCell(player, GameCellState.MovementArea);
-                    }
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().boosterCount++;
+                    player.isBuyingBoosterUpgrade = false;
+                    MenuManager.singleton.ToggleBoosterUpgrade(false);
                 }
             }
             else
             {
-                foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
+                //clicking on my ship space, select it
+                selected = !selected;
+                GameManager.singleton.selectedCell = selected ? this : null;
+
+                if (selected)
                 {
-                    if (cell.state == GameCellState.MovementArea)
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
                     {
-                        cell.Revert();
+                        if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
+                        {
+                            cell.SetCell(player, GameCellState.MovementArea);
+                        }
                     }
                 }
-            }
+                else
+                {
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
+                    {
+                        if (cell.state == GameCellState.MovementArea)
+                        {
+                            cell.Revert();
+                        }
+                    }
+                }
+            }            
         }
         else if (state == GameCellState.BaseArea && owner == player.netId)
         {

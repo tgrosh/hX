@@ -26,6 +26,8 @@ public class Player : NetworkBehaviour
     public List<Ship> ships = new List<Ship>();
     [SyncVar]
     public bool isBuyingDepot;
+    [SyncVar]
+    public bool isBuyingBoosterUpgrade;
 
     // Use this for initialization
     void Start()
@@ -220,5 +222,11 @@ public class Player : NetworkBehaviour
         {
             GameManager.singleton.DecrementResource(resource);
         }
+    }
+
+    [Server]
+    public void Cmd_SetIsBuyingBoosterUpgrade(bool isBuyingBoosterUpgrade)
+    {
+        this.isBuyingBoosterUpgrade = isBuyingBoosterUpgrade;
     }
 }
