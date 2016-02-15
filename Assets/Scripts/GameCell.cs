@@ -261,7 +261,7 @@ public class GameCell : NetworkBehaviour
                 {
                     NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().boosterCount++;
                     player.isBuyingBoosterUpgrade = false;
-                    MenuManager.singleton.ToggleBoosterUpgrade(false);
+                    UIManager.singleton.ToggleBoosterUpgrade(false);
                 }
             }
             else
@@ -360,7 +360,7 @@ public class GameCell : NetworkBehaviour
             hoverTime += Time.deltaTime;
             if (hoverTime > tooltipDelay)
             {
-                MenuManager.singleton.ShowShipTooltip(ClientScene.FindLocalObject(associatedShip).GetComponent<Ship>());
+                UIManager.singleton.ShowShipTooltip(ClientScene.FindLocalObject(associatedShip).GetComponent<Ship>());
             }
         }
     }
@@ -368,7 +368,7 @@ public class GameCell : NetworkBehaviour
     void OnMouseExit()
     {
         hoverTime = 0;
-        MenuManager.singleton.HideShipTooltip();
+        UIManager.singleton.HideShipTooltip();
     }
 
 }

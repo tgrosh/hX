@@ -4,9 +4,9 @@ using UnityEngine.UI;
 using Assets.Scripts;
 using UnityEngine.Networking;
 
-public class MenuManager : MonoBehaviour
+public class UIManager : MonoBehaviour
 {
-    public static MenuManager singleton;
+    public static UIManager singleton;
     public GameObject GameSetupPanel;
     public GameRule ruleEmpty;
     public GameRule ruleOwnArea;

@@ -105,7 +105,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            MenuManager.singleton.ToggleHotbar(false);
+            UIManager.singleton.ToggleHotbar(false);
             GameManager.singleton.ResetCamera();
             Cmd_EndTurn();
         }
@@ -150,7 +150,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameObject.Find("Waiting").SetActive(false);
-            MenuManager.singleton.ShowResourceTracker();
+            UIManager.singleton.ShowResourceTracker();
         }        
     }
 
@@ -160,8 +160,8 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameManager.singleton.ResetCamera();
-            MenuManager.singleton.ToggleHotbar(true);
-            MenuManager.singleton.ShowYourTurn();
+            UIManager.singleton.ToggleHotbar(true);
+            UIManager.singleton.ShowYourTurn();
         }
     }
 
