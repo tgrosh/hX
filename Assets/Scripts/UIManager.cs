@@ -37,6 +37,18 @@ public class UIManager : NetworkBehaviour
         Depot.OnDepotStarted += Depot_OnDepotStarted;
         Ship.OnShipStarted += Ship_OnShipStarted;
         Ship.OnBoostersChanged += Ship_OnBoostersChanged;
+        Ship.OnBlastersChanged += Ship_OnBlastersChanged;
+        Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
+    }
+
+    void Ship_OnTractorBeamsChanged(int count)
+    {
+        hotbar.ToggleTractorBeamUpgrade(false);
+    }
+
+    void Ship_OnBlastersChanged(int count)
+    {
+        hotbar.ToggleBlasterUpgrade(false);
     }
 
     void Ship_OnBoostersChanged(int count)

@@ -22,5 +22,15 @@ namespace Assets.Scripts
             new PurchaseCost(ResourceType.Hydrazine, 1) 
         });
 
+        public static Purchase UpgradeBlaster = new Purchase(new List<PurchaseCost>() { 
+            new PurchaseCost(ResourceType.Workers, 2), 
+            new PurchaseCost(ResourceType.Supplies, 1) 
+        });
+
+        public static Purchase UpgradeTractorBeam = new Purchase(new List<PurchaseCost>() { 
+            new PurchaseCost(ResourceType.Supplies, 2), 
+            new PurchaseCost(ResourceType.Hydrazine, 1) 
+        });
+
     }
 }

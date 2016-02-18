@@ -27,8 +27,12 @@ public class Player : NetworkBehaviour
     public bool isBuyingDepot;
     [SyncVar]
     public bool isBuyingBoosterUpgrade;
-
+    [SyncVar]
+    public bool isBuyingTractorBeamUpgrade;
+    [SyncVar]
+    public bool isBuyingBlasterUpgrade;
     public List<Ship> ships = new List<Ship>();
+    
 
     // Use this for initialization
     void Start()
@@ -165,16 +169,16 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    public void Cmd_SetIsBuyingShip(bool isBuyingShip)
+    public void Cmd_SetIsBuyingShip(bool isBuying)
     {
-        NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuyingShip);
-        this.isBuyingShip = isBuyingShip;
+        NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuying);
+        this.isBuyingShip = isBuying;
     }
 
     [Command]
-    public void Cmd_SetIsBuyingDepot(bool isBuyingDepot)
+    public void Cmd_SetIsBuyingDepot(bool isBuying)
     {
-        if (isBuyingDepot)
+        if (isBuying)
         {
             foreach (Ship ship in ships)
             {
@@ -202,13 +206,25 @@ public class Player : NetworkBehaviour
                 }
             }
         }
-        this.isBuyingDepot = isBuyingDepot;
+        this.isBuyingDepot = isBuying;
     }
 
     [Command]
-    public void Cmd_SetIsBuyingBoosterUpgrade(bool isBuyingBoosterUpgrade)
+    public void Cmd_SetIsBuyingBlasterUpgrade(bool isBuying)
     {
-        this.isBuyingBoosterUpgrade = isBuyingBoosterUpgrade;
+        this.isBuyingBlasterUpgrade = isBuying;
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingTractorBeamUpgrade(bool isBuying)
+    {
+        this.isBuyingTractorBeamUpgrade = isBuying;
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingBoosterUpgrade(bool isBuying)
+    {
+        this.isBuyingBoosterUpgrade = isBuying;
     }
 
     [ClientRpc]
@@ -249,4 +265,5 @@ public class Player : NetworkBehaviour
             UIManager.singleton.ShowYourTurn();
         }
     }
+
 }

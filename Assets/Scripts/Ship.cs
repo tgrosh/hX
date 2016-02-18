@@ -17,6 +17,8 @@ public class Ship : NetworkBehaviour {
     public Base nearbyBase;
     public Transform cameraTarget;
     private int boosterCount = 0;
+    private int blasterCount = 0;
+    private int tractorBeamCount = 0;
     private CapsuleCollider capsuleCollider;
 
     public delegate void ShipMoveEnd();
@@ -30,6 +32,12 @@ public class Ship : NetworkBehaviour {
 
     public delegate void BoostersChanged(int count);
     public static event BoostersChanged OnBoostersChanged;
+
+    public delegate void BlastersChanged(int count);
+    public static event BlastersChanged OnBlastersChanged;
+
+    public delegate void TractorBeamsChanged(int count);
+    public static event TractorBeamsChanged OnTractorBeamsChanged;
 
     [SyncVar]
     public Color color;
@@ -229,12 +237,50 @@ public class Ship : NetworkBehaviour {
         }
     }
 
+    public int Blasters
+    {
+        get { return blasterCount; }
+        set
+        {
+            blasterCount = value;
+            Rpc_BlasterChange(blasterCount);
+        }
+    }
+
+    public int TractorBeams
+    {
+        get { return tractorBeamCount; }
+        set
+        {
+            tractorBeamCount = value;
+            Rpc_TractorBeamChange(tractorBeamCount);
+        }
+    }
+
     [ClientRpc]
-    void Rpc_BoosterChange(int boosterCount)
+    void Rpc_BoosterChange(int count)
     {
         if (OnBoostersChanged != null)
         {
-            OnBoostersChanged(boosterCount);
+            OnBoostersChanged(count);
+        }
+    }
+
+    [ClientRpc]
+    void Rpc_BlasterChange(int count)
+    {
+        if (OnBlastersChanged != null)
+        {
+            OnBlastersChanged(count);
+        }
+    }
+
+    [ClientRpc]
+    void Rpc_TractorBeamChange(int count)
+    {
+        if (OnTractorBeamsChanged != null)
+        {
+            OnTractorBeamsChanged(count);
         }
     }
     

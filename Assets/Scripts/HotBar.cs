@@ -57,6 +57,26 @@ public class HotBar : MonoBehaviour {
         }
     }
 
+    public void ToggleBlasterUpgrade(bool isOn)
+    {
+        GameObject.Find("UpgradeBlasterToggle").GetComponent<Toggle>().isOn = isOn;
+
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingBlasterUpgrade(isOn);
+        }
+    }
+
+    public void ToggleTractorBeamUpgrade(bool isOn)
+    {
+        GameObject.Find("UpgradeTractorBeamToggle").GetComponent<Toggle>().isOn = isOn;
+
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingTractorBeamUpgrade(isOn);
+        }
+    }
+
     public void EndTurn()
     {
         Player.localPlayer.EndTurn();

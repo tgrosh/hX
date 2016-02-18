@@ -262,6 +262,20 @@ public class GameCell : NetworkBehaviour
                     NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Boosters++;
                 }
             }
+            else if (player.isBuyingBlasterUpgrade)
+            {
+                if (player.Purchase(PurchaseManager.UpgradeBlaster))
+                {
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Blasters++;
+                }
+            }
+            else if (player.isBuyingTractorBeamUpgrade)
+            {
+                if (player.Purchase(PurchaseManager.UpgradeTractorBeam))
+                {
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().TractorBeams++;
+                }
+            }
             else
             {
                 //clicking on my ship space, select it
