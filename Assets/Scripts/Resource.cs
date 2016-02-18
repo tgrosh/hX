@@ -8,7 +8,6 @@ public class Resource : NetworkBehaviour {
     public ResourceType type;
     public GameObject resourceItemPrefab;
 
-    private int collectionRate = 3; //collecting per player per round
     private float rotateSpeedMin = 5f;
     private float rotateSpeedMax = 15f;
     private float rotateSpeed;
@@ -27,7 +26,7 @@ public class Resource : NetworkBehaviour {
 
     public int Collect(int requestAmount)
     {
-        int collection = Mathf.Min(new int[] { requestAmount, collectionRate });
+        int collection = Mathf.Min(new int[] { requestAmount, Random.Range(0, 3) });
         return collection;
     }
 

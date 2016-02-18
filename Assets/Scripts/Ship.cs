@@ -163,7 +163,7 @@ public class Ship : NetworkBehaviour {
                 if (!cargoHold.IsFull)
                 {
                     ResourceType collectedResource = resource.type;
-                    int collectedCount = resource.Collect(cargoHold.AvailableCapacity);
+                    int collectedCount = resource.Collect(cargoHold.AvailableCapacity) + tractorBeamCount;
 
                     if (collectedCount > 0)
                     {
