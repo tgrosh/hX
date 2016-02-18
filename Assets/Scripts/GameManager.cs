@@ -18,20 +18,11 @@ public class GameManager : NetworkBehaviour
     public int numRows = 10;
     public int numCols = 10;
     public float boardSpacing = 1.05f;
-    public GameCell selectedCell;
-    
+    public GameCell selectedCell;    
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
-
-    private GameObject playerNamePanel;
-    private GameObject resourceCountPanel;
-    public List<GameCell> cells = new List<GameCell>();
-
-    public delegate void TurnStart();
-    public static event TurnStart OnTurnStart;
-
-    public List<string> events = new List<string>();
-        
+    public List<GameCell> cells = new List<GameCell>();    
+    public List<string> events = new List<string>();        
     public Player activePlayer
     {
         get
@@ -39,10 +30,38 @@ public class GameManager : NetworkBehaviour
             return players[activePlayerIndex];
         }
     }
+    public delegate void TurnStart();
+    public static event TurnStart OnTurnStart;
+
+    private GameObject playerNamePanel;
+    private GameObject resourceCountPanel;
+
+    Vector3 dieDisplayPosition;
+    float dieDisplayXOffset = 0f;
 
     void Awake()
     {
-        singleton = this;        
+        singleton = this;
+
+        //GameObject.Find("d6-1").GetComponent<d6>().Roll();
+        //GameObject.Find("d6-2").GetComponent<d6>().Roll();
+        //d6.OnDiceRollComplete += d6_OnDiceRollComplete;
+
+        //dieDisplayPosition = Camera.main.GetComponent<AutoCam>().transform.position + Vector3.forward * 10f;        
+    }
+
+    void d6_OnDiceRollComplete(d6 die)
+    {
+        if (dieDisplayXOffset == 0)
+        {
+            dieDisplayXOffset = -1f;
+        }
+        else if (dieDisplayXOffset == -1f)
+        {
+            dieDisplayXOffset = 1f;
+        }
+
+        die.Display(dieDisplayPosition + new Vector3(dieDisplayXOffset, 0, 0));
     }
 
     public override void OnStartClient()
