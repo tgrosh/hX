@@ -21,10 +21,10 @@ public class Ship : NetworkBehaviour {
     private int tractorBeamCount = 0;
     private CapsuleCollider capsuleCollider;
 
-    public delegate void ShipMoveEnd();
+    public delegate void ShipMoveEnd(Ship ship);
     public static event ShipMoveEnd OnShipMoveEnd;
 
-    public delegate void ShipSpawnEnd();
+    public delegate void ShipSpawnEnd(Ship ship);
     public static event ShipSpawnEnd OnShipSpawnEnd;
 
     public delegate void ShipStarted(Ship ship);
@@ -110,7 +110,7 @@ public class Ship : NetworkBehaviour {
             GameManager.singleton.ResetCamera();
             if (OnShipSpawnEnd != null)
             {
-                OnShipSpawnEnd();
+                OnShipSpawnEnd(this);
             }
         }
         
@@ -139,7 +139,7 @@ public class Ship : NetworkBehaviour {
 
                     if (OnShipMoveEnd != null)
                     {
-                        OnShipMoveEnd();
+                        OnShipMoveEnd(this);
                     }
                 }
             }

@@ -266,4 +266,12 @@ public class Player : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    public void Rpc_ShowEncounter(NetworkInstanceId ownerShip, int currentEncounterIndex)
+    {
+        if (isLocalPlayer)
+        {
+            GameObject.Find("EncounterPanel").GetComponent<EncounterManager>().ShowEncounter(ownerShip, currentEncounterIndex);
+        }
+    }
 }

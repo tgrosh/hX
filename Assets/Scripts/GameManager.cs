@@ -35,8 +35,6 @@ public class GameManager : NetworkBehaviour
 
     private GameObject playerNamePanel;
     private GameObject resourceCountPanel;
-
-    Vector3 dieDisplayPosition;
     float dieDisplayXOffset = 0f;
 
     void Awake()
@@ -61,7 +59,7 @@ public class GameManager : NetworkBehaviour
             dieDisplayXOffset = 1f;
         }
 
-        die.Display(dieDisplayPosition + new Vector3(dieDisplayXOffset, 0, 0));
+        die.Display(new Vector3(dieDisplayXOffset, 0, 0));
     }
 
     public override void OnStartClient()
