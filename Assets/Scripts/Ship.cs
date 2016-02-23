@@ -2,7 +2,6 @@
 using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
-using Assets.Scripts;
 using System;
 using UnityStandardAssets.Cameras;
 

@@ -12,10 +12,10 @@ public class NetManager : NetworkManager {
     {
         GameObject player = (GameObject)Instantiate(playerPrefab, Vector3.forward, Quaternion.identity);
         player.GetComponent<Player>().color = playerColors[NetworkServer.connections.Count-1];
-        player.GetComponent<Player>().seat = Assets.Scripts.PlayerSeat.One;
+        player.GetComponent<Player>().seat = PlayerSeat.One;
         if (GameManager.singleton.players.Count > 0)
         {
-            player.GetComponent<Player>().seat = Assets.Scripts.PlayerSeat.Two;
+            player.GetComponent<Player>().seat = PlayerSeat.Two;
         }
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
         

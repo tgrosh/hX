@@ -22,18 +22,10 @@ public class EncounterManager : NetworkBehaviour {
     {
         if (Random.value <= shipMoveEncounterChance)
         {
-            StartRandomEncounter(ship.netId);
+            ship.owner.GetComponent<Player>().Rpc_ShowEncounter(ship.netId, Random.Range(0, encounters.Count - 1));
         }
     }
-
-    [Server]
-    public void StartRandomEncounter(NetworkInstanceId ownerShip)
-    {
-        this.ownerShip = ownerShip;
-        currentEncounterIndex = Random.Range(0, encounters.Count - 1);
-        NetworkServer.FindLocalObject(ownerShip).GetComponent<Ship>().owner.GetComponent<Player>().Rpc_ShowEncounter(this.ownerShip, currentEncounterIndex);
-    }
-
+    
     [Client]
     public void ShowEncounter(NetworkInstanceId ownerShip, int currentEncounterIndex)
     {
@@ -54,6 +46,14 @@ public class EncounterManager : NetworkBehaviour {
     {
         if (GetComponent<Animator>().GetBool("IsOpen")) {
             encounters[currentEncounterIndex].StartEncounter(ClientScene.FindLocalObject(ownerShip).GetComponent<Ship>());
+        }
+    }
+        
+    public Encounter CurrentEncounter
+    {
+        get
+        {
+            return encounters[currentEncounterIndex];
         }
     }
 }

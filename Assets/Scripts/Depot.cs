@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine.Networking;
 using System;
 using System.Collections.Generic;
-using Assets.Scripts;
 
 public class Depot : NetworkBehaviour {
     [SyncVar]

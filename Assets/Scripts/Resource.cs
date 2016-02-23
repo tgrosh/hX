@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
-using Assets.Scripts;
 
 public class Resource : NetworkBehaviour {
     [SyncVar]

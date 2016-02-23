@@ -5,19 +5,29 @@ using System.Collections.Generic;
 public class Encounter : MonoBehaviour {
     public List<EncounterStage> stages;
     public EncounterStage currentStage;
-    private Ship playerShip;
+    public Ship playerShip;
     public int encounterStrengthMin;
     public int encounterStrengthMax;
     [HideInInspector]
     public int encounterStrength;
+    public List<object> values = new List<object>();
 
 	// Use this for initialization
 	void Start () {
         
 	}
+
+    void OnEnable()
+    {
+        foreach (EncounterStage stage in stages)
+        {
+            stage.gameObject.SetActive(false);
+        }
+    }
 	
     public void StartEncounter(Ship playerShip)
     {
+        values.Clear();
         this.playerShip = playerShip;
         gameObject.SetActive(true);
         encounterStrength = Random.Range(encounterStrengthMin, encounterStrengthMax);      
@@ -45,6 +55,7 @@ public class Encounter : MonoBehaviour {
 
     public void SetStage(EncounterChoice choice)
     {
+        values.Add(choice.value);
         SetStage(choice.NextApplicableRandomStage(this, playerShip));
     }
 }

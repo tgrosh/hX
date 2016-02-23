@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Assets.Scripts
+public enum ResourceType
 {
-    public enum ResourceType
-    {
-        None,
-        Corium,
-        Hydrazine,
-        Supplies,
-        Workers
-    }
+    None,
+    Corium,
+    Hydrazine,
+    Supplies,
+    Workers
 }

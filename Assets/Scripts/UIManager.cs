@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-using Assets.Scripts;
 using UnityEngine.Networking;
 
 public class UIManager : NetworkBehaviour

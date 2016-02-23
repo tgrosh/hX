@@ -6,8 +6,11 @@ public class EncounterChoice : MonoBehaviour {
 
     public List<EncounterStage> potentialStages;
     public List<int> randomStageFactors;
-
-    List<EncounterStage> possibles = new List<EncounterStage>();
+    public bool endsEncounter;
+    public ResourceType value;
+    public delegate void OnEncounterEnd();
+    protected EncounterManager mgr;
+    protected List<EncounterStage> possibles = new List<EncounterStage>();
 
     void Start()
     {
@@ -18,6 +21,11 @@ public class EncounterChoice : MonoBehaviour {
                 possibles.Add(potentialStages[x]);
             }
         }
+    }
+
+    void OnEnable()
+    {
+        mgr = GameObject.Find("EncounterPanel").GetComponent<EncounterManager>();
     }
     
     private EncounterStage NextRandomStage(List<EncounterStage> possibles)
@@ -30,5 +38,17 @@ public class EncounterChoice : MonoBehaviour {
         return NextRandomStage(possibles.FindAll((EncounterStage stage) => {
             return stage.MeetsRequirements(encounter, ship); 
         }));
+    }
+    
+    public virtual void Select()
+    {        
+        if (!endsEncounter)
+        {
+            mgr.CurrentEncounter.SetStage(this);
+        }
+        else
+        {
+            mgr.EndEncounter();
+        }
     }
 }

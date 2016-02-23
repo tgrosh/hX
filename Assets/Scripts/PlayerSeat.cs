@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Assets.Scripts
+public enum PlayerSeat
 {
-    public enum PlayerSeat
-    {
-        Empty,
-        One,
-        Two
-    }
+    Empty,
+    One,
+    Two
 }
