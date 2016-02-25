@@ -15,10 +15,27 @@ public class Ship : NetworkBehaviour {
     public List<Depot> nearbyDepots = new List<Depot>();
     public Base nearbyBase;
     public Transform cameraTarget;
+    public Player owner;
+    public CargoHold cargoHold = new CargoHold();
+
     private int boosterCount = 0;
     private int blasterCount = 0;
     private int tractorBeamCount = 0;
     private CapsuleCollider capsuleCollider;
+    private bool animatingEntrance;
+    private float animationCurrentTime;
+    private float animationSpeed = 3f;
+    private Vector3 origPosition;
+    private float moveSpeed = 2f;
+    private float moveTime = 0f;
+    private Vector3 targetPoint;
+
+    [SyncVar]
+    private int disabledRounds;
+    [SyncVar]
+    private bool isDisabled;    
+    [SyncVar]
+    private NetworkInstanceId destination = NetworkInstanceId.Invalid;
 
     public delegate void ShipMoveEnd(Ship ship);
     public static event ShipMoveEnd OnShipMoveEnd;
@@ -36,25 +53,8 @@ public class Ship : NetworkBehaviour {
     public static event BlastersChanged OnBlastersChanged;
 
     public delegate void TractorBeamsChanged(int count);
-    public static event TractorBeamsChanged OnTractorBeamsChanged;
-
-    [SyncVar]
-    public Color color;
-    public Player owner;
-
-    [SyncVar]
-    private NetworkInstanceId destination = NetworkInstanceId.Invalid;
-    private bool animatingEntrance;
-    private float animationCurrentTime;
-    private float animationSpeed = 3f;
-    private Vector3 origPosition;
-    private float moveSpeed = 2f;
-    private float moveTime = 0f;
-    private Vector3 targetPoint;
-    private bool isColorSet;
-    
-    public CargoHold cargoHold = new CargoHold();
-
+    public static event TractorBeamsChanged OnTractorBeamsChanged;    
+        
 	// Use this for initialization
     void Start()
     {
@@ -62,8 +62,12 @@ public class Ship : NetworkBehaviour {
         transform.position = transform.position + new Vector3(0, 0, 1);
         animatingEntrance = true;
         capsuleCollider = GetComponent<CapsuleCollider>();
+        cargoHold.Add(ResourceType.Corium, 2); //TODO REMOVE AFTER TESTING
+        blasterCount = 5; //TODO REMOVE AFTER TESTING
+        boosterCount = 5; //TODO REMOVE AFTER TESTING
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
+        GameManager.OnRoundStart += GameManager_OnRoundStart;
         
         if (isServer) { 
             GameManager.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
@@ -77,7 +81,17 @@ public class Ship : NetworkBehaviour {
 
     public override void OnStartClient()
     {
-        cameraTarget = transform.FindChild("CameraTarget");        
+        cameraTarget = transform.FindChild("CameraTarget");
+    }
+
+    [Server]
+    void GameManager_OnRoundStart()
+    {
+        disabledRounds--;
+        if (IsDisabled && disabledRounds <= 0)
+        {
+            IsDisabled = false;
+        }
     }
 
     [Server]
@@ -136,24 +150,20 @@ public class Ship : NetworkBehaviour {
                     moveTime = 0;
                     GameManager.singleton.ResetCamera();
 
-                    if (OnShipMoveEnd != null)
+                    if (isServer && OnShipMoveEnd != null)
                     {
                         OnShipMoveEnd(this);
                     }
                 }
             }
-        }
-
-        if (!isColorSet)
-        {
-            SetColor(this.color);
-            isColorSet = true;
-        }
+        }        
 	}
     
     [Server]
     private void CollectAvailableResources()
     {
+        if (IsDisabled) return;
+
         foreach (Resource resource in nearbyResources)
         {
             float distance = Vector3.Distance(resource.transform.position, transform.position);
@@ -224,9 +234,11 @@ public class Ship : NetworkBehaviour {
     [Server]
     public void MoveTo(NetworkInstanceId cellId)
     {
+        if (IsDisabled) return;
+
         this.destination = cellId;
     }
-
+    
     public int Boosters
     {
         get { return boosterCount; }
@@ -256,6 +268,34 @@ public class Ship : NetworkBehaviour {
         }
     }
 
+    public Color Color
+    {
+        set
+        {
+            Rpc_SetColor(value);
+        }
+    }
+
+    public bool IsDisabled
+    {
+        get { return isDisabled; }
+        set
+        {
+            isDisabled = value;
+
+            if (isDisabled)
+            {
+                disabledRounds = 2;
+                Rpc_SetColor(Color.red);
+            }
+            else
+            {
+                disabledRounds = 0;
+                Rpc_SetColor(owner.color);
+            }
+        }
+    }
+
     [ClientRpc]
     void Rpc_BoosterChange(int count)
     {
@@ -282,7 +322,13 @@ public class Ship : NetworkBehaviour {
             OnTractorBeamsChanged(count);
         }
     }
-    
+
+    [ClientRpc]
+    void Rpc_SetColor(Color color)
+    {
+        SetColor(color);
+    }
+
     void OnTriggerEnter(Collider other)
     {
         GameCell otherGameCell = other.gameObject.GetComponent<GameCell>();
@@ -322,4 +368,6 @@ public class Ship : NetworkBehaviour {
             nearbyBase = null;
         }
     }
+
+    
 }

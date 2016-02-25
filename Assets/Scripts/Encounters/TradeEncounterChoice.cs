@@ -6,24 +6,38 @@ using UnityEngine.UI;
 public class TradeEncounterChoice : EncounterChoice {
     public int playerTradeQuanitity;
     public int cpuTradeQuanitity;
+    public ResourceType resourceType;
+    public bool finalizesTrade;
+    public bool requiresResource;
 
-    void OnEnable()
+    protected override void Start()
     {
-        mgr = GameObject.Find("EncounterPanel").GetComponent<EncounterManager>();
+        base.Start();
+    }
 
-        GetComponent<Button>().interactable = mgr.CurrentEncounter.playerShip.cargoHold.GetCargo(value).Count >= playerTradeQuanitity;
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        GetComponent<Button>().interactable = !requiresResource || mgr.CurrentEncounter.playerShip.cargoHold.GetCargo(resourceType).Count >= playerTradeQuanitity;
     }
 
     public override void Select()
     {
+        if (resourceType != ResourceType.None)
+        {
+            mgr.CurrentEncounter.tradeResources.Add(resourceType);
+        }
+
         base.Select();
 
-        if (endsEncounter) { 
-            if (mgr.CurrentEncounter.values.Count == 2)
+        if (finalizesTrade)
+        {
+            if (mgr.CurrentEncounter.tradeResources.Count == 2)
             {
                 //affect trade
-                mgr.CurrentEncounter.playerShip.cargoHold.Dump((ResourceType)mgr.CurrentEncounter.values[0], playerTradeQuanitity);
-                mgr.CurrentEncounter.playerShip.cargoHold.Add((ResourceType)mgr.CurrentEncounter.values[1], cpuTradeQuanitity);
+                mgr.CurrentEncounter.playerShip.cargoHold.Dump(mgr.CurrentEncounter.tradeResources[0], playerTradeQuanitity);
+                mgr.CurrentEncounter.playerShip.cargoHold.Add(mgr.CurrentEncounter.tradeResources[1], cpuTradeQuanitity);
             }
         }
     }

@@ -30,6 +30,8 @@ public class Player : NetworkBehaviour
     public bool isBuyingTractorBeamUpgrade;
     [SyncVar]
     public bool isBuyingBlasterUpgrade;
+    [SyncVar]
+    public int reputation;
     public List<Ship> ships = new List<Ship>();
     
 
@@ -226,6 +228,42 @@ public class Player : NetworkBehaviour
         this.isBuyingBoosterUpgrade = isBuying;
     }
 
+    [Command]
+    public void Cmd_UpdateReputation(int rep)
+    {
+        reputation += rep;
+    }
+
+    [Command]
+    public void Cmd_SetShipDisabled(NetworkInstanceId shipId, bool isDisabled)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().IsDisabled = true;
+    }
+
+    [Command]
+    public void Cmd_AddShipCargo(NetworkInstanceId shipId, ResourceType resource, int quantity)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Add(resource, quantity);
+    }
+
+    [Command]
+    public void Cmd_DumpShipCargo(NetworkInstanceId shipId, ResourceType resource, int quantity)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Dump(resource, quantity);
+    }
+
+    [Command]
+    public void Cmd_PurgeShipCargo(NetworkInstanceId shipId)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Purge();
+    }
+
+    [Command]
+    public void Cmd_PurgeHalfShipCargo(NetworkInstanceId shipId)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.PurgeHalf();
+    }
+
     [ClientRpc]
     public void Rpc_AddResource(ResourceType resource)
     {
@@ -272,5 +310,5 @@ public class Player : NetworkBehaviour
         {
             GameObject.Find("EncounterPanel").GetComponent<EncounterManager>().ShowEncounter(ownerShip, currentEncounterIndex);
         }
-    }
+    }    
 }

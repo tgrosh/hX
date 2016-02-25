@@ -29,12 +29,16 @@ public class GameManager : NetworkBehaviour
             return players[activePlayerIndex];
         }
     }
+
     public delegate void TurnStart();
     public static event TurnStart OnTurnStart;
 
+    public delegate void RoundStart();
+    public static event RoundStart OnRoundStart;
+
     private GameObject playerNamePanel;
     private GameObject resourceCountPanel;
-    float dieDisplayXOffset = 0f;
+    private float dieDisplayXOffset = 0f;
 
     void Awake()
     {
@@ -188,6 +192,10 @@ public class GameManager : NetworkBehaviour
         {
             player.Rpc_StartGame();
         }
+        if (OnRoundStart != null)
+        {
+            OnRoundStart();
+        }
         if (OnTurnStart != null)
         {
             OnTurnStart();
@@ -205,6 +213,11 @@ public class GameManager : NetworkBehaviour
         }
 
         GameManager.singleton.AddEvent(String.Format("Player {0}'s turn has started", GameManager.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));
+
+        if (activePlayerIndex == 0 && OnRoundStart != null)
+        {
+            OnRoundStart();
+        }
         if (OnTurnStart != null)
         {
             OnTurnStart();
@@ -245,7 +258,7 @@ public class GameManager : NetworkBehaviour
     {
         return players.Find((Player p) => { return p.seat == seat; });
     }
-
+    
     [Client]
     public void IncrementResource(ResourceType resource)
     {

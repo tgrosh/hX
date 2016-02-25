@@ -113,7 +113,7 @@ public class GameCell : NetworkBehaviour
         {
             Material cellMaterial = prefabHex.GetComponent<Renderer>().material;
 
-            if (selected && !selectedParticles.gameObject.activeInHierarchy)
+            if (owner == Player.localPlayer.netId && selected && !selectedParticles.gameObject.activeInHierarchy)
             {
                 selectedParticles.gameObject.SetActive(true);
             }
@@ -122,7 +122,7 @@ public class GameCell : NetworkBehaviour
                 selectedParticles.gameObject.SetActive(false);
             }
 
-            if (hasShip && !shipParticles.gameObject.activeInHierarchy)
+            if (owner == Player.localPlayer.netId && hasShip && !shipParticles.gameObject.activeInHierarchy)
             {
                 shipParticles.gameObject.SetActive(true);
             }
@@ -137,15 +137,15 @@ public class GameCell : NetworkBehaviour
                 {
                     SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseMaterial);
                 }
-                else if (state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
+                else if (owner == Player.localPlayer.netId && state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
                 {
                     SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseAreaMaterial);
                 }
-                else if (state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
+                else if (owner == Player.localPlayer.netId && state == GameCellState.MovementArea && !cellMaterial.name.Contains(MovementAreaMaterial.name))
                 {
                     SetCellMaterial(MovementAreaMaterial.color, MovementAreaMaterial);
                 }
-                else if (state == GameCellState.DepotBuildArea && !cellMaterial.name.Contains(DepotBuildAreaMaterial.name))
+                else if (owner == Player.localPlayer.netId && state == GameCellState.DepotBuildArea && !cellMaterial.name.Contains(DepotBuildAreaMaterial.name))
                 {
                     SetCellMaterial(DepotBuildAreaMaterial.color, DepotBuildAreaMaterial);
                 }
@@ -277,6 +277,8 @@ public class GameCell : NetworkBehaviour
             }
             else
             {
+                if (NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().IsDisabled) return false;
+
                 //clicking on my ship space, select it
                 selected = !selected;
                 GameManager.singleton.selectedCell = selected ? this : null;
@@ -310,10 +312,10 @@ public class GameCell : NetworkBehaviour
                 SetCell(player, GameCellState.Empty);
                 hasShip = true;
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
-                Ship ship = objShip.GetComponent<Ship>();
-                ship.color = player.color;
-                ship.owner = player;
                 NetworkServer.Spawn(objShip);
+                Ship ship = objShip.GetComponent<Ship>();
+                ship.Color = player.color;
+                ship.owner = player;
                 associatedShip = ship.netId;
                 player.ships.Add(ship);
                 return true;

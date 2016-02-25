@@ -10,7 +10,7 @@ public class Encounter : MonoBehaviour {
     public int encounterStrengthMax;
     [HideInInspector]
     public int encounterStrength;
-    public List<object> values = new List<object>();
+    public List<ResourceType> tradeResources = new List<ResourceType>();
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +27,7 @@ public class Encounter : MonoBehaviour {
 	
     public void StartEncounter(Ship playerShip)
     {
-        values.Clear();
+        tradeResources.Clear();
         this.playerShip = playerShip;
         gameObject.SetActive(true);
         encounterStrength = Random.Range(encounterStrengthMin, encounterStrengthMax);      
@@ -55,7 +55,6 @@ public class Encounter : MonoBehaviour {
 
     public void SetStage(EncounterChoice choice)
     {
-        values.Add(choice.value);
         SetStage(choice.NextApplicableRandomStage(this, playerShip));
     }
 }

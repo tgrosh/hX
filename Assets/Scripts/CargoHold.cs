@@ -70,6 +70,40 @@ public class CargoHold
         return removedCount;
     }
 
+    public int Purge()
+    {
+        int result = cargo.Count;
+        cargo.Clear();
+        return result;
+    }
+
+    public int PurgeHalf()
+    {
+        int count = cargo.Count / 2;
+        int removedCount = 0;
+        List<ResourceType> temp = new List<ResourceType>();
+                
+        foreach (ResourceType resource in cargo)
+        {
+            if (removedCount < count)
+            {
+                temp.Add(resource);
+            }
+            else
+            {
+                removedCount++;
+                if (OnResourceDumped != null)
+                {
+                    OnResourceDumped(resource);
+                }
+            }
+        }
+
+        cargo = temp;
+
+        return removedCount;
+    }
+
     public int Transfer(ResourceType resource, int quantity, CargoHold other)
     {
         int transferred = other.Add(resource, quantity);

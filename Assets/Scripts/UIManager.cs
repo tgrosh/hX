@@ -2,7 +2,9 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using System.Reflection;
 
+[assembly: AssemblyVersion("1.0.0.*")]
 public class UIManager : NetworkBehaviour
 {
     public static UIManager singleton;
@@ -18,6 +20,7 @@ public class UIManager : NetworkBehaviour
     private GameObject MostRecentEventLog;
     private bool isFullLogOpen;
     public HotBar hotbar;
+    private string version;
 
     void Start()
     {
@@ -27,6 +30,11 @@ public class UIManager : NetworkBehaviour
         }
         FullEventLog = GameObject.Find("FullEventLog");
         MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
+
+        if (GameObject.Find("VersionNumber") != null)
+        {
+            GameObject.Find("VersionNumber").GetComponent<Text>().text = "v" + Version;
+        }
     }
 
     public override void OnStartClient()
@@ -184,5 +192,21 @@ public class UIManager : NetworkBehaviour
     public void HideShipTooltip()
     {
         ShipTooltip.SetActive(false);
+    }
+    
+    /// <summary>
+    /// Gets the version.
+    /// </summary>
+    /// <value>The version.</value>
+    public string Version
+    {
+        get
+        {
+            if (version == null)
+            {
+                version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
+            return version;
+        }
     }
 }
