@@ -309,6 +309,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameObject.Find("EncounterPanel").GetComponent<EncounterManager>().ShowEncounter(ownerShip, currentEncounterIndex);
+            UIManager.singleton.hotbar.GetComponent<CanvasGroup>().interactable = false;
         }
     }    
 }

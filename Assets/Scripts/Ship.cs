@@ -14,8 +14,7 @@ public class Ship : NetworkBehaviour {
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
     public Base nearbyBase;
-    public Transform cameraTarget;
-    public Player owner;
+    public Transform cameraTarget;    
     public CargoHold cargoHold = new CargoHold();
 
     private int boosterCount = 0;
@@ -31,11 +30,16 @@ public class Ship : NetworkBehaviour {
     private Vector3 targetPoint;
 
     [SyncVar]
+    public NetworkInstanceId ownerId;
+    [SyncVar]
     private int disabledRounds;
     [SyncVar]
     private bool isDisabled;    
     [SyncVar]
     private NetworkInstanceId destination = NetworkInstanceId.Invalid;
+
+    public delegate void ShipMoveStart(Ship ship);
+    public static event ShipMoveStart OnShipMoveStart;
 
     public delegate void ShipMoveEnd(Ship ship);
     public static event ShipMoveEnd OnShipMoveEnd;
@@ -237,6 +241,20 @@ public class Ship : NetworkBehaviour {
         if (IsDisabled) return;
 
         this.destination = cellId;
+
+        if (OnShipMoveStart != null)
+        {
+            OnShipMoveStart(this);            
+        }
+        this.Rpc_ShipMoveStart();
+    }
+
+    public Player owner
+    {
+        get
+        {
+            return NetworkServer.FindLocalObject(ownerId).GetComponent<Player>();
+        }
     }
     
     public int Boosters
@@ -327,6 +345,15 @@ public class Ship : NetworkBehaviour {
     void Rpc_SetColor(Color color)
     {
         SetColor(color);
+    }
+
+    [ClientRpc]
+    void Rpc_ShipMoveStart()
+    {
+        if (OnShipMoveStart != null)
+        {
+            OnShipMoveStart(this);
+        }
     }
 
     void OnTriggerEnter(Collider other)

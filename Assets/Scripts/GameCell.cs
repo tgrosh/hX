@@ -315,7 +315,7 @@ public class GameCell : NetworkBehaviour
                 NetworkServer.Spawn(objShip);
                 Ship ship = objShip.GetComponent<Ship>();
                 ship.Color = player.color;
-                ship.owner = player;
+                ship.ownerId = player.netId;
                 associatedShip = ship.netId;
                 player.ships.Add(ship);
                 return true;

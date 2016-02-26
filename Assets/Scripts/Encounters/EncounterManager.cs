@@ -32,6 +32,7 @@ public class EncounterManager : NetworkBehaviour {
         this.currentEncounterIndex = currentEncounterIndex;
         this.ownerShip = ownerShip;
         GetComponent<Animator>().SetBool("IsOpen", true);
+        GameManager.singleton.ResetCamera();
     }
 
     [Client]
@@ -39,6 +40,7 @@ public class EncounterManager : NetworkBehaviour {
     {
         encounters[currentEncounterIndex].EndEncounter();
         GetComponent<Animator>().SetBool("IsOpen", false);
+        UIManager.singleton.hotbar.GetComponent<CanvasGroup>().interactable = true;
     }
 
     [Client]

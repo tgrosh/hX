@@ -25,9 +25,6 @@ public class UIManager : NetworkBehaviour
     void Start()
     {
         singleton = this;
-        if (GameObject.Find("Hotbar") != null) { 
-            hotbar = GameObject.Find("Hotbar").GetComponent<HotBar>();
-        }
         FullEventLog = GameObject.Find("FullEventLog");
         MostRecentEventLog = GameObject.Find("MostRecentEventBackground");
 
@@ -39,6 +36,11 @@ public class UIManager : NetworkBehaviour
 
     public override void OnStartClient()
     {
+        if (GameObject.Find("Hotbar") != null)
+        {
+            hotbar = GameObject.Find("Hotbar").GetComponent<HotBar>();
+        }
+
         ShipTooltip.SetActive(false);
 
         Depot.OnDepotStarted += Depot_OnDepotStarted;
@@ -46,6 +48,24 @@ public class UIManager : NetworkBehaviour
         Ship.OnBoostersChanged += Ship_OnBoostersChanged;
         Ship.OnBlastersChanged += Ship_OnBlastersChanged;
         Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
+        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
+        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
+    }
+
+    void Ship_OnShipMoveEnd(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            hotbar.GetComponent<CanvasGroup>().interactable = true;
+        }
+    }
+
+    void Ship_OnShipMoveStart(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+           hotbar.GetComponent<CanvasGroup>().interactable = false;
+        }
     }
 
     void Ship_OnTractorBeamsChanged(int count)
