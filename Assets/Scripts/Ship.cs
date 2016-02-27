@@ -6,10 +6,10 @@ using System;
 using UnityStandardAssets.Cameras;
 
 public class Ship : NetworkBehaviour {
-    public float collectionRange = 2.2f;
-    public float buildRange = 2.2f;
-    public float cargoDropRange = 2.2f;
-    public float movementRange = 3.4f;
+    public float collectionRange;
+    public float buildRange;
+    public float cargoDropRange;
+    public float movementRange;
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
@@ -20,7 +20,7 @@ public class Ship : NetworkBehaviour {
     private int boosterCount = 0;
     private int blasterCount = 0;
     private int tractorBeamCount = 0;
-    private CapsuleCollider capsuleCollider;
+    private Transform colliderTransform;
     private bool animatingEntrance;
     private float animationCurrentTime;
     private float animationSpeed = 3f;
@@ -65,7 +65,8 @@ public class Ship : NetworkBehaviour {
         origPosition = transform.position;
         transform.position = transform.position + new Vector3(0, 0, 1);
         animatingEntrance = true;
-        capsuleCollider = GetComponent<CapsuleCollider>();
+        colliderTransform = transform.FindChild("collider");
+
         cargoHold.Add(ResourceType.Corium, 2); //TODO REMOVE AFTER TESTING
         blasterCount = 5; //TODO REMOVE AFTER TESTING
         boosterCount = 5; //TODO REMOVE AFTER TESTING
@@ -110,7 +111,10 @@ public class Ship : NetworkBehaviour {
         	
 	// Update is called once per frame
 	void Update () {
-        capsuleCollider.radius = movementRange + (1.7f * boosterCount);
+        if (colliderTransform != null)
+        {
+            colliderTransform.localScale = new Vector3(movementRange + (movementRange * boosterCount), movementRange + (movementRange * boosterCount), 2);
+        }
 
         if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
         {
