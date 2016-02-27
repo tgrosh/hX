@@ -269,7 +269,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            GameManager.singleton.IncrementResource(resource);
+            GameObject.Find("ResourceTracker").GetComponent<ResourceTracker>().IncrementResource(resource);
         }
     }
 
@@ -278,7 +278,7 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            GameManager.singleton.DecrementResource(resource);
+            GameObject.Find("ResourceTracker").GetComponent<ResourceTracker>().DecrementResource(resource);
         }
     }
     
@@ -288,7 +288,7 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GameObject.Find("Waiting").SetActive(false);
-            UIManager.singleton.ShowResourceTracker();
+            GameObject.Find("ResourceTracker").GetComponent<ResourceTracker>().Show();
         }
     }
 

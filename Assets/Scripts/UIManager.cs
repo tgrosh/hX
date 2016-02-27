@@ -118,12 +118,7 @@ public class UIManager : NetworkBehaviour
             isFullLogOpen = false;
         }
     }    
-
-    public void ShowResourceTracker()
-    {
-        GameObject.Find("ResourceTracker").GetComponent<Animator>().SetBool("IsOpen", true);
-    }
-
+    
     public void ShowYourTurn()
     {
         GameObject.Find("YourTurn").GetComponent<Animator>().SetTrigger("Start");
