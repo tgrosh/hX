@@ -42,56 +42,7 @@ public class UIManager : NetworkBehaviour
         }
 
         ShipTooltip.SetActive(false);
-
-        Depot.OnDepotStarted += Depot_OnDepotStarted;
-        Ship.OnShipStarted += Ship_OnShipStarted;
-        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
-        Ship.OnBlastersChanged += Ship_OnBlastersChanged;
-        Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
-        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
-        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
-    }
-
-    void Ship_OnShipMoveEnd(Ship ship)
-    {
-        if (ship.ownerId == Player.localPlayer.netId)
-        {
-            hotbar.GetComponent<CanvasGroup>().interactable = true;
-        }
-    }
-
-    void Ship_OnShipMoveStart(Ship ship)
-    {
-        if (ship.ownerId == Player.localPlayer.netId)
-        {
-           hotbar.GetComponent<CanvasGroup>().interactable = false;
-        }
-    }
-
-    void Ship_OnTractorBeamsChanged(int count)
-    {
-        hotbar.ToggleTractorBeamUpgrade(false);
-    }
-
-    void Ship_OnBlastersChanged(int count)
-    {
-        hotbar.ToggleBlasterUpgrade(false);
-    }
-
-    void Ship_OnBoostersChanged(int count)
-    {
-        hotbar.ToggleBoosterUpgrade(false);
-    }
-
-    void Ship_OnShipStarted(Ship ship)
-    {
-        hotbar.ToggleShip(false);
-    }
-
-    void Depot_OnDepotStarted(Depot depot)
-    {
-        hotbar.ToggleBuildDepot(false);
-    }
+    }    
 
     void Update()
     {     

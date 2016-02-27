@@ -7,7 +7,13 @@ public class HotBar : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+        Depot.OnDepotStarted += Depot_OnDepotStarted;
+        Ship.OnShipStarted += Ship_OnShipStarted;
+        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
+        Ship.OnBlastersChanged += Ship_OnBlastersChanged;
+        Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
+        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
+        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
 	}
 	
 	// Update is called once per frame
@@ -24,6 +30,47 @@ public class HotBar : MonoBehaviour {
             }
         }
 	}
+
+    void Ship_OnShipMoveEnd(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            GetComponent<CanvasGroup>().interactable = true;
+        }
+    }
+
+    void Ship_OnShipMoveStart(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            GetComponent<CanvasGroup>().interactable = false;
+        }
+    }
+
+    void Ship_OnTractorBeamsChanged(int count)
+    {
+        ToggleTractorBeamUpgrade(false);
+    }
+
+    void Ship_OnBlastersChanged(int count)
+    {
+        ToggleBlasterUpgrade(false);
+    }
+
+    void Ship_OnBoostersChanged(int count)
+    {
+        ToggleBoosterUpgrade(false);
+    }
+
+    void Ship_OnShipStarted(Ship ship)
+    {
+        ToggleShip(false);
+    }
+
+    void Depot_OnDepotStarted(Depot depot)
+    {
+        ToggleBuildDepot(false);
+    }
 
     public void ToggleShip(bool isOn)
     {
