@@ -22,7 +22,7 @@ public class EncounterManager : NetworkBehaviour {
     {
         if (Random.value <= shipMoveEncounterChance)
         {
-            ship.owner.GetComponent<Player>().Rpc_ShowEncounter(ship.netId, Random.Range(0, encounters.Count - 1));
+            ship.owner.GetComponent<Player>().Rpc_ShowEncounter(ship.netId, Random.Range(0, encounters.Count));
         }
     }
     

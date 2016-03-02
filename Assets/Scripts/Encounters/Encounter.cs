@@ -14,9 +14,9 @@ public class Encounter : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        
+        stages = new List<EncounterStage>(this.GetComponentsInChildren<EncounterStage>(true));
 	}
-
+    
     void OnEnable()
     {
         foreach (EncounterStage stage in stages)
