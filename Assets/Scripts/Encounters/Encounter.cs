@@ -41,6 +41,7 @@ public class Encounter : MonoBehaviour {
             stage.gameObject.SetActive(false);
         }
         gameObject.SetActive(false);
+        currentStage = null;
     }
 
     public void SetStage(EncounterStage newStage)
