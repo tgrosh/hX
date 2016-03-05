@@ -32,11 +32,13 @@ public class Ship : NetworkBehaviour {
     [SyncVar]
     public NetworkInstanceId ownerId;
     [SyncVar]
+    public NetworkInstanceId associatedCell;
+    [SyncVar]
     private int disabledRounds;
     [SyncVar]
     private bool isDisabled;    
     [SyncVar]
-    private NetworkInstanceId destination = NetworkInstanceId.Invalid;
+    private NetworkInstanceId travelDestination = NetworkInstanceId.Invalid;
 
     public delegate void ShipMoveStart(Ship ship);
     public static event ShipMoveStart OnShipMoveStart;
@@ -135,9 +137,9 @@ public class Ship : NetworkBehaviour {
             }
         }
         
-        if (destination != NetworkInstanceId.Invalid)
+        if (travelDestination != NetworkInstanceId.Invalid)
         {
-            targetPoint = ClientScene.FindLocalObject(destination).transform.position;
+            targetPoint = ClientScene.FindLocalObject(travelDestination).transform.position;
 
             if (transform.position != targetPoint)
             {
@@ -153,7 +155,7 @@ public class Ship : NetworkBehaviour {
                 }
                 else if (transform.position != targetPoint)
                 {
-                    destination = NetworkInstanceId.Invalid;
+                    travelDestination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
                     moveTime = 0;
                     GameManager.singleton.ResetCamera();
@@ -244,13 +246,25 @@ public class Ship : NetworkBehaviour {
     {
         if (IsDisabled) return;
 
-        this.destination = cellId;
+        this.travelDestination = cellId;
 
         if (OnShipMoveStart != null)
         {
             OnShipMoveStart(this);            
         }
         this.Rpc_ShipMoveStart();
+    }
+
+    [Server]
+    public void WormholeTo(NetworkInstanceId cellId)
+    {
+        NetworkServer.FindLocalObject(associatedCell).GetComponent<GameCell>().SetCell(false, NetworkInstanceId.Invalid);
+        associatedCell = cellId;
+
+        Vector3 newCellPosition = NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().transform.position;
+        transform.position = new Vector3(newCellPosition.x, newCellPosition.y, transform.position.z);
+
+        NetworkServer.FindLocalObject(associatedCell).GetComponent<GameCell>().SetCell(this.owner, true, this.netId);
     }
 
     public Player owner

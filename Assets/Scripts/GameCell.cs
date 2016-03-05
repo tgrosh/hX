@@ -230,15 +230,41 @@ public class GameCell : NetworkBehaviour
     }
         
     [Server]
-    public bool SetCell(Player player, GameCellState state)
+    public bool SetCell(Player owner, GameCellState state)
     {
         bool result = (this.state != state);
 
-        SetOwner(player);
+        SetOwner(owner);
         prevState = this.state;
         this.state = state;
 
         return result;
+    }
+
+    [Server]
+    public bool SetCell(Player owner, bool hasShip, NetworkInstanceId associatedShip)
+    {
+        this.hasShip = hasShip;
+        this.associatedShip = associatedShip;
+        SetOwner(owner);
+
+        return true;
+    }
+
+    [Server]
+    public bool SetCell(Player owner, GameCellState state, bool hasShip, NetworkInstanceId associatedShip)
+    {
+        this.hasShip = hasShip;
+        this.associatedShip = associatedShip;
+        return SetCell(owner, state);
+    }
+
+    [Server]
+    public bool SetCell(bool hasShip, NetworkInstanceId associatedShip)
+    {
+        this.hasShip = hasShip;
+        this.associatedShip = associatedShip;
+        return true;
     }
     
     [Server]
@@ -309,15 +335,15 @@ public class GameCell : NetworkBehaviour
         {
             if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
             {
-                SetCell(player, GameCellState.Empty);
-                hasShip = true;
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
                 NetworkServer.Spawn(objShip);
                 Ship ship = objShip.GetComponent<Ship>();
                 ship.Color = player.color;
                 ship.ownerId = player.netId;
-                associatedShip = ship.netId;
+                ship.associatedCell = this.netId;
                 player.ships.Add(ship);
+
+                SetCell(player, GameCellState.Empty, true, ship.netId);
                 return true;
             }
         }
@@ -325,12 +351,9 @@ public class GameCell : NetworkBehaviour
         {
             //move the ship
             Revert();
-            SetOwner(player);
-            hasShip = true;
-            associatedShip = GameManager.singleton.selectedCell.associatedShip;
-            GameManager.singleton.selectedCell.associatedShip = NetworkInstanceId.Invalid;
-            GameManager.singleton.selectedCell.hasShip = false;
+            SetCell(player, true, GameManager.singleton.selectedCell.associatedShip);
             GameManager.singleton.selectedCell.Revert();
+            GameManager.singleton.selectedCell.SetCell(false, NetworkInstanceId.Invalid);            
             GameManager.singleton.selectedCell = null;
             NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().MoveTo(this.netId);
             return true;

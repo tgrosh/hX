@@ -263,6 +263,12 @@ public class Player : NetworkBehaviour
     {
         NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.PurgeHalf();
     }
+    
+    [Command]
+    public void Cmd_ShipWormholeTo(NetworkInstanceId shipId, NetworkInstanceId cellId)
+    {
+        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().WormholeTo(cellId);
+    }
 
     [ClientRpc]
     public void Rpc_AddResource(ResourceType resource)
@@ -311,5 +317,6 @@ public class Player : NetworkBehaviour
             GameObject.Find("EncounterPanel").GetComponent<EncounterManager>().ShowEncounter(ownerShip, currentEncounterIndex);
             UIManager.singleton.hotbar.GetComponent<CanvasGroup>().interactable = false;
         }
-    }    
+    }
+
 }
