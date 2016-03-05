@@ -49,7 +49,7 @@ public class EncounterChoice : MonoBehaviour {
     
     private EncounterStage NextRandomStage(List<EncounterStage> possibles)
     {
-        return possibles[UnityEngine.Random.Range(0, possibles.Count - 1)];
+        return possibles[UnityEngine.Random.Range(0, possibles.Count)];
     }
 
     public EncounterStage NextApplicableRandomStage(Encounter encounter, Ship ship)
