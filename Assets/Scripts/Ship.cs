@@ -26,7 +26,6 @@ public class Ship : NetworkBehaviour {
     private float animationSpeed = 3f;
     private Vector3 origPosition;
     private float moveSpeed = 2f;
-    private float moveTime = 0f;
     private Vector3 targetPoint;
 
     [SyncVar]
@@ -42,10 +41,11 @@ public class Ship : NetworkBehaviour {
 
     public delegate void ShipMoveStart(Ship ship);
     public static event ShipMoveStart OnShipMoveStart;
-
     public delegate void ShipMoveEnd(Ship ship);
     public static event ShipMoveEnd OnShipMoveEnd;
 
+    public delegate void ShipSpawnStart(Ship ship);
+    public static event ShipSpawnStart OnShipSpawnStart;
     public delegate void ShipSpawnEnd(Ship ship);
     public static event ShipSpawnEnd OnShipSpawnEnd;
 
@@ -54,10 +54,8 @@ public class Ship : NetworkBehaviour {
 
     public delegate void BoostersChanged(int count);
     public static event BoostersChanged OnBoostersChanged;
-
     public delegate void BlastersChanged(int count);
     public static event BlastersChanged OnBlastersChanged;
-
     public delegate void TractorBeamsChanged(int count);
     public static event TractorBeamsChanged OnTractorBeamsChanged;    
         
@@ -69,9 +67,9 @@ public class Ship : NetworkBehaviour {
         animatingEntrance = true;
         colliderTransform = transform.FindChild("collider");
 
-        cargoHold.Add(ResourceType.Corium, 2); //TODO REMOVE AFTER TESTING
-        blasterCount = 5; //TODO REMOVE AFTER TESTING
-        boosterCount = 5; //TODO REMOVE AFTER TESTING
+        //cargoHold.Add(ResourceType.Corium, 2); //TODO REMOVE AFTER TESTING
+        //blasterCount = 5; //TODO REMOVE AFTER TESTING
+        //boosterCount = 5; //TODO REMOVE AFTER TESTING
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
         GameManager.OnRoundStart += GameManager_OnRoundStart;
@@ -122,6 +120,10 @@ public class Ship : NetworkBehaviour {
         {
             transform.position = Vector3.Lerp(transform.position, origPosition, animationSpeed * Time.deltaTime);
             animationCurrentTime += Time.deltaTime;
+            if (OnShipSpawnStart != null)
+            {
+                OnShipSpawnStart(this);
+            }
         }
         else if (animatingEntrance)
         {
@@ -147,17 +149,16 @@ public class Ship : NetworkBehaviour {
                 look.x = look.y = 0;                
                 transform.rotation = look;
                 
-                if (transform.position != targetPoint && moveTime / moveSpeed < .95f)
+                if (Vector3.Distance(transform.position, targetPoint) > .01f)
                 {
+                    Debug.Log("moving");
                     transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
-                    transform.rotation = look;
-                    moveTime += Time.deltaTime;
                 }
                 else if (transform.position != targetPoint)
                 {
+                    Debug.Log("stopping");
                     travelDestination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
-                    moveTime = 0;
                     GameManager.singleton.ResetCamera();
 
                     if (isServer && OnShipMoveEnd != null)

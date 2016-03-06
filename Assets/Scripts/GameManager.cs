@@ -13,9 +13,6 @@ public class GameManager : NetworkBehaviour
     public GameBoard gameBoard;
     public GameObject PlayerName;
     public GameObject EventLogEntryPrefab;
-    public int numRows = 10;
-    public int numCols = 10;
-    public float boardSpacing = 1.05f;
     public GameCell selectedCell;    
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
@@ -37,6 +34,9 @@ public class GameManager : NetworkBehaviour
 
     private GameObject playerNamePanel;
     private float dieDisplayXOffset = 0f;
+
+    [SyncVar]
+    public bool gameBoardLocked;
 
     void Awake()
     {
@@ -68,6 +68,11 @@ public class GameManager : NetworkBehaviour
         gameBoard.gameObject.SetActive(false);
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         cam = Camera.main.GetComponent<AutoCam>();
+
+        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
+        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        Ship.OnShipSpawnStart += Ship_OnShipSpawnStart;
+        Ship.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
     }
 
     public void ResetCamera()
@@ -101,6 +106,32 @@ public class GameManager : NetworkBehaviour
                 }
             }
         }
+    }
+    
+    void Ship_OnShipMoveEnd(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            gameBoardLocked = false;
+        }
+    }
+
+    void Ship_OnShipMoveStart(Ship ship)
+    {
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            gameBoardLocked = true;
+        }
+    }
+
+    void Ship_OnShipSpawnEnd(Ship ship)
+    {
+        gameBoardLocked = false;
+    }
+
+    void Ship_OnShipSpawnStart(Ship ship)
+    {
+        gameBoardLocked = true;
     }
     
     [Client]

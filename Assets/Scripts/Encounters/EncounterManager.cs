@@ -8,6 +8,7 @@ public class EncounterManager : NetworkBehaviour {
     public List<int> randomEncounterFactors;
     protected List<Encounter> possibles = new List<Encounter>();
     public int currentEncounterIndex;
+    [Range(0,1)]
     public float shipMoveEncounterChance;
     NetworkInstanceId ownerShip;
     
@@ -56,6 +57,8 @@ public class EncounterManager : NetworkBehaviour {
         this.ownerShip = ownerShip;
         GetComponent<Animator>().SetBool("IsOpen", true);
         GameManager.singleton.ResetCamera();
+        UIManager.singleton.hotbar.SetInteractable(false);
+        GameManager.singleton.gameBoardLocked = true;
     }
 
     [Client]
@@ -63,7 +66,8 @@ public class EncounterManager : NetworkBehaviour {
     {
         possibles[currentEncounterIndex].EndEncounter();
         GetComponent<Animator>().SetBool("IsOpen", false);
-        UIManager.singleton.hotbar.GetComponent<CanvasGroup>().interactable = true;
+        UIManager.singleton.hotbar.SetInteractable(true);
+        GameManager.singleton.gameBoardLocked = false;
     }
 
     [Client]

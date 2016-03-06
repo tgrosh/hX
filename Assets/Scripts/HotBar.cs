@@ -14,6 +14,8 @@ public class HotBar : MonoBehaviour {
         Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
         Ship.OnShipMoveStart += Ship_OnShipMoveStart;
         Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        Ship.OnShipSpawnStart += Ship_OnShipSpawnStart;
+        Ship.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
 	}
 	
 	// Update is called once per frame
@@ -30,12 +32,22 @@ public class HotBar : MonoBehaviour {
             }
         }
 	}
+    
+    void Ship_OnShipSpawnEnd(Ship ship)
+    {
+        SetInteractable(true);
+    }
+
+    void Ship_OnShipSpawnStart(Ship ship)
+    {
+        SetInteractable(false);
+    }
 
     void Ship_OnShipMoveEnd(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
-            GetComponent<CanvasGroup>().interactable = true;
+            SetInteractable(true);
         }
     }
 
@@ -43,7 +55,7 @@ public class HotBar : MonoBehaviour {
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
-            GetComponent<CanvasGroup>().interactable = false;
+            SetInteractable(false);
         }
     }
 
@@ -83,7 +95,6 @@ public class HotBar : MonoBehaviour {
         if (isOn)
         {
             GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
-            GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination += UIManager_OnCameraReachedDestination;
         }
         else
         {
@@ -144,8 +155,8 @@ public class HotBar : MonoBehaviour {
         GetComponent<Animator>().SetBool("IsOpen", show);
     }
 
-    void UIManager_OnCameraReachedDestination()
+    public void SetInteractable(bool interactable)
     {
-        GameManager.singleton.cam.GetComponent<CameraWatcher>().OnCameraReachedDestination -= UIManager_OnCameraReachedDestination;
+        GetComponent<CanvasGroup>().interactable = interactable;
     }
 }

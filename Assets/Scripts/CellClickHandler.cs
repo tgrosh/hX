@@ -6,7 +6,7 @@ public class CellClickHandler : NetworkBehaviour {
 
     void OnMouseDown()
     {
-        if(Input.GetMouseButtonDown(0)){
+        if(Input.GetMouseButtonDown(0) && !GameManager.singleton.gameBoardLocked){
             Player.localPlayer.SelectCell(this.netId);
 
             if (GetComponent<GameCell>().hasShip)
