@@ -63,7 +63,8 @@ public enum EncounterStageRequirements
 {
     None,
     Boosters,
-    Blasters
+    Blasters,
+    Reputation
 }
 
 public enum EncounterStageComparer
@@ -72,5 +73,8 @@ public enum EncounterStageComparer
     LessThan,
     Equal,
     GreaterThanOrEqual,
-    LessThanOrEqual
+    LessThanOrEqual,
+    Max,
+    NotMax,
+    BelowZero
 }

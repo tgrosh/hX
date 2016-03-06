@@ -70,6 +70,33 @@ public class CargoHold
         return removedCount;
     }
 
+    public int Dump(int quantity)
+    {
+        int removedCount = 0;
+        List<ResourceType> temp = new List<ResourceType>();
+
+        foreach (ResourceType r in cargo)
+        {
+            if (removedCount >= quantity) //keep ignoring resources, until we have ignored the right amount
+            {
+                temp.Add(r);
+            }
+            else
+            {
+                removedCount++;
+                if (OnResourceDumped != null)
+                {
+                    OnResourceDumped(r);
+                }
+            }
+        }
+
+        cargo = temp;
+
+        return removedCount;
+    }
+
+
     public int Purge()
     {
         int result = cargo.Count;

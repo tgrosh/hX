@@ -17,6 +17,7 @@ public class EncounterChoice : MonoBehaviour {
     public int resourceMaxGrant;
     public bool causesPurge;
     public bool causesHalfPurge;
+    public bool grantsTempusAccess;
 
     protected virtual void Start()
     {
@@ -63,15 +64,22 @@ public class EncounterChoice : MonoBehaviour {
     {        
         //affect player reputation here
         Player.localPlayer.Cmd_UpdateReputation(reputationValue);
+        
         if (disablesShip)
         {
             Player.localPlayer.Cmd_SetShipDisabled(mgr.CurrentEncounter.playerShip.netId, true);
         }
 
-        if (resourceMinGrant > 0 && resourceMaxGrant > 0)
+        if (grantsTempusAccess)
+        {
+            Player.localPlayer.Cmd_SetTempusAccess(grantsTempusAccess);
+        }
+
+        int randomResources = UnityEngine.Random.Range(resourceMinGrant, resourceMaxGrant);
+        if (randomResources > 0)
         {
             List<ResourceType> resourcesGranted = new List<ResourceType>();
-            for (int x = 0; x < UnityEngine.Random.Range(resourceMinGrant, resourceMaxGrant); x++)
+            for (int x = 0; x < randomResources; x++)
             {
                 resourcesGranted.Add((ResourceType)Enum.GetValues(typeof(ResourceType)).GetValue(UnityEngine.Random.Range(1, 4)));
             }
@@ -80,7 +88,10 @@ public class EncounterChoice : MonoBehaviour {
                 mgr.CurrentEncounter.playerShip.cargoHold.Add(resource, 1);
             }
         }
-
+        else if (randomResources < 0)
+        {
+            mgr.CurrentEncounter.playerShip.cargoHold.Dump(randomResources*-1);
+        }
 
         if (causesPurge)
         {
@@ -89,8 +100,7 @@ public class EncounterChoice : MonoBehaviour {
         else if (causesHalfPurge)
         {
             mgr.CurrentEncounter.playerShip.cargoHold.PurgeHalf();
-        }
-        
+        }        
 
         if (!endsEncounter)
         {

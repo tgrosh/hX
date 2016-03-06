@@ -7,7 +7,8 @@ public class Player : NetworkBehaviour
 {
     public static Player localPlayer;
     public static Player opponent;
-    
+    public List<Ship> ships = new List<Ship>();
+
     [SyncVar]
     public Color color;
     [SyncVar(hook = "OnPlayerSetName")]
@@ -32,8 +33,8 @@ public class Player : NetworkBehaviour
     public bool isBuyingBlasterUpgrade;
     [SyncVar]
     public int reputation;
-    public List<Ship> ships = new List<Ship>();
-    
+    [SyncVar]
+    public bool tempusAccess;
 
     // Use this for initialization
     void Start()
@@ -270,6 +271,12 @@ public class Player : NetworkBehaviour
         NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().WormholeTo(cellId);
     }
 
+    [Command]
+    public void Cmd_SetTempusAccess(bool granted)
+    {
+        tempusAccess = granted;
+    }
+
     [ClientRpc]
     public void Rpc_AddResource(ResourceType resource)
     {
@@ -318,5 +325,4 @@ public class Player : NetworkBehaviour
             UIManager.singleton.hotbar.GetComponent<CanvasGroup>().interactable = false;
         }
     }
-
 }
