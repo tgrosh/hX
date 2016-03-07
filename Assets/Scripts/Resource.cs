@@ -25,7 +25,7 @@ public class Resource : NetworkBehaviour {
 
     public int Collect(int requestAmount)
     {
-        int collection = Mathf.Min(new int[] { requestAmount, Random.Range(0, 3) });
+        int collection = Mathf.Min(new int[] { requestAmount, Random.Range(0, 2) });
         return collection;
     }
 

@@ -29,10 +29,8 @@ public class Base : NetworkBehaviour {
             NetworkServer.FindLocalObject(owner).GetComponent<Player>().playerBase = this.netId;
 
             //seed with initial values, enough to buy one ship
-            cargoHold.Add(ResourceType.Corium, 10);
-            cargoHold.Add(ResourceType.Workers, 10);
-            cargoHold.Add(ResourceType.Supplies, 10);
-            cargoHold.Add(ResourceType.Hydrazine, 10);
+            cargoHold.Add(ResourceType.Corium, 2);
+            cargoHold.Add(ResourceType.Workers, 1);
         }
 	}
     
