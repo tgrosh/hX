@@ -17,8 +17,8 @@ public class PurchaseManager
     });
 
     public static Purchase UpgradeBooster = new Purchase(new List<PurchaseCost>() { 
-        new PurchaseCost(ResourceType.Corium, 2), 
-        new PurchaseCost(ResourceType.Hydrazine, 1) 
+        new PurchaseCost(ResourceType.Corium, 1), 
+        new PurchaseCost(ResourceType.Hydrazine, 2) 
     });
 
     public static Purchase UpgradeBlaster = new Purchase(new List<PurchaseCost>() { 
@@ -27,8 +27,8 @@ public class PurchaseManager
     });
 
     public static Purchase UpgradeTractorBeam = new Purchase(new List<PurchaseCost>() { 
-        new PurchaseCost(ResourceType.Supplies, 2), 
-        new PurchaseCost(ResourceType.Hydrazine, 1) 
+        new PurchaseCost(ResourceType.Workers, 1), 
+        new PurchaseCost(ResourceType.Hydrazine, 2) 
     });
 
 }
