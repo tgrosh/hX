@@ -9,7 +9,8 @@ public class FleetVessel : NetworkBehaviour {
     public float collectionRange;
     public float buildRange;
     public float cargoDropRange;
-    public float movementRange;
+    public float baseMovementRange;
+    public float boosterRange;
     public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
@@ -113,7 +114,7 @@ public class FleetVessel : NetworkBehaviour {
 	void Update () {
         if (colliderTransform != null)
         {
-            colliderTransform.localScale = new Vector3(movementRange + (movementRange * boosterCount), movementRange + (movementRange * boosterCount), 2);
+            colliderTransform.localScale = new Vector3(baseMovementRange + (boosterRange * boosterCount), baseMovementRange + (boosterRange * boosterCount), 2);
         }
 
         if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
