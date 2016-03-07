@@ -74,8 +74,8 @@ public class Ship : NetworkBehaviour {
         GameManager.OnTurnStart += GameManager_OnTurnStart;
         GameManager.OnRoundStart += GameManager_OnRoundStart;
         
-        if (isServer) { 
-            GameManager.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+        if (isServer) {
+            EventLog.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
         }
 
         if (OnShipStarted != null)
@@ -187,9 +187,9 @@ public class Ship : NetworkBehaviour {
 
                     if (collectedCount > 0)
                     {
-                        GameManager.singleton.AddEvent(String.Format("Player {0}'s Trade Ship collected " + collectedCount + " {1}",
-                            GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color), 
-                            GameManager.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
+                        EventLog.singleton.AddEvent(String.Format("Player {0}'s Trade Ship collected " + collectedCount + " {1}",
+                            EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color),
+                            EventLog.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
                         GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
                         item.GetComponent<ResourceItem>().FlyTo(netId);
                         NetworkServer.Spawn(item);
@@ -212,7 +212,7 @@ public class Ship : NetworkBehaviour {
             if (distance <= cargoDropRange)
             {
                 cargoHold.Transfer(nearbyBase.cargoHold);
-                GameManager.singleton.AddEvent(String.Format("Player {0}'s Trade Ship has delivered resources to their Base", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+                EventLog.singleton.AddEvent(String.Format("Player {0}'s Trade Ship has delivered resources to their Base", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
             }
         }
 
@@ -222,7 +222,7 @@ public class Ship : NetworkBehaviour {
             if (distance <= cargoDropRange)
             {
                 cargoHold.Transfer(depot.cargoHold);
-                GameManager.singleton.AddEvent(String.Format("Player {0}'s Trade Ship has delivered resources to their Depot", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+                EventLog.singleton.AddEvent(String.Format("Player {0}'s Trade Ship has delivered resources to their Depot", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
             }
         }
     }

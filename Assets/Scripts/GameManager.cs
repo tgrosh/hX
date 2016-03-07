@@ -12,12 +12,10 @@ public class GameManager : NetworkBehaviour
     public AutoCam cam;
     public GameBoard gameBoard;
     public GameObject PlayerName;
-    public GameObject EventLogEntryPrefab;
     public GameCell selectedCell;    
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
-    public List<GameCell> cells = new List<GameCell>();    
-    public List<string> events = new List<string>();        
+    public List<GameCell> cells = new List<GameCell>();     
     public Player activePlayer
     {
         get
@@ -144,53 +142,7 @@ public class GameManager : NetworkBehaviour
         txt.fontSize = fontSize;
         objPlayerName.transform.SetParent(playerNamePanel.transform);
     }
-
-    [ClientRpc]
-    private void Rpc_AddEvent(string text)
-    {
-        GameObject.Find("MostRecentEvent").GetComponent<Text>().text = text;
-        events.Add(text);
-        PopulateEventLog(events);
-    }
-
-    [Client]
-    private void PopulateEventLog(List<string> events)
-    {
-        GameObject eventLogContent = GameObject.Find("EventLogContent");
-        GameObject fullEventLog = GameObject.Find("FullEventLog");
-        float newHeight = 14;
-
-        foreach (Transform child in eventLogContent.transform)
-        {
-            Destroy(child.gameObject);
-        }
-
         
-        //.GetRange(Mathf.Max(events.Count - 41, 0), Mathf.Min(40, events.Count))
-        foreach (string s in events)
-        {
-            GameObject obj = Instantiate(EventLogEntryPrefab);
-            obj.GetComponent<Text>().text = s;
-
-            //increase content area to be big enough to support the new item
-            eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 1200);
-            obj.transform.SetParent(eventLogContent.transform);
-
-            newHeight += obj.GetComponent<RectTransform>().rect.height + 3;
-            newHeight = Mathf.Max(newHeight, 200);
-            eventLogContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, newHeight);
-        }
-
-        Canvas.ForceUpdateCanvases();
-        fullEventLog.GetComponent<ScrollRect>().verticalScrollbar.value = 0f;
-        Canvas.ForceUpdateCanvases();
-    }
-
-    [Server]
-    public void AddEvent(string text) {
-        Rpc_AddEvent(text);
-    }
-    
     [Server]
     public void StartGame()
     {        
@@ -212,14 +164,14 @@ public class GameManager : NetworkBehaviour
     [Server]
     public void EndPlayerTurn()
     {
-        GameManager.singleton.AddEvent(String.Format("Player {0}'s turn has ended", GameManager.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));                
+        EventLog.singleton.AddEvent(String.Format("Player {0}'s turn has ended", EventLog.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));                
         activePlayerIndex++;
         if (activePlayerIndex >= players.Count)
         {
             activePlayerIndex = 0;
         }
 
-        GameManager.singleton.AddEvent(String.Format("Player {0}'s turn has started", GameManager.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));
+        EventLog.singleton.AddEvent(String.Format("Player {0}'s turn has started", EventLog.singleton.CreateColoredText(players[activePlayerIndex].seat.ToString(), players[activePlayerIndex].color)));
 
         if (activePlayerIndex == 0 && OnRoundStart != null)
         {
@@ -264,15 +216,5 @@ public class GameManager : NetworkBehaviour
     public Player PlayerAtSeat(PlayerSeat seat)
     {
         return players.Find((Player p) => { return p.seat == seat; });
-    }
-    
-    public string CreateColoredText(String text, Color color)
-    {
-        return "<color=#" + ColorToHex(color) + ">" + text + "</color>";
-    }
-
-    public string ColorToHex(Color color)
-    {
-        return Convert.ToInt32(color.r * 255).ToString("X2") + Convert.ToInt32(color.g * 255).ToString("X2") + Convert.ToInt32(color.b * 255).ToString("X2");
-    }
+    }    
 }

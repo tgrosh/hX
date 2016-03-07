@@ -34,7 +34,7 @@ public class Depot : NetworkBehaviour {
         if (isServer)
         {
             GameManager.OnTurnStart += GameManager_OnTurnStart;
-            GameManager.singleton.AddEvent(String.Format("Player {0} created a new Depot", GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
+            EventLog.singleton.AddEvent(String.Format("Player {0} created a new Depot", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
         }
 
         if (OnDepotStarted != null)
@@ -116,9 +116,9 @@ public class Depot : NetworkBehaviour {
 
                 if (collectedCount > 0)
                 {
-                    GameManager.singleton.AddEvent(String.Format("Player {0}'s Depot collected " + collectedCount + " {1}",
-                        GameManager.singleton.CreateColoredText(owner.seat.ToString(), owner.color),
-                        GameManager.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
+                    EventLog.singleton.AddEvent(String.Format("Player {0}'s Depot collected " + collectedCount + " {1}",
+                        EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color),
+                        EventLog.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
                     GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
                     item.GetComponent<ResourceItem>().FlyTo(netId);
                     NetworkServer.Spawn(item);
