@@ -22,7 +22,7 @@ public class EncounterStage : MonoBehaviour {
         gameObject.SetActive(true);
     }
 
-    public bool MeetsRequirements(Encounter encounter, Ship ship)
+    public bool MeetsRequirements(Encounter encounter, FleetVessel ship)
     {
         if (requirement == EncounterStageRequirements.None) return true;
 

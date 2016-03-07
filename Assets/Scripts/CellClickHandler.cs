@@ -11,7 +11,7 @@ public class CellClickHandler : NetworkBehaviour {
 
             if (GetComponent<GameCell>().hasShip)
             {   
-                GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(GetComponent<GameCell>().associatedShip).GetComponent<Ship>().cameraTarget);
+                GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(GetComponent<GameCell>().associatedShip).GetComponent<FleetVessel>().cameraTarget);
             }
         }
     }

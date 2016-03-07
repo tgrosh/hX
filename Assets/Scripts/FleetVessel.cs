@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using UnityStandardAssets.Cameras;
 
-public class Ship : NetworkBehaviour {
+public class FleetVessel : NetworkBehaviour {
     public float collectionRange;
     public float buildRange;
     public float cargoDropRange;
@@ -39,17 +39,17 @@ public class Ship : NetworkBehaviour {
     [SyncVar]
     private NetworkInstanceId travelDestination = NetworkInstanceId.Invalid;
 
-    public delegate void ShipMoveStart(Ship ship);
+    public delegate void ShipMoveStart(FleetVessel ship);
     public static event ShipMoveStart OnShipMoveStart;
-    public delegate void ShipMoveEnd(Ship ship);
+    public delegate void ShipMoveEnd(FleetVessel ship);
     public static event ShipMoveEnd OnShipMoveEnd;
 
-    public delegate void ShipSpawnStart(Ship ship);
+    public delegate void ShipSpawnStart(FleetVessel ship);
     public static event ShipSpawnStart OnShipSpawnStart;
-    public delegate void ShipSpawnEnd(Ship ship);
+    public delegate void ShipSpawnEnd(FleetVessel ship);
     public static event ShipSpawnEnd OnShipSpawnEnd;
 
-    public delegate void ShipStarted(Ship ship);
+    public delegate void ShipStarted(FleetVessel ship);
     public static event ShipStarted OnShipStarted;
 
     public delegate void BoostersChanged(int count);
@@ -151,12 +151,10 @@ public class Ship : NetworkBehaviour {
                 
                 if (Vector3.Distance(transform.position, targetPoint) > .01f)
                 {
-                    Debug.Log("moving");
                     transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
                 }
                 else if (transform.position != targetPoint)
                 {
-                    Debug.Log("stopping");
                     travelDestination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
                     GameManager.singleton.ResetCamera();

@@ -16,7 +16,7 @@ public class EncounterManager : NetworkBehaviour {
 	void Start () {
         if (isServer)
         {
-            Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
+            FleetVessel.OnShipMoveEnd += Ship_OnShipMoveEnd;
 
             if (randomEncounterFactors.Count > 0)
             {
@@ -42,7 +42,7 @@ public class EncounterManager : NetworkBehaviour {
 	}
 
     [Server]
-    void Ship_OnShipMoveEnd(Ship ship)
+    void Ship_OnShipMoveEnd(FleetVessel ship)
     {
         if (Random.value <= shipMoveEncounterChance)
         {
@@ -74,7 +74,7 @@ public class EncounterManager : NetworkBehaviour {
     public void DisplayInitialEncounterStage()
     {
         if (GetComponent<Animator>().GetBool("IsOpen")) {
-            possibles[currentEncounterIndex].StartEncounter(ClientScene.FindLocalObject(ownerShip).GetComponent<Ship>());
+            possibles[currentEncounterIndex].StartEncounter(ClientScene.FindLocalObject(ownerShip).GetComponent<FleetVessel>());
         }
     }
         

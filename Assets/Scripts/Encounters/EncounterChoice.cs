@@ -53,7 +53,7 @@ public class EncounterChoice : MonoBehaviour {
         return possibles[UnityEngine.Random.Range(0, possibles.Count)];
     }
 
-    public EncounterStage NextApplicableRandomStage(Encounter encounter, Ship ship)
+    public EncounterStage NextApplicableRandomStage(Encounter encounter, FleetVessel ship)
     {
         return NextRandomStage(possibles.FindAll((EncounterStage stage) => {
             return stage.MeetsRequirements(encounter, ship); 

@@ -8,14 +8,14 @@ public class HotBar : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         Depot.OnDepotStarted += Depot_OnDepotStarted;
-        Ship.OnShipStarted += Ship_OnShipStarted;
-        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
-        Ship.OnBlastersChanged += Ship_OnBlastersChanged;
-        Ship.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
-        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
-        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
-        Ship.OnShipSpawnStart += Ship_OnShipSpawnStart;
-        Ship.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
+        FleetVessel.OnShipStarted += Ship_OnShipStarted;
+        FleetVessel.OnBoostersChanged += Ship_OnBoostersChanged;
+        FleetVessel.OnBlastersChanged += Ship_OnBlastersChanged;
+        FleetVessel.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
+        FleetVessel.OnShipMoveStart += Ship_OnShipMoveStart;
+        FleetVessel.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        FleetVessel.OnShipSpawnStart += Ship_OnShipSpawnStart;
+        FleetVessel.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
 	}
 	
 	// Update is called once per frame
@@ -33,17 +33,17 @@ public class HotBar : MonoBehaviour {
         }
 	}
     
-    void Ship_OnShipSpawnEnd(Ship ship)
+    void Ship_OnShipSpawnEnd(FleetVessel ship)
     {
         SetInteractable(true);
     }
 
-    void Ship_OnShipSpawnStart(Ship ship)
+    void Ship_OnShipSpawnStart(FleetVessel ship)
     {
         SetInteractable(false);
     }
 
-    void Ship_OnShipMoveEnd(Ship ship)
+    void Ship_OnShipMoveEnd(FleetVessel ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -51,7 +51,7 @@ public class HotBar : MonoBehaviour {
         }
     }
 
-    void Ship_OnShipMoveStart(Ship ship)
+    void Ship_OnShipMoveStart(FleetVessel ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -74,7 +74,7 @@ public class HotBar : MonoBehaviour {
         ToggleBoosterUpgrade(false);
     }
 
-    void Ship_OnShipStarted(Ship ship)
+    void Ship_OnShipStarted(FleetVessel ship)
     {
         ToggleShip(false);
     }

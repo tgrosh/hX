@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Encounter : MonoBehaviour {
     public List<EncounterStage> stages;
     public EncounterStage currentStage;
-    public Ship playerShip;
+    public FleetVessel playerShip;
     public int encounterStrengthMin;
     public int encounterStrengthMax;
     [HideInInspector]
@@ -25,7 +25,7 @@ public class Encounter : MonoBehaviour {
         }
     }
 	
-    public void StartEncounter(Ship playerShip)
+    public void StartEncounter(FleetVessel playerShip)
     {
         tradeResources.Clear();
         this.playerShip = playerShip;

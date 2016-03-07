@@ -67,10 +67,10 @@ public class GameManager : NetworkBehaviour
         playerNamePanel = GameObject.Find("PlayerNamesPanel");
         cam = Camera.main.GetComponent<AutoCam>();
 
-        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
-        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
-        Ship.OnShipSpawnStart += Ship_OnShipSpawnStart;
-        Ship.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
+        FleetVessel.OnShipMoveStart += Ship_OnShipMoveStart;
+        FleetVessel.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        FleetVessel.OnShipSpawnStart += Ship_OnShipSpawnStart;
+        FleetVessel.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
     }
 
     public void ResetCamera()
@@ -106,7 +106,7 @@ public class GameManager : NetworkBehaviour
         }
     }
     
-    void Ship_OnShipMoveEnd(Ship ship)
+    void Ship_OnShipMoveEnd(FleetVessel ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -114,7 +114,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void Ship_OnShipMoveStart(Ship ship)
+    void Ship_OnShipMoveStart(FleetVessel ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -122,12 +122,12 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void Ship_OnShipSpawnEnd(Ship ship)
+    void Ship_OnShipSpawnEnd(FleetVessel ship)
     {
         gameBoardLocked = false;
     }
 
-    void Ship_OnShipSpawnStart(Ship ship)
+    void Ship_OnShipSpawnStart(FleetVessel ship)
     {
         gameBoardLocked = true;
     }

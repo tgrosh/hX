@@ -284,26 +284,26 @@ public class GameCell : NetworkBehaviour
             {
                 if (player.Purchase(PurchaseManager.UpgradeBooster))
                 {
-                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Boosters++;
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().Boosters++;
                 }
             }
             else if (player.isBuyingBlasterUpgrade)
             {
                 if (player.Purchase(PurchaseManager.UpgradeBlaster))
                 {
-                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Blasters++;
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().Blasters++;
                 }
             }
             else if (player.isBuyingTractorBeamUpgrade)
             {
                 if (player.Purchase(PurchaseManager.UpgradeTractorBeam))
                 {
-                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().TractorBeams++;
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().TractorBeams++;
                 }
             }
             else
             {
-                if (NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().IsDisabled) return false;
+                if (NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().IsDisabled) return false;
 
                 //clicking on my ship space, select it
                 selected = !selected;
@@ -311,7 +311,7 @@ public class GameCell : NetworkBehaviour
 
                 if (selected)
                 {
-                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().nearbyCells)
                     {
                         if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
                         {
@@ -321,7 +321,7 @@ public class GameCell : NetworkBehaviour
                 }
                 else
                 {
-                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().nearbyCells)
                     {
                         if (cell.state == GameCellState.MovementArea)
                         {
@@ -337,7 +337,7 @@ public class GameCell : NetworkBehaviour
             {
                 GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
                 NetworkServer.Spawn(objShip);
-                Ship ship = objShip.GetComponent<Ship>();
+                FleetVessel ship = objShip.GetComponent<FleetVessel>();
                 ship.Color = player.color;
                 ship.ownerId = player.netId;
                 ship.associatedCell = this.netId;
@@ -355,7 +355,7 @@ public class GameCell : NetworkBehaviour
             GameManager.singleton.selectedCell.Revert();
             GameManager.singleton.selectedCell.SetCell(false, NetworkInstanceId.Invalid);            
             GameManager.singleton.selectedCell = null;
-            NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().MoveTo(this.netId);
+            NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().MoveTo(this.netId);
             return true;
         }
         else if (state == GameCellState.DepotBuildArea && owner == player.netId)
@@ -394,7 +394,7 @@ public class GameCell : NetworkBehaviour
             hoverTime += Time.deltaTime;
             if (hoverTime > tooltipDelay)
             {
-                UIManager.singleton.ShowShipTooltip(ClientScene.FindLocalObject(associatedShip).GetComponent<Ship>());
+                UIManager.singleton.ShowShipTooltip(ClientScene.FindLocalObject(associatedShip).GetComponent<FleetVessel>());
             }
         }
     }

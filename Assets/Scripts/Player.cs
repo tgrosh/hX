@@ -7,7 +7,7 @@ public class Player : NetworkBehaviour
 {
     public static Player localPlayer;
     public static Player opponent;
-    public List<Ship> ships = new List<Ship>();
+    public List<FleetVessel> ships = new List<FleetVessel>();
 
     [SyncVar]
     public Color color;
@@ -56,8 +56,8 @@ public class Player : NetworkBehaviour
         }
 
         Depot.OnDepotStarted += Depot_OnDepotStarted;
-        Ship.OnShipStarted += Ship_OnShipStarted;
-        Ship.OnBoostersChanged += Ship_OnBoostersChanged;
+        FleetVessel.OnShipStarted += Ship_OnShipStarted;
+        FleetVessel.OnBoostersChanged += Ship_OnBoostersChanged;
     }
 
     private void Ship_OnBoostersChanged(int count)
@@ -65,7 +65,7 @@ public class Player : NetworkBehaviour
         isBuyingBoosterUpgrade = false;
     }
 
-    private void Ship_OnShipStarted(Ship ship)
+    private void Ship_OnShipStarted(FleetVessel ship)
     {
         isBuyingShip = false;
     }
@@ -182,7 +182,7 @@ public class Player : NetworkBehaviour
     {
         if (isBuying)
         {
-            foreach (Ship ship in ships)
+            foreach (FleetVessel ship in ships)
             {
                 List<GameCell> nearbyBuildableCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasShip && objCell.state == GameCellState.Empty; });
                 foreach (GameCell cell in nearbyBuildableCells)
@@ -238,37 +238,37 @@ public class Player : NetworkBehaviour
     [Command]
     public void Cmd_SetShipDisabled(NetworkInstanceId shipId, bool isDisabled)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().IsDisabled = true;
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().IsDisabled = true;
     }
 
     [Command]
     public void Cmd_AddShipCargo(NetworkInstanceId shipId, ResourceType resource, int quantity)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Add(resource, quantity);
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().cargoHold.Add(resource, quantity);
     }
 
     [Command]
     public void Cmd_DumpShipCargo(NetworkInstanceId shipId, ResourceType resource, int quantity)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Dump(resource, quantity);
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().cargoHold.Dump(resource, quantity);
     }
 
     [Command]
     public void Cmd_PurgeShipCargo(NetworkInstanceId shipId)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.Purge();
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().cargoHold.Purge();
     }
 
     [Command]
     public void Cmd_PurgeHalfShipCargo(NetworkInstanceId shipId)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().cargoHold.PurgeHalf();
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().cargoHold.PurgeHalf();
     }
     
     [Command]
     public void Cmd_ShipWormholeTo(NetworkInstanceId shipId, NetworkInstanceId cellId)
     {
-        NetworkServer.FindLocalObject(shipId).GetComponent<Ship>().WormholeTo(cellId);
+        NetworkServer.FindLocalObject(shipId).GetComponent<FleetVessel>().WormholeTo(cellId);
     }
 
     [Command]

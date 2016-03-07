@@ -138,7 +138,7 @@ public class UIManager : NetworkBehaviour
         }   
     }
 
-    public void ShowShipTooltip(Ship ship)
+    public void ShowShipTooltip(FleetVessel ship)
     {
         if (!ShipTooltip.activeInHierarchy) {
             Vector3 screenPoint = Camera.main.WorldToViewportPoint(ship.transform.position);
