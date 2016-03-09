@@ -11,10 +11,6 @@ public class Depot : NetworkBehaviour {
     private float rotateSpeed = 5f;
     public Transform depot;
     private bool isColorSet;
-    private bool animatingEntrance;
-    private float animationCurrentTime;
-    private float animationSpeed = 3f;
-    private Vector3 origPosition;
     public List<Resource> nearbyResources = new List<Resource>();
     public CargoHold cargoHold = new CargoHold();
 
@@ -26,10 +22,8 @@ public class Depot : NetworkBehaviour {
     {
         cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
 
-        origPosition = transform.position;
         depot = transform.FindChild("DepotModel");
-        transform.position = transform.position + new Vector3(0, 0, 1);
-        animatingEntrance = true;
+        transform.position = transform.position;
 
         if (isServer)
         {
@@ -37,6 +31,7 @@ public class Depot : NetworkBehaviour {
             EventLog.singleton.AddEvent(String.Format("Player {0} created a new Depot", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
         }
 
+        GetComponentInChildren<AnimationHandler>().animator.SetBool("IsActive", true);
         if (OnDepotStarted != null)
         {
             OnDepotStarted(this);
@@ -54,19 +49,6 @@ public class Depot : NetworkBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
-        {
-            transform.position = Vector3.Lerp(transform.position, origPosition, animationSpeed * Time.deltaTime);
-            animationCurrentTime += Time.deltaTime;
-        }
-        else if (animatingEntrance)
-        {
-            transform.localPosition = origPosition;
-
-            animationCurrentTime = 0;
-            animatingEntrance = false;
-        }
-
         depot.Rotate(Vector3.up * Time.deltaTime * rotateSpeed);
 
         if (!isColorSet)
