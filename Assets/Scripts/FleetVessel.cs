@@ -22,10 +22,6 @@ public class FleetVessel : NetworkBehaviour {
     private int blasterCount = 0;
     private int tractorBeamCount = 0;
     private Transform colliderTransform;
-    private bool animatingEntrance;
-    private float animationCurrentTime;
-    private float animationSpeed = 3f;
-    private Vector3 origPosition;
     private float moveSpeed = 2f;
     private Vector3 targetPoint;
 
@@ -63,14 +59,8 @@ public class FleetVessel : NetworkBehaviour {
 	// Use this for initialization
     void Start()
     {
-        origPosition = transform.position;
-        transform.position = transform.position + new Vector3(0, 0, 1);
-        animatingEntrance = true;
+        transform.position = transform.position;
         colliderTransform = transform.FindChild("collider");
-
-        //cargoHold.Add(ResourceType.Corium, 2); //TODO REMOVE AFTER TESTING
-        //blasterCount = 5; //TODO REMOVE AFTER TESTING
-        //boosterCount = 5; //TODO REMOVE AFTER TESTING
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
         GameManager.OnRoundStart += GameManager_OnRoundStart;
@@ -83,7 +73,22 @@ public class FleetVessel : NetworkBehaviour {
         {
             OnShipStarted(this);
         }
+
+        AnimationHandler.OnAnimationComplete += AnimationHandler_OnAnimationComplete;
+        GetComponentInChildren<AnimationHandler>().animator.SetBool("IsActive", true);
+        if (OnShipSpawnStart != null)
+        {
+            OnShipSpawnStart(this);
+        }
 	}
+
+    void AnimationHandler_OnAnimationComplete(AnimationType animationType)
+    {
+        if (animationType == AnimationType.FleetVesselEnter)
+        {
+            ShipEnterComplete();
+        }
+    }
 
     public override void OnStartClient()
     {
@@ -115,29 +120,6 @@ public class FleetVessel : NetworkBehaviour {
         if (colliderTransform != null)
         {
             colliderTransform.localScale = new Vector3(baseMovementRange + (boosterRange * boosterCount), baseMovementRange + (boosterRange * boosterCount), 2);
-        }
-
-        if (animatingEntrance && animationCurrentTime / animationSpeed < .95f)
-        {
-            transform.position = Vector3.Lerp(transform.position, origPosition, animationSpeed * Time.deltaTime);
-            animationCurrentTime += Time.deltaTime;
-            if (OnShipSpawnStart != null)
-            {
-                OnShipSpawnStart(this);
-            }
-        }
-        else if (animatingEntrance)
-        {
-            transform.localPosition = origPosition;
-
-            animationCurrentTime = 0;
-            animatingEntrance = false;
-
-            GameManager.singleton.ResetCamera();
-            if (OnShipSpawnEnd != null)
-            {
-                OnShipSpawnEnd(this);
-            }
         }
         
         if (travelDestination != NetworkInstanceId.Invalid)
@@ -414,5 +396,11 @@ public class FleetVessel : NetworkBehaviour {
         }
     }
 
-    
+    void ShipEnterComplete()
+    {
+        if (OnShipSpawnEnd != null)
+        {
+            OnShipSpawnEnd(this);
+        }
+    }        
 }
