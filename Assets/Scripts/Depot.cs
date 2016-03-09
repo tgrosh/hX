@@ -65,12 +65,6 @@ public class Depot : NetworkBehaviour {
 
             animationCurrentTime = 0;
             animatingEntrance = false;
-
-            //GameManager.singleton.ResetCamera();
-            //if (OnShipSpawnEnd != null)
-            //{
-            //    OnShipSpawnEnd();
-            //}
         }
 
         depot.Rotate(Vector3.up * Time.deltaTime * rotateSpeed);
@@ -88,7 +82,6 @@ public class Depot : NetworkBehaviour {
         if (GameManager.singleton.activePlayer == owner)
         {
             TransferResources();
-            CollectAvailableResources();
         }
     }
 
@@ -103,32 +96,7 @@ public class Depot : NetworkBehaviour {
             }
         }
     }
-
-    [Server]
-    private void CollectAvailableResources()
-    {
-        foreach (Resource resource in nearbyResources)
-        {            
-            if (!cargoHold.IsFull)
-            {
-                ResourceType collectedResource = resource.type;
-                int collectedCount = resource.Collect(cargoHold.AvailableCapacity);
-
-                if (collectedCount > 0)
-                {
-                    EventLog.singleton.AddEvent(String.Format("Player {0}'s Depot collected " + collectedCount + " {1}",
-                        EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color),
-                        EventLog.singleton.CreateColoredText(resource.type.ToString(), Resource.GetColor(resource.type))));
-                    GameObject item = (GameObject)Instantiate(resource.resourceItemPrefab, resource.sphere.transform.position, resource.sphere.transform.rotation);
-                    item.GetComponent<ResourceItem>().FlyTo(netId);
-                    NetworkServer.Spawn(item);
-                }
-
-                cargoHold.Add(collectedResource, collectedCount);
-            }
-        }
-    }
-
+    
     [Server]
     private void TransferResources()
     {
