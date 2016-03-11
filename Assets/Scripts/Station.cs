@@ -11,6 +11,7 @@ public class Station : NetworkBehaviour {
     public Transform actor;
     private bool isColorSet;
     public List<Resource> nearbyResources = new List<Resource>();
+    public List<GameCell> nearbyCells = new List<GameCell>();
     public CargoHold cargoHold = new CargoHold();
 
 	// Use this for initialization
@@ -76,6 +77,11 @@ public class Station : NetworkBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.GetComponent<GameCell>() && !nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
+        {
+            nearbyCells.Add(other.gameObject.GetComponent<GameCell>());
+        }
+
         if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
             nearbyResources.Add(other.transform.parent.GetComponent<Resource>());

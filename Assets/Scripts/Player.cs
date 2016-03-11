@@ -58,8 +58,30 @@ public class Player : NetworkBehaviour
         }
 
         Depot.OnDepotStarted += Depot_OnDepotStarted;
+        Starport.OnStarportStarted += Starport_OnStarportStarted;
         FleetVessel.OnShipStarted += Ship_OnShipStarted;
         FleetVessel.OnBoostersChanged += Ship_OnBoostersChanged;
+    }
+
+    public List<Starport> Starports
+    {
+        get
+        {
+            return new List<Starport>(GameObject.FindObjectsOfType<Starport>()).FindAll((Starport starport) => { return starport.owner = this; });
+        }
+    }
+
+    public List<Depot> Depots
+    {
+        get
+        {
+            return new List<Depot>(GameObject.FindObjectsOfType<Depot>()).FindAll((Depot depot) => { return depot.owner = this; });
+        }
+    }
+
+    void Starport_OnStarportStarted(Starport starport)
+    {
+        isBuyingStarport = false;
     }
 
     private void Ship_OnBoostersChanged(int count)
@@ -176,6 +198,10 @@ public class Player : NetworkBehaviour
     public void Cmd_SetIsBuyingShip(bool isBuying)
     {
         NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuying);
+        foreach (Starport starport in Starports)
+        {
+            starport.ToggleArea(isBuying);
+        }
         this.isBuyingShip = isBuying;
     }
 

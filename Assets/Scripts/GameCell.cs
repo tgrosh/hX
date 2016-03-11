@@ -138,7 +138,7 @@ public class GameCell : NetworkBehaviour
                 {
                     SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseMaterial);
                 }
-                else if (owner == Player.localPlayer.netId && state == GameCellState.BaseArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
+                else if (owner == Player.localPlayer.netId && state == GameCellState.ShipBuildArea && !cellMaterial.name.Contains(BaseAreaMaterial.name))
                 {
                     SetCellMaterial(ClientScene.FindLocalObject(owner).GetComponent<Player>().color, BaseAreaMaterial);
                 }
@@ -187,7 +187,7 @@ public class GameCell : NetworkBehaviour
                 cellColorTarget = Color.blue;
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(BaseMaterial);
             }
-            else if (state == GameCellState.BaseArea)
+            else if (state == GameCellState.ShipBuildArea)
             {
                 cellColorTarget = Color.blue;
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(BaseAreaMaterial);
@@ -314,7 +314,7 @@ public class GameCell : NetworkBehaviour
                 {
                     foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().nearbyCells)
                     {
-                        if (cell.state == GameCellState.Empty || cell.state == GameCellState.BaseArea)
+                        if (cell.state == GameCellState.Empty || cell.state == GameCellState.ShipBuildArea)
                         {
                             cell.SetCell(player, GameCellState.MovementArea);
                         }
@@ -332,7 +332,7 @@ public class GameCell : NetworkBehaviour
                 }
             }            
         }
-        else if (state == GameCellState.BaseArea && owner == player.netId)
+        else if (state == GameCellState.ShipBuildArea && owner == player.netId)
         {
             if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
             {

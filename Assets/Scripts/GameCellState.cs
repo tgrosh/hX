@@ -9,7 +9,7 @@ public enum GameCellState
     Area = 1,
     Core = 2,
     Base = 3,
-    BaseArea = 4,
+    ShipBuildArea = 4,
     MovementArea = 6,
     Resource = 7,
     Depot = 8,

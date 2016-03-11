@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class Starport : Station {
     public delegate void StarportStarted(Starport starport);
@@ -19,6 +21,31 @@ public class Starport : Station {
         if (OnStarportStarted != null)
         {
             OnStarportStarted(this);
+        }
+    }
+
+    [Server]
+    public void ToggleArea(bool show)
+    {
+        if (show)
+        {
+            foreach (GameCell cell in nearbyCells)
+            {
+                if (cell.state == GameCellState.Empty && !cell.hasShip)
+                {
+                    cell.SetCell(owner, GameCellState.ShipBuildArea);
+                }
+            }
+        }
+        else
+        {
+            foreach (GameCell cell in nearbyCells)
+            {
+                if (cell.state == GameCellState.ShipBuildArea)
+                {
+                    cell.SetCell(null, GameCellState.Empty);
+                }
+            }
         }
     }
 }

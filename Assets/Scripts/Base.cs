@@ -95,9 +95,9 @@ public class Base : NetworkBehaviour {
         {
             foreach (GameCell cell in nearbyCells)
             {
-                if (cell.state == GameCellState.Empty)
+                if (cell.state == GameCellState.Empty && !cell.hasShip)
                 {
-                    cell.SetCell(NetworkServer.FindLocalObject(owner).GetComponent<Player>(), GameCellState.BaseArea);
+                    cell.SetCell(NetworkServer.FindLocalObject(owner).GetComponent<Player>(), GameCellState.ShipBuildArea);
                 }
             }
         }
@@ -105,7 +105,7 @@ public class Base : NetworkBehaviour {
         {
             foreach (GameCell cell in nearbyCells)
             {
-                if (cell.state == GameCellState.BaseArea)
+                if (cell.state == GameCellState.ShipBuildArea)
                 {
                     cell.SetCell(null, GameCellState.Empty);
                 }
