@@ -5,109 +5,38 @@ using System.Collections.Generic;
 using System;
 using UnityStandardAssets.Cameras;
 
-public class FleetVessel : NetworkBehaviour {
+public class FleetVessel : Ship {
     public float collectionRange;
     public float buildRange;
     public float cargoDropRange;
-    public float baseMovementRange;
     public float boosterRange;
-    public List<GameCell> nearbyCells = new List<GameCell>();
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
-    public Base nearbyBase;
-    public Transform cameraTarget;
     public CargoHold cargoHold = new CargoHold();
-    public Wormhole prefabWormhole;    
 
     private int boosterCount = 0;
     private int blasterCount = 0;
     private int tractorBeamCount = 0;
-    private Transform colliderTransform;
-    private float moveSpeed = 2f;
-    private Vector3 targetPoint;
-    private NetworkInstanceId wormholeCellId;
-
-    [SyncVar]
-    public NetworkInstanceId ownerId;
-    [SyncVar]
-    public NetworkInstanceId associatedCell;
-    [SyncVar]
-    private int disabledRounds;
-    [SyncVar]
-    private bool isDisabled;    
-    [SyncVar]
-    private NetworkInstanceId travelDestination = NetworkInstanceId.Invalid;
-
-    public delegate void ShipMoveStart(FleetVessel ship);
-    public static event ShipMoveStart OnShipMoveStart;
-    public delegate void ShipMoveEnd(FleetVessel ship);
-    public static event ShipMoveEnd OnShipMoveEnd;
-
-    public delegate void ShipSpawnStart(FleetVessel ship);
-    public static event ShipSpawnStart OnShipSpawnStart;
-    public delegate void ShipSpawnEnd(FleetVessel ship);
-    public static event ShipSpawnEnd OnShipSpawnEnd;
-
-    public delegate void ShipStarted(FleetVessel ship);
-    public static event ShipStarted OnShipStarted;
-
+    
     public delegate void BoostersChanged(int count);
     public static event BoostersChanged OnBoostersChanged;
     public delegate void BlastersChanged(int count);
     public static event BlastersChanged OnBlastersChanged;
     public delegate void TractorBeamsChanged(int count);
     public static event TractorBeamsChanged OnTractorBeamsChanged;
-    private Wormhole whSource;
-    private Wormhole whDest;
         
 	// Use this for initialization
-    void Start()
+    new void Start()
     {
-        transform.position = transform.position;
-        colliderTransform = transform.FindChild("collider");
+        base.Start();
 
         GameManager.OnTurnStart += GameManager_OnTurnStart;
-        GameManager.OnRoundStart += GameManager_OnRoundStart;
         
         if (isServer) {
             EventLog.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
         }
-
-        if (OnShipStarted != null)
-        {
-            OnShipStarted(this);
-        }
-
-        GetComponentInChildren<AnimationHandler>().OnAnimationComplete += AnimationHandler_OnAnimationComplete;
-        if (OnShipSpawnStart != null)
-        {
-            OnShipSpawnStart(this);
-        }
 	}
-
-    void AnimationHandler_OnAnimationComplete(AnimationType animationType)
-    {
-        if (animationType == AnimationType.FleetVesselEnter)
-        {
-            ShipEnterComplete();
-        }
-    }
-
-    public override void OnStartClient()
-    {
-        cameraTarget = transform.FindChild("CameraTarget");
-    }
-
-    [Server]
-    void GameManager_OnRoundStart()
-    {
-        disabledRounds--;
-        if (IsDisabled && disabledRounds <= 0)
-        {
-            IsDisabled = false;
-        }
-    }
-
+    
     [Server]
     void GameManager_OnTurnStart()
     {
@@ -119,39 +48,10 @@ public class FleetVessel : NetworkBehaviour {
     }
         	
 	// Update is called once per frame
-	void Update () {
-        if (colliderTransform != null)
-        {
-            colliderTransform.localScale = new Vector3(baseMovementRange + (boosterRange * boosterCount), baseMovementRange + (boosterRange * boosterCount), 2);
-        }
-        
-        if (travelDestination != NetworkInstanceId.Invalid)
-        {
-            targetPoint = ClientScene.FindLocalObject(travelDestination).transform.position;
+	new void Update () {
+        movementRange = baseMovementRange + (boosterRange * boosterCount);
 
-            if (transform.position != targetPoint)
-            {
-                Quaternion look = Quaternion.LookRotation(-(targetPoint - transform.position), Vector3.forward);
-                look.x = look.y = 0;                
-                transform.rotation = look;
-                
-                if (Vector3.Distance(transform.position, targetPoint) > .01f)
-                {
-                    transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
-                }
-                else if (transform.position != targetPoint)
-                {                    
-                    travelDestination = NetworkInstanceId.Invalid;
-                    transform.position = targetPoint;
-                    GameManager.singleton.ResetCamera();
-
-                    if (isServer && OnShipMoveEnd != null)
-                    {
-                        OnShipMoveEnd(this);
-                    }
-                }
-            }
-        }        
+        base.Update();
 	}
     
     [Server]
@@ -212,8 +112,8 @@ public class FleetVessel : NetworkBehaviour {
     }
     
     [Client]
-    private void SetColor(Color color)
-    {        
+    protected override void SetColor(Color color)
+    {
         foreach (Renderer rend in transform.FindChild("SSO-2").FindChild("SSO-2").gameObject.GetComponentsInChildren<Renderer>())
         {
             foreach (Material mat in rend.materials)
@@ -225,38 +125,7 @@ public class FleetVessel : NetworkBehaviour {
             }
         }
     }
-
-    [Server]
-    public void MoveTo(NetworkInstanceId cellId)
-    {
-        if (IsDisabled) return;
-
-        this.associatedCell = cellId;
-        this.travelDestination = cellId;
-
-        if (OnShipMoveStart != null)
-        {
-            OnShipMoveStart(this);            
-        }
-        this.Rpc_ShipMoveStart();
-    }
-
-    [Server]
-    public void WormholeTo(NetworkInstanceId cellId)
-    {
-        NetworkServer.FindLocalObject(associatedCell).GetComponent<GameCell>().SetCell(false, NetworkInstanceId.Invalid);
-        NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().SetCell(this.owner, true, this.netId);
-        Rpc_WormholeTo(cellId);                
-    }
-
-    public Player owner
-    {
-        get
-        {
-            return NetworkServer.FindLocalObject(ownerId).GetComponent<Player>();
-        }
-    }
-    
+        
     public int Boosters
     {
         get { return boosterCount; }
@@ -285,35 +154,7 @@ public class FleetVessel : NetworkBehaviour {
             Rpc_TractorBeamChange(tractorBeamCount);
         }
     }
-
-    public Color Color
-    {
-        set
-        {
-            Rpc_SetColor(value);
-        }
-    }
-
-    public bool IsDisabled
-    {
-        get { return isDisabled; }
-        set
-        {
-            isDisabled = value;
-
-            if (isDisabled)
-            {
-                disabledRounds = 2;
-                Rpc_SetColor(Color.red);
-            }
-            else
-            {
-                disabledRounds = 0;
-                Rpc_SetColor(owner.color);
-            }
-        }
-    }
-
+    
     [ClientRpc]
     void Rpc_BoosterChange(int count)
     {
@@ -340,112 +181,28 @@ public class FleetVessel : NetworkBehaviour {
             OnTractorBeamsChanged(count);
         }
     }
-
-    [ClientRpc]
-    void Rpc_SetColor(Color color)
-    {
-        SetColor(color);
-    }
-
-    [ClientRpc]
-    void Rpc_ShipMoveStart()
-    {
-        if (OnShipMoveStart != null)
-        {
-            OnShipMoveStart(this);
-        }
-    }
-
-    [ClientRpc]
-    void Rpc_WormholeTo(NetworkInstanceId cellId)
-    {
-        whSource = (Wormhole)Instantiate(prefabWormhole, ClientScene.FindLocalObject(associatedCell).transform.position, Quaternion.identity);
-        whDest = (Wormhole)Instantiate(prefabWormhole, ClientScene.FindLocalObject(cellId).transform.position, Quaternion.identity);
-
-        associatedCell = cellId;
-        wormholeCellId = cellId;
-
-        CameraWatcher.OnCameraReachedDestination += StartWormholeJump;
-        GameManager.singleton.cam.SetTarget(this.cameraTarget.transform);
-    }
-
-    void StartWormholeJump()
-    {
-        GetComponentInChildren<AnimationHandler>().OnAnimationComplete += FleetVessel_EnterWormhole;
-        GetComponentInChildren<AnimationHandler>().animator.SetTrigger("EnterWormhole");
-
-        //unregister the event
-        CameraWatcher.OnCameraReachedDestination -= StartWormholeJump;
-    }
-
-    void FleetVessel_EnterWormhole(AnimationType tEnter)
-    {
-        if (tEnter == AnimationType.FleetVesselWormholeEnter)
-        {
-            //ship has entered wormhole
-            Vector3 newCellPosition = ClientScene.FindLocalObject(wormholeCellId).GetComponent<GameCell>().transform.position;
-            transform.position = new Vector3(newCellPosition.x, newCellPosition.y, transform.position.z);
-
-            GetComponentInChildren<AnimationHandler>().OnAnimationComplete += FleetVessel_ExitWormhole;
-            GetComponentInChildren<AnimationHandler>().animator.SetTrigger("ExitWormhole");
-        }
-    }
-
-    void FleetVessel_ExitWormhole(AnimationType tExit)
-    {
-        if (tExit == AnimationType.FleetVesselWormholeExit)
-        {
-            //ship has exited wormhole
-            whSource.Exit();
-            whDest.Exit();
-        }
-    }
-
+    
     void OnTriggerEnter(Collider other)
     {
-        GameCell otherGameCell = other.gameObject.GetComponent<GameCell>();
-        if (otherGameCell != null && !nearbyCells.Contains(otherGameCell))
-        {
-            nearbyCells.Add(otherGameCell);
-        }
-
         if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
             nearbyResources.Add(other.transform.parent.GetComponent<Resource>());
         }
-
         if (other.GetComponent<Depot>() && !nearbyDepots.Contains(other.GetComponent<Depot>()))
         {
             nearbyDepots.Add(other.GetComponent<Depot>());
         }
 
-        if (other.GetComponent<Base>() && nearbyBase == null)
-        {
-            nearbyBase = other.GetComponent<Base>();
-        }
+        base.OnTriggerEnter(other);
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (nearbyCells.Contains(other.gameObject.GetComponent<GameCell>()))
-        {
-            nearbyCells.Remove(other.gameObject.GetComponent<GameCell>());
-        }
         if (other.transform.parent && nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
             nearbyResources.Remove(other.transform.parent.GetComponent<Resource>());
         }
-        if (nearbyBase == other.transform.GetComponent<Base>())
-        {
-            nearbyBase = null;
-        }
-    }
 
-    void ShipEnterComplete()
-    {
-        if (OnShipSpawnEnd != null)
-        {
-            OnShipSpawnEnd(this);
-        }
-    }        
+        base.OnTriggerExit(other);
+    }
 }

@@ -105,8 +105,8 @@ public class GameManager : NetworkBehaviour
             }
         }
     }
-    
-    void Ship_OnShipMoveEnd(FleetVessel ship)
+
+    void Ship_OnShipMoveEnd(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -114,7 +114,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void Ship_OnShipMoveStart(FleetVessel ship)
+    void Ship_OnShipMoveStart(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -122,12 +122,12 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void Ship_OnShipSpawnEnd(FleetVessel ship)
+    void Ship_OnShipSpawnEnd(Ship ship)
     {
         gameBoardLocked = false;
     }
 
-    void Ship_OnShipSpawnStart(FleetVessel ship)
+    void Ship_OnShipSpawnStart(Ship ship)
     {
         gameBoardLocked = true;
     }

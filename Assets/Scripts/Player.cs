@@ -89,7 +89,7 @@ public class Player : NetworkBehaviour
         isBuyingBoosterUpgrade = false;
     }
 
-    private void Ship_OnShipStarted(FleetVessel ship)
+    private void Ship_OnShipStarted(Ship ship)
     {
         isBuyingShip = false;
     }

@@ -34,7 +34,7 @@ public class HotBar : MonoBehaviour {
         }
 	}
     
-    void Ship_OnShipSpawnEnd(FleetVessel ship)
+    void Ship_OnShipSpawnEnd(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -42,7 +42,7 @@ public class HotBar : MonoBehaviour {
         }        
     }
 
-    void Ship_OnShipSpawnStart(FleetVessel ship)
+    void Ship_OnShipSpawnStart(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -50,7 +50,7 @@ public class HotBar : MonoBehaviour {
         }  
     }
 
-    void Ship_OnShipMoveEnd(FleetVessel ship)
+    void Ship_OnShipMoveEnd(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -58,7 +58,7 @@ public class HotBar : MonoBehaviour {
         }
     }
 
-    void Ship_OnShipMoveStart(FleetVessel ship)
+    void Ship_OnShipMoveStart(Ship ship)
     {
         if (ship.ownerId == Player.localPlayer.netId)
         {
@@ -81,7 +81,7 @@ public class HotBar : MonoBehaviour {
         ToggleBoosterUpgrade(false);
     }
 
-    void Ship_OnShipStarted(FleetVessel ship)
+    void Ship_OnShipStarted(Ship ship)
     {
         ToggleShip(false);
     }

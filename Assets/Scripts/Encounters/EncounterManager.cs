@@ -42,7 +42,7 @@ public class EncounterManager : NetworkBehaviour {
 	}
 
     [Server]
-    void Ship_OnShipMoveEnd(FleetVessel ship)
+    void Ship_OnShipMoveEnd(Ship ship)
     {
         if (Random.value <= shipMoveEncounterChance)
         {
