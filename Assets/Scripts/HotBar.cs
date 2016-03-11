@@ -8,6 +8,7 @@ public class HotBar : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         Depot.OnDepotStarted += Depot_OnDepotStarted;
+        Starport.OnStarportStarted += Starport_OnStarportStarted;
         FleetVessel.OnShipStarted += Ship_OnShipStarted;
         FleetVessel.OnBoostersChanged += Ship_OnBoostersChanged;
         FleetVessel.OnBlastersChanged += Ship_OnBlastersChanged;
@@ -17,7 +18,7 @@ public class HotBar : MonoBehaviour {
         FleetVessel.OnShipSpawnStart += Ship_OnShipSpawnStart;
         FleetVessel.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
 	}
-	
+    	
 	// Update is called once per frame
 	void Update () {
         foreach (Toggle t in GetComponentsInChildren<Toggle>())
@@ -89,6 +90,11 @@ public class HotBar : MonoBehaviour {
     {
         ToggleBuildDepot(false);
     }
+    
+    void Starport_OnStarportStarted(Starport starport)
+    {
+        ToggleBuildStarport(false);
+    }
 
     public void ToggleShip(bool isOn)
     {
@@ -153,6 +159,16 @@ public class HotBar : MonoBehaviour {
         if (Player.localPlayer != null)
         {
             Player.localPlayer.Cmd_SetIsBuyingDepot(isOn);
+        }
+    }
+
+    public void ToggleBuildStarport(bool isOn)
+    {
+        GameObject.Find("StarportToggle").GetComponent<Toggle>().isOn = isOn;
+
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingStarport(isOn);
         }
     }
 

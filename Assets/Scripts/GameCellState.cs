@@ -13,5 +13,6 @@ public enum GameCellState
     MovementArea = 6,
     Resource = 7,
     Depot = 8,
-    DepotBuildArea = 9
+    DepotBuildArea = 9,
+    Starport = 10
 }

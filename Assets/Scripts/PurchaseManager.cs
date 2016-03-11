@@ -31,4 +31,10 @@ public class PurchaseManager
         new PurchaseCost(ResourceType.Hydrazine, 2) 
     });
 
+    public static Purchase Starport = new Purchase(new List<PurchaseCost>() { 
+        new PurchaseCost(ResourceType.Corium, 4), 
+        new PurchaseCost(ResourceType.Workers, 2), 
+        new PurchaseCost(ResourceType.Supplies, 1)  
+    });
+
 }

@@ -35,6 +35,8 @@ public class Player : NetworkBehaviour
     public int reputation;
     [SyncVar]
     public bool tempusAccess;
+    [SyncVar]
+    public bool isBuyingStarport;
 
     // Use this for initialization
     void Start()
@@ -209,6 +211,12 @@ public class Player : NetworkBehaviour
             }
         }
         this.isBuyingDepot = isBuying;
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingStarport(bool isBuying)
+    {
+        this.isBuyingStarport = isBuying;
     }
 
     [Command]

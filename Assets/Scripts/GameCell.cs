@@ -21,6 +21,7 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabResourceLocationWorkers;
     public GameObject prefabBase;
     public GameObject prefabDepot;
+    public GameObject prefabStarport; 
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
@@ -45,7 +46,7 @@ public class GameCell : NetworkBehaviour
     [SyncVar]
     public NetworkInstanceId associatedShip;
     [SyncVar]
-    public NetworkInstanceId associatedDepot;
+    public NetworkInstanceId associatedStation;
     private Resource associatedResourceLocation;
     public Base associatedBase;
     [SyncVar]
@@ -55,8 +56,8 @@ public class GameCell : NetworkBehaviour
     [SyncVar]
     private NetworkInstanceId prevOwner;
     private float hoverTime;
-    private float tooltipDelay = 1f;    
-
+    private float tooltipDelay = 1f;
+    
     // Use this for initialization
     void Start()
     {
@@ -358,6 +359,22 @@ public class GameCell : NetworkBehaviour
             NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().MoveTo(this.netId);
             return true;
         }
+        else if (state == GameCellState.Depot && owner == player.netId)
+        {
+            if (player.isBuyingStarport && player.Purchase(PurchaseManager.Starport))
+            {
+                SetCell(player, GameCellState.Starport);
+                NetworkServer.Destroy(NetworkServer.FindLocalObject(associatedStation));
+                GameObject obj = (GameObject)Instantiate(prefabStarport, transform.position, Quaternion.identity);
+                Starport starport = obj.GetComponent<Starport>();
+                starport.color = player.color;
+                starport.owner = player;
+                NetworkServer.Spawn(obj);
+                associatedStation = starport.netId;
+                //player.depots.Add(depot);
+                return true;
+            }
+        }
         else if (state == GameCellState.DepotBuildArea && owner == player.netId)
         {
             if (player.isBuyingDepot && player.Purchase(PurchaseManager.Depot))
@@ -368,7 +385,7 @@ public class GameCell : NetworkBehaviour
                 depot.color = player.color;
                 depot.owner = player;
                 NetworkServer.Spawn(objDepot);
-                associatedDepot = depot.netId;
+                associatedStation = depot.netId;
                 //player.depots.Add(depot);
                 return true;
             }
