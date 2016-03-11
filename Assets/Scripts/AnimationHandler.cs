@@ -3,8 +3,9 @@ using System.Collections;
 
 public class AnimationHandler : MonoBehaviour {
     public Animator animator;
+
     public delegate void AnimationComplete(AnimationType animationType);
-    public static event AnimationComplete OnAnimationComplete;
+    public event AnimationComplete OnAnimationComplete;
     
     void AnimationEvent(AnimationType animationType)
     {
@@ -17,5 +18,7 @@ public class AnimationHandler : MonoBehaviour {
 
 public enum AnimationType
 {
-    FleetVesselEnter
+    FleetVesselEnter,
+    FleetVesselWormholeEnter,
+    FleetVesselWormholeExit
 }

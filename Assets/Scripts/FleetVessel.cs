@@ -15,8 +15,9 @@ public class FleetVessel : NetworkBehaviour {
     public List<Resource> nearbyResources = new List<Resource>();
     public List<Depot> nearbyDepots = new List<Depot>();
     public Base nearbyBase;
-    public Transform cameraTarget;    
+    public Transform cameraTarget;
     public CargoHold cargoHold = new CargoHold();
+    public Wormhole prefabWormhole;    
 
     private int boosterCount = 0;
     private int blasterCount = 0;
@@ -24,6 +25,7 @@ public class FleetVessel : NetworkBehaviour {
     private Transform colliderTransform;
     private float moveSpeed = 2f;
     private Vector3 targetPoint;
+    private NetworkInstanceId wormholeCellId;
 
     [SyncVar]
     public NetworkInstanceId ownerId;
@@ -54,7 +56,9 @@ public class FleetVessel : NetworkBehaviour {
     public delegate void BlastersChanged(int count);
     public static event BlastersChanged OnBlastersChanged;
     public delegate void TractorBeamsChanged(int count);
-    public static event TractorBeamsChanged OnTractorBeamsChanged;    
+    public static event TractorBeamsChanged OnTractorBeamsChanged;
+    private Wormhole whSource;
+    private Wormhole whDest;
         
 	// Use this for initialization
     void Start()
@@ -74,8 +78,7 @@ public class FleetVessel : NetworkBehaviour {
             OnShipStarted(this);
         }
 
-        AnimationHandler.OnAnimationComplete += AnimationHandler_OnAnimationComplete;
-        GetComponentInChildren<AnimationHandler>().animator.SetBool("IsActive", true);
+        GetComponentInChildren<AnimationHandler>().OnAnimationComplete += AnimationHandler_OnAnimationComplete;
         if (OnShipSpawnStart != null)
         {
             OnShipSpawnStart(this);
@@ -137,7 +140,7 @@ public class FleetVessel : NetworkBehaviour {
                     transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
                 }
                 else if (transform.position != targetPoint)
-                {
+                {                    
                     travelDestination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
                     GameManager.singleton.ResetCamera();
@@ -228,6 +231,7 @@ public class FleetVessel : NetworkBehaviour {
     {
         if (IsDisabled) return;
 
+        this.associatedCell = cellId;
         this.travelDestination = cellId;
 
         if (OnShipMoveStart != null)
@@ -241,12 +245,8 @@ public class FleetVessel : NetworkBehaviour {
     public void WormholeTo(NetworkInstanceId cellId)
     {
         NetworkServer.FindLocalObject(associatedCell).GetComponent<GameCell>().SetCell(false, NetworkInstanceId.Invalid);
-        associatedCell = cellId;
-
-        Vector3 newCellPosition = NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().transform.position;
-        transform.position = new Vector3(newCellPosition.x, newCellPosition.y, transform.position.z);
-
-        NetworkServer.FindLocalObject(associatedCell).GetComponent<GameCell>().SetCell(this.owner, true, this.netId);
+        NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().SetCell(this.owner, true, this.netId);
+        Rpc_WormholeTo(cellId);                
     }
 
     public Player owner
@@ -353,6 +353,51 @@ public class FleetVessel : NetworkBehaviour {
         if (OnShipMoveStart != null)
         {
             OnShipMoveStart(this);
+        }
+    }
+
+    [ClientRpc]
+    void Rpc_WormholeTo(NetworkInstanceId cellId)
+    {
+        whSource = (Wormhole)Instantiate(prefabWormhole, ClientScene.FindLocalObject(associatedCell).transform.position, Quaternion.identity);
+        whDest = (Wormhole)Instantiate(prefabWormhole, ClientScene.FindLocalObject(cellId).transform.position, Quaternion.identity);
+
+        associatedCell = cellId;
+        wormholeCellId = cellId;
+
+        CameraWatcher.OnCameraReachedDestination += StartWormholeJump;
+        GameManager.singleton.cam.SetTarget(this.cameraTarget.transform);
+    }
+
+    void StartWormholeJump()
+    {
+        GetComponentInChildren<AnimationHandler>().OnAnimationComplete += FleetVessel_EnterWormhole;
+        GetComponentInChildren<AnimationHandler>().animator.SetTrigger("EnterWormhole");
+
+        //unregister the event
+        CameraWatcher.OnCameraReachedDestination -= StartWormholeJump;
+    }
+
+    void FleetVessel_EnterWormhole(AnimationType tEnter)
+    {
+        if (tEnter == AnimationType.FleetVesselWormholeEnter)
+        {
+            //ship has entered wormhole
+            Vector3 newCellPosition = ClientScene.FindLocalObject(wormholeCellId).GetComponent<GameCell>().transform.position;
+            transform.position = new Vector3(newCellPosition.x, newCellPosition.y, transform.position.z);
+
+            GetComponentInChildren<AnimationHandler>().OnAnimationComplete += FleetVessel_ExitWormhole;
+            GetComponentInChildren<AnimationHandler>().animator.SetTrigger("ExitWormhole");
+        }
+    }
+
+    void FleetVessel_ExitWormhole(AnimationType tExit)
+    {
+        if (tExit == AnimationType.FleetVesselWormholeExit)
+        {
+            //ship has exited wormhole
+            whSource.Exit();
+            whDest.Exit();
         }
     }
 

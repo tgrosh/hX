@@ -35,12 +35,18 @@ public class HotBar : MonoBehaviour {
     
     void Ship_OnShipSpawnEnd(FleetVessel ship)
     {
-        SetInteractable(true);
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            SetInteractable(true);
+        }        
     }
 
     void Ship_OnShipSpawnStart(FleetVessel ship)
     {
-        SetInteractable(false);
+        if (ship.ownerId == Player.localPlayer.netId)
+        {
+            SetInteractable(false);
+        }  
     }
 
     void Ship_OnShipMoveEnd(FleetVessel ship)

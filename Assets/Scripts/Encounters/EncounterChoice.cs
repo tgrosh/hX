@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Networking;
 
-public class EncounterChoice : MonoBehaviour {
+public class EncounterChoice : NetworkBehaviour {
 
     public List<EncounterStage> potentialStages;
     public List<int> randomStageFactors;

@@ -37,48 +37,50 @@ public class ReputationTracker : MonoBehaviour {
             alreadyOpened = true;
         }
 
-	    dialTargetRotation = Quaternion.Euler(0, 0, (Player.localPlayer.reputation / maxReputation) * maxRotation * -1);
+        if (Player.localPlayer != null)
+        {
+            dialTargetRotation = Quaternion.Euler(0, 0, (Player.localPlayer.reputation / maxReputation) * maxRotation * -1);
+            repDial.rotation = Quaternion.Slerp(repDial.rotation, dialTargetRotation, Time.deltaTime * rotationSpeed);
 
-        repDial.rotation = Quaternion.Slerp(repDial.rotation, dialTargetRotation, Time.deltaTime * rotationSpeed);
+            if (Mathf.Abs(repDial.rotation.eulerAngles.z - dialTargetRotation.eulerAngles.z) < 1)
+            {
+                repDial.rotation = dialTargetRotation;
+            }
 
-        if (Mathf.Abs(repDial.rotation.eulerAngles.z - dialTargetRotation.eulerAngles.z) < 1)
-        {
-            repDial.rotation = dialTargetRotation;
-        }
+            if (Mathf.Abs(repDial.rotation.eulerAngles.z - maxRotation) < .01f)
+            {
+                //point at bottom
+                bottomDot.overrideSprite = redDotSprite;
+            }
+            else if (Mathf.Abs(repDial.rotation.eulerAngles.z - (360 - maxRotation)) < .01f)
+            {
+                //point at top
+                topDot.overrideSprite = greenDotSprite;
+            }
+            else
+            {
+                topDot.overrideSprite = normalDotSprite;
+                bottomDot.overrideSprite = normalDotSprite;
+            }
 
-        if (Mathf.Abs(repDial.rotation.eulerAngles.z - maxRotation) < .01f)
-        {
-            //point at bottom
-            bottomDot.overrideSprite = redDotSprite;
-        }
-        else if (Mathf.Abs(repDial.rotation.eulerAngles.z - (360 - maxRotation)) < .01f)
-        {
-            //point at top
-            topDot.overrideSprite = greenDotSprite;
-        }
-        else
-        {
-            topDot.overrideSprite = normalDotSprite;
-            bottomDot.overrideSprite = normalDotSprite;
-        }
-
-        if (Player.localPlayer.reputation < 0)
-        {
-            repLabelTop.text = Player.localPlayer.reputation.ToString();
-            repLabelTop.gameObject.SetActive(true);
-            repLabelBottom.gameObject.SetActive(false);
-        }
-        else if (Player.localPlayer.reputation > 0)
-        {
-            repLabelBottom.text = Player.localPlayer.reputation.ToString();
-            repLabelTop.gameObject.SetActive(false);
-            repLabelBottom.gameObject.SetActive(true);
-        }
-        else
-        {
-            repLabelTop.gameObject.SetActive(false);
-            repLabelBottom.gameObject.SetActive(false);
-        }
+            if (Player.localPlayer.reputation < 0)
+            {
+                repLabelTop.text = Player.localPlayer.reputation.ToString();
+                repLabelTop.gameObject.SetActive(true);
+                repLabelBottom.gameObject.SetActive(false);
+            }
+            else if (Player.localPlayer.reputation > 0)
+            {
+                repLabelBottom.text = Player.localPlayer.reputation.ToString();
+                repLabelTop.gameObject.SetActive(false);
+                repLabelBottom.gameObject.SetActive(true);
+            }
+            else
+            {
+                repLabelTop.gameObject.SetActive(false);
+                repLabelBottom.gameObject.SetActive(false);
+            }
+        }        
 	}
 
     public void Show()

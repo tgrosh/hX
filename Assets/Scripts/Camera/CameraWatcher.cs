@@ -5,7 +5,7 @@ using UnityStandardAssets.Cameras;
 public class CameraWatcher : MonoBehaviour {
 
     public delegate void CameraDestinationReached();
-    public event CameraDestinationReached OnCameraReachedDestination;
+    public static event CameraDestinationReached OnCameraReachedDestination;
 
     private bool atDestination = false;
 

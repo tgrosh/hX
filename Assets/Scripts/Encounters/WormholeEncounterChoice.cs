@@ -2,8 +2,10 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public class WormholeEncounterChoice : EncounterChoice {
+    public Wormhole prefabWormhole;
 
     protected override void Start()
     {
@@ -18,20 +20,14 @@ public class WormholeEncounterChoice : EncounterChoice {
     public override void Select()
     {
         base.Select();
-
-        //teleport
-
+                
         //pick a random empty gamecell
-        List<GameCell> allCells = new List<GameCell>(GameObject.FindObjectsOfType<GameCell>()).FindAll((GameCell cell) => { 
-            return cell.state == GameCellState.Empty &&
-                cell.hasShip == false;
+        List<GameCell> allCells = new List<GameCell>(GameManager.singleton.cells).FindAll((GameCell cell) =>
+        { 
+            return cell.state == GameCellState.Empty && cell.hasShip == false;
         });
         GameCell randomCell = allCells[Random.Range(0, allCells.Count)];
-
-        Player.localPlayer.Cmd_ShipWormholeTo(mgr.CurrentEncounter.playerShip.netId, randomCell.netId);
-
-        //if it is wormhole eligible, instantly move the ship to that location
-        //perhaps an animation, down where it is, up where it goes, maybe some particles
-        //perhaps this is my opportunity to change the ship entrance to an animation
+        
+        Player.localPlayer.Cmd_ShipWormholeTo(mgr.CurrentEncounter.playerShip.netId, randomCell.netId);        
     }
 }
