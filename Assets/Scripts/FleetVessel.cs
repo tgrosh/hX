@@ -182,7 +182,7 @@ public class FleetVessel : Ship {
         }
     }
     
-    void OnTriggerEnter(Collider other)
+    new void OnTriggerEnter(Collider other)
     {
         if (other.transform.parent && other.transform.parent.GetComponent<Resource>() && !nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
@@ -196,7 +196,7 @@ public class FleetVessel : Ship {
         base.OnTriggerEnter(other);
     }
 
-    void OnTriggerExit(Collider other)
+    new void OnTriggerExit(Collider other)
     {
         if (other.transform.parent && nearbyResources.Contains(other.transform.parent.GetComponent<Resource>()))
         {
