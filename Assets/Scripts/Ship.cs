@@ -95,7 +95,7 @@ public abstract class Ship : NetworkBehaviour {
                     transform.position = targetPoint;
                     GameManager.singleton.ResetCamera();
 
-                    if (isServer && OnShipMoveEnd != null)
+                    if (OnShipMoveEnd != null)
                     {
                         OnShipMoveEnd(this);
                     }

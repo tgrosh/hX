@@ -22,9 +22,10 @@ public class WormholeEncounterChoice : EncounterChoice {
         base.Select();
                 
         //pick a random empty gamecell
-        List<GameCell> allCells = new List<GameCell>(GameManager.singleton.cells).FindAll((GameCell cell) =>
-        { 
-            return cell.state == GameCellState.Empty && cell.hasShip == false;
+        List<GameCell> allCells = new List<GameCell>(GameObject.FindObjectsOfType<GameCell>()).FindAll((GameCell cell) =>
+        {
+            return cell.state == GameCellState.Empty &&
+                cell.hasShip == false;
         });
         GameCell randomCell = allCells[Random.Range(0, allCells.Count)];
         

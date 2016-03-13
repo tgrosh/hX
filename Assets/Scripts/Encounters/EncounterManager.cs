@@ -17,26 +17,26 @@ public class EncounterManager : NetworkBehaviour {
         if (isServer)
         {
             FleetVessel.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        }
 
-            if (randomEncounterFactors.Count > 0)
+        if (randomEncounterFactors.Count > 0)
+        {
+            for (int x = 0; x < potentialEncounters.Count; x++)
             {
-                for (int x = 0; x < potentialEncounters.Count; x++)
+                if (randomEncounterFactors.Count >= x + 1)
                 {
-                    if (randomEncounterFactors.Count >= x + 1)
+                    for (int y = 0; y < randomEncounterFactors[x]; y++)
                     {
-                        for (int y = 0; y < randomEncounterFactors[x]; y++)
-                        {
-                            possibles.Add(potentialEncounters[x]);
-                        }
+                        possibles.Add(potentialEncounters[x]);
                     }
                 }
             }
-            else
+        }
+        else
+        {
+            foreach (Encounter encounter in potentialEncounters)
             {
-                foreach (Encounter encounter in potentialEncounters)
-                {
-                    possibles.Add(encounter);
-                }
+                possibles.Add(encounter);
             }
         }
 	}

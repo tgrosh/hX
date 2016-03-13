@@ -9,14 +9,14 @@ public class HotBar : MonoBehaviour {
 	void Start () {
         Depot.OnDepotStarted += Depot_OnDepotStarted;
         Starport.OnStarportStarted += Starport_OnStarportStarted;
-        FleetVessel.OnShipStarted += Ship_OnShipStarted;
+        Ship.OnShipStarted += Ship_OnShipStarted;
         FleetVessel.OnBoostersChanged += Ship_OnBoostersChanged;
         FleetVessel.OnBlastersChanged += Ship_OnBlastersChanged;
         FleetVessel.OnTractorBeamsChanged += Ship_OnTractorBeamsChanged;
-        FleetVessel.OnShipMoveStart += Ship_OnShipMoveStart;
-        FleetVessel.OnShipMoveEnd += Ship_OnShipMoveEnd;
-        FleetVessel.OnShipSpawnStart += Ship_OnShipSpawnStart;
-        FleetVessel.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
+        Ship.OnShipMoveStart += Ship_OnShipMoveStart;
+        Ship.OnShipMoveEnd += Ship_OnShipMoveEnd;
+        Ship.OnShipSpawnStart += Ship_OnShipSpawnStart;
+        Ship.OnShipSpawnEnd += Ship_OnShipSpawnEnd;
 	}
     	
 	// Update is called once per frame
