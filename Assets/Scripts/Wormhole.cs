@@ -16,6 +16,6 @@ public class Wormhole : NetworkBehaviour {
 
     public void Exit()
     {
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

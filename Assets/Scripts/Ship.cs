@@ -242,6 +242,7 @@ public abstract class Ship : NetworkBehaviour {
             //ship has exited wormhole
             whSource.Exit();
             whDest.Exit();
+            GameManager.singleton.ResetCamera();
         }
     }
     
