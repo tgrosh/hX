@@ -30,13 +30,13 @@ public class FleetVessel : Ship {
     {
         base.Start();
 
-        GameManager.OnTurnStart += GameManager_OnTurnStart;
-        
+        GameManager.OnTurnStart += GameManager_OnTurnStart;        
         if (isServer) {
+            cargoHold.OnResourceAdded += cargoHold_OnResourceAdded;
             EventLog.singleton.AddEvent(String.Format("Player {0} created a new Trade Ship", EventLog.singleton.CreateColoredText(owner.seat.ToString(), owner.color)));
         }
 	}
-    
+        
     [Server]
     void GameManager_OnTurnStart()
     {
@@ -111,6 +111,15 @@ public class FleetVessel : Ship {
         }
     }
     
+    [Server]
+    private void cargoHold_OnResourceAdded(ResourceType resource)
+    {
+ 	    if (isServer)
+        {
+            Rpc_AddResource(resource);
+        }
+    }
+
     [Client]
     protected override void SetColor(Color color)
     {
@@ -179,6 +188,15 @@ public class FleetVessel : Ship {
         if (OnTractorBeamsChanged != null)
         {
             OnTractorBeamsChanged(count);
+        }
+    }
+
+    [ClientRpc]
+    void Rpc_AddResource(ResourceType resource)
+    {
+        if (!isServer)
+        {
+            cargoHold.Add(resource, 1);
         }
     }
     
