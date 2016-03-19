@@ -181,6 +181,18 @@ public class GameCell : NetworkBehaviour
         }
         else
         {
+            if (resourceType != ResourceType.None)
+            {
+                state = GameCellState.Resource;
+            }
+            else if (state == GameCellState.Resource)
+            {
+                state = GameCellState.Empty;
+            }
+            if (state == GameCellState.Empty)
+            {
+                resourceType = ResourceType.None;
+            }
             //Design Time
             if (state == GameCellState.Base)
             {
@@ -199,7 +211,22 @@ public class GameCell : NetworkBehaviour
             }
             else if (state == GameCellState.Empty)
             {
-                //cellColorTarget = Color.clear;
+                cellColorTarget = Color.black;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+            }
+            else if (state == GameCellState.TempusSpace)
+            {
+                cellColorTarget = Color.gray;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+            }
+            else if (state == GameCellState.TempusPlanet)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+            }
+            else if (state == GameCellState.Tempus)
+            {
+                cellColorTarget = new Color(1, .5f, 0);
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
             }
             prefabHex.GetComponent<Renderer>().sharedMaterial.color = cellColorTarget;

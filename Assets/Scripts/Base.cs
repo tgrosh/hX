@@ -33,10 +33,10 @@ public class Base : NetworkBehaviour {
             cargoHold.Add(ResourceType.Workers, 1);
 
             //testing values
-            cargoHold.Add(ResourceType.Corium, 20);
-            cargoHold.Add(ResourceType.Hydrazine, 20);
-            cargoHold.Add(ResourceType.Supplies, 20);
-            cargoHold.Add(ResourceType.Workers, 20);
+            //cargoHold.Add(ResourceType.Corium, 20);
+            //cargoHold.Add(ResourceType.Hydrazine, 20);
+            //cargoHold.Add(ResourceType.Supplies, 20);
+            //cargoHold.Add(ResourceType.Workers, 20);
         }
 	}
     

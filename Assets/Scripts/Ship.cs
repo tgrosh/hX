@@ -89,12 +89,15 @@ public abstract class Ship : NetworkBehaviour {
                 {
                     transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
                 }
-                else if (transform.position != targetPoint)
+                else
                 {
                     travelDestination = NetworkInstanceId.Invalid;
                     transform.position = targetPoint;
                     GameManager.singleton.ResetCamera();
+                }
 
+                if (Vector3.Distance(transform.position, targetPoint) <= .01f)
+                {
                     if (OnShipMoveEnd != null)
                     {
                         OnShipMoveEnd(this);

@@ -44,6 +44,6 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
     {
         hoverTime = 0f;
         pendingTooltip = false;
-        tooltip.transform.position = new Vector2(transform.position.x, -250);
+        tooltip.transform.position = new Vector2(transform.position.x, -1050);
     }
 }
