@@ -11,7 +11,6 @@ public class GameManager : NetworkBehaviour
     public static GameManager singleton;
     public AutoCam cam;
     public GameBoard gameBoard;
-    public GameObject PlayerName;
     public GameCell selectedCell;    
     public int activePlayerIndex = 0;
     public List<Player> players = new List<Player>();
@@ -30,7 +29,6 @@ public class GameManager : NetworkBehaviour
     public delegate void RoundStart();
     public static event RoundStart OnRoundStart;
 
-    private GameObject playerNamePanel;
     private float dieDisplayXOffset = 0f;
 
     [SyncVar]
@@ -64,7 +62,6 @@ public class GameManager : NetworkBehaviour
     public override void OnStartClient()
     {
         gameBoard.gameObject.SetActive(false);
-        playerNamePanel = GameObject.Find("PlayerNamesPanel");
         cam = Camera.main.GetComponent<AutoCam>();
 
         FleetVessel.OnShipMoveStart += Ship_OnShipMoveStart;
@@ -131,18 +128,7 @@ public class GameManager : NetworkBehaviour
     {
         gameBoardLocked = true;
     }
-    
-    [Client]
-    private void CreatePlayerNameText(string text, Color color, int fontSize)
-    {
-        GameObject objPlayerName = Instantiate(PlayerName);
-        Text txt = objPlayerName.GetComponent<Text>();
-        txt.text = text;
-        txt.color = color;
-        txt.fontSize = fontSize;
-        objPlayerName.transform.SetParent(playerNamePanel.transform);
-    }
-        
+            
     [Server]
     public void StartGame()
     {        

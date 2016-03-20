@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+public class ResourceLocationTooltip : MonoBehaviour {
     public string title;
     [TextArea(3,10)]
     public string description;
@@ -15,7 +15,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
 
 	// Use this for initialization
 	void Start () {
-        tooltip = GameObject.Find("HotbarTooltip");        
+        tooltip = GameObject.Find("ResourceLocationTooltip");        
 	}
 
     void Update()
@@ -30,20 +30,31 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
                 hoverTime = 0f;
                 tooltip.transform.FindChild("Title").GetComponent<Text>().text = title;
                 tooltip.transform.FindChild("Description").GetComponent<Text>().text = description;
-                tooltip.transform.position = new Vector2(transform.position.x, 50);
+                ShowTooltip();
             }
         }
     }
     
-    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+    void OnMouseEnter()
     {
         pendingTooltip = true;
     }
 
-    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+    void OnMouseExit()
     {
         hoverTime = 0f;
         pendingTooltip = false;
         tooltip.transform.position = new Vector2(transform.position.x, -1050);
+    }
+
+    void ShowTooltip()
+    {        
+        Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position);
+
+        tooltip.SetActive(true);
+        tooltip.GetComponentInChildren<RectTransform>().anchoredPosition = new Vector2(screenPoint.x, screenPoint.y + 20);
+        tooltip.GetComponentInChildren<RectTransform>().anchorMin = screenPoint;
+        tooltip.GetComponentInChildren<RectTransform>().anchorMax = screenPoint;
+        
     }
 }

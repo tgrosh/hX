@@ -11,8 +11,6 @@ public class Player : NetworkBehaviour
 
     [SyncVar]
     public Color color;
-    [SyncVar(hook = "OnPlayerSetName")]
-    public string playerName;
     [SyncVar]
     public bool playerActive = false;
     [SyncVar]
@@ -44,8 +42,6 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             localPlayer = this;
-            this.playerName = LocalPlayerInfo.singleton.name;
-            Cmd_SetName(this.playerName);
         }
         else
         {
@@ -166,13 +162,7 @@ public class Player : NetworkBehaviour
     {
         Cmd_SelectCell(cellId);
     }
-
-    [Client]
-    private void OnPlayerSetName(string value)
-    {
-        this.playerName = value;
-    }
-
+    
     [Command]
     private void Cmd_SelectCell(NetworkInstanceId cellId)
     {
@@ -181,13 +171,7 @@ public class Player : NetworkBehaviour
             NetworkServer.FindLocalObject(cellId).GetComponent<GameCell>().Select(this);
         }
     }
-
-    [Command]
-    private void Cmd_SetName(string name)
-    {
-        this.playerName = name;
-    }
-
+    
     [Command]
     private void Cmd_EndTurn()
     {
