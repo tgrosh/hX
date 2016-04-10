@@ -14,6 +14,7 @@ public class GameCell : NetworkBehaviour
     public Material ResourceMaterial;
     public Material DepotBuildAreaMaterial;
     public Material TempusSpaceMaterial;
+    public Material NoMovementMaterial;
     public GameObject prefabHex;
     public GameObject prefabFleetVessel;
     public GameObject prefabColonyShip;
@@ -23,7 +24,8 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabResourceLocationWorkers;
     public GameObject prefabBase;
     public GameObject prefabDepot;
-    public GameObject prefabStarport; 
+    public GameObject prefabStarport;
+    public GameObject prefabTempus; 
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
@@ -103,7 +105,13 @@ public class GameCell : NetworkBehaviour
                 associatedBase.color = GameManager.singleton.PlayerAtSeat(ownerSeat).color;
                 associatedBase.owner = owner;
                 NetworkServer.Spawn(objBase);
-            }  
+            }
+
+            if (state == GameCellState.Tempus)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
         }
             
     } 
@@ -159,6 +167,10 @@ public class GameCell : NetworkBehaviour
             }
 
             if (state == GameCellState.Empty && !cellMaterial.name.Contains(Empty.name))
+            {
+                SetCellMaterial(Color.clear, Empty);
+            }
+            else if (state == GameCellState.NoMovement && !cellMaterial.name.Contains(Empty.name))
             {
                 SetCellMaterial(Color.clear, Empty);
             }
@@ -228,6 +240,11 @@ public class GameCell : NetworkBehaviour
             {
                 cellColorTarget = Color.black;
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+            }
+            else if (state == GameCellState.NoMovement)
+            {
+                cellColorTarget = Color.clear;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(NoMovementMaterial);
             }
             else if (state == GameCellState.TempusSpace)
             {
