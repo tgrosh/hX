@@ -13,8 +13,10 @@ public class GameCell : NetworkBehaviour
     public Material MovementAreaMaterial;
     public Material ResourceMaterial;
     public Material DepotBuildAreaMaterial;
+    public Material TempusSpaceMaterial;
     public GameObject prefabHex;
-    public GameObject prefabShip;
+    public GameObject prefabFleetVessel;
+    public GameObject prefabColonyShip;
     public GameObject prefabResourceLocationTrillium;
     public GameObject prefabResourceLocationHydrazine;
     public GameObject prefabResourceLocationSupplies;
@@ -160,6 +162,18 @@ public class GameCell : NetworkBehaviour
             {
                 SetCellMaterial(Color.clear, Empty);
             }
+            else if (state == GameCellState.TempusSpace && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.TempusPlanet && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
             else if (state == GameCellState.Resource && !cellMaterial.name.Contains(ResourceMaterial.name))
             {
                 SetCellMaterial(Color.clear, ResourceMaterial);
@@ -180,7 +194,8 @@ public class GameCell : NetworkBehaviour
             }
         }
         else
-        {
+        {            
+            //Design Time
             if (resourceType != ResourceType.None)
             {
                 state = GameCellState.Resource;
@@ -193,7 +208,7 @@ public class GameCell : NetworkBehaviour
             {
                 resourceType = ResourceType.None;
             }
-            //Design Time
+
             if (state == GameCellState.Base)
             {
                 cellColorTarget = Color.blue;
@@ -217,12 +232,12 @@ public class GameCell : NetworkBehaviour
             else if (state == GameCellState.TempusSpace)
             {
                 cellColorTarget = Color.gray;
-                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
             }
             else if (state == GameCellState.TempusPlanet)
             {
                 cellColorTarget = Color.cyan;
-                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(Empty);
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
             }
             else if (state == GameCellState.Tempus)
             {
@@ -308,21 +323,21 @@ public class GameCell : NetworkBehaviour
     {
         if (hasShip && owner == player.netId)
         {
-            if (player.isBuyingBoosterUpgrade)
+            if (player.isBuyingBoosterUpgrade && hasLocalPlayerFleetVessel)
             {
                 if (player.Purchase(PurchaseManager.UpgradeBooster))
                 {
                     NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().Boosters++;
                 }
             }
-            else if (player.isBuyingBlasterUpgrade)
+            else if (player.isBuyingBlasterUpgrade && hasLocalPlayerFleetVessel)
             {
                 if (player.Purchase(PurchaseManager.UpgradeBlaster))
                 {
                     NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().Blasters++;
                 }
             }
-            else if (player.isBuyingTractorBeamUpgrade)
+            else if (player.isBuyingTractorBeamUpgrade && hasLocalPlayerFleetVessel)
             {
                 if (player.Purchase(PurchaseManager.UpgradeTractorBeam))
                 {
@@ -331,7 +346,7 @@ public class GameCell : NetworkBehaviour
             }
             else
             {
-                if (NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().IsDisabled) return false;
+                if (NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().IsDisabled) return false;
 
                 //clicking on my ship space, select it
                 selected = !selected;
@@ -339,9 +354,10 @@ public class GameCell : NetworkBehaviour
 
                 if (selected)
                 {
-                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().nearbyCells)
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
                     {
-                        if (cell.state == GameCellState.Empty || cell.state == GameCellState.ShipBuildArea)
+                        if (cell.state == GameCellState.Empty || cell.state == GameCellState.ShipBuildArea ||
+                            (cell.state == GameCellState.TempusSpace && player.reputation >= GameManager.singleton.tempusReputation))
                         {
                             cell.SetCell(player, GameCellState.MovementArea);
                         }
@@ -349,7 +365,7 @@ public class GameCell : NetworkBehaviour
                 }
                 else
                 {
-                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().nearbyCells)
+                    foreach (GameCell cell in NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().nearbyCells)
                     {
                         if (cell.state == GameCellState.MovementArea)
                         {
@@ -361,15 +377,27 @@ public class GameCell : NetworkBehaviour
         }
         else if (state == GameCellState.ShipBuildArea && owner == player.netId)
         {
-            if (player.isBuyingShip && player.Purchase(PurchaseManager.Ship))
+            if (player.isBuyingFleetVessel && player.Purchase(PurchaseManager.FleetVessel))
             {
-                GameObject objShip = (GameObject)Instantiate(prefabShip, transform.position, Quaternion.identity);
+                GameObject objShip = (GameObject)Instantiate(prefabFleetVessel, transform.position, Quaternion.identity);
                 NetworkServer.Spawn(objShip);
                 FleetVessel ship = objShip.GetComponent<FleetVessel>();
                 ship.Color = player.color;
                 ship.ownerId = player.netId;
                 ship.associatedCell = this.netId;
-                player.ships.Add(ship);
+                player.fleetVessels.Add(ship);
+
+                SetCell(player, GameCellState.Empty, true, ship.netId);
+                return true;
+            }
+            else if (player.isBuyingColonyShip && player.Purchase(PurchaseManager.ColonyShip))
+            {
+                GameObject objShip = (GameObject)Instantiate(prefabColonyShip, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(objShip);
+                ColonyShip ship = objShip.GetComponent<ColonyShip>();
+                ship.Color = player.color;
+                ship.ownerId = player.netId;
+                ship.associatedCell = this.netId;
 
                 SetCell(player, GameCellState.Empty, true, ship.netId);
                 return true;
@@ -377,13 +405,18 @@ public class GameCell : NetworkBehaviour
         }
         else if (state == GameCellState.MovementArea && owner == player.netId)
         {
+            foreach (GameCell cell in NetworkServer.FindLocalObject(GameManager.singleton.selectedCell.associatedShip).GetComponent<Ship>().nearbyCells)
+            {
+                if (cell.state == GameCellState.MovementArea)
+                {
+                    cell.Revert();
+                }
+            }
             //move the ship
-            Revert();
             SetCell(player, true, GameManager.singleton.selectedCell.associatedShip);
-            GameManager.singleton.selectedCell.Revert();
             GameManager.singleton.selectedCell.SetCell(false, NetworkInstanceId.Invalid);            
             GameManager.singleton.selectedCell = null;
-            NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().MoveTo(this.netId);
+            NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().MoveTo(this.netId);
             return true;
         }
         else if (state == GameCellState.Depot && owner == player.netId)
@@ -421,6 +454,14 @@ public class GameCell : NetworkBehaviour
         return false;
     }
 
+    public bool hasLocalPlayerFleetVessel
+    {
+        get
+        {
+            return hasShip && owner == Player.localPlayer.netId && associatedShip != NetworkInstanceId.Invalid && ClientScene.FindLocalObject(associatedShip).GetComponent<FleetVessel>() != null;
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
         GameCell cell = other.gameObject.GetComponent<GameCell>();
@@ -433,7 +474,7 @@ public class GameCell : NetworkBehaviour
 
     void OnMouseOver()
     {
-        if (hasShip && owner == Player.localPlayer.netId && associatedShip != NetworkInstanceId.Invalid)
+        if (hasLocalPlayerFleetVessel)
         {
             hoverTime += Time.deltaTime;
             if (hoverTime > tooltipDelay)

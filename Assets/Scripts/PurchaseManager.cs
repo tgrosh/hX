@@ -6,9 +6,14 @@ using System.Text;
 
 public class PurchaseManager
 {
-    public static Purchase Ship = new Purchase(new List<PurchaseCost>() { 
+    public static Purchase FleetVessel = new Purchase(new List<PurchaseCost>() { 
         new PurchaseCost(ResourceType.Corium, 2), 
         new PurchaseCost(ResourceType.Workers, 1) 
+    });
+
+    public static Purchase ColonyShip = new Purchase(new List<PurchaseCost>() { 
+        new PurchaseCost(ResourceType.Supplies, 3), 
+        new PurchaseCost(ResourceType.Hydrazine, 2) 
     });
 
     public static Purchase Depot = new Purchase(new List<PurchaseCost>() { 

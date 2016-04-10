@@ -83,7 +83,8 @@ public class HotBar : MonoBehaviour {
 
     void Ship_OnShipStarted(Ship ship)
     {
-        ToggleShip(false);
+        ToggleFleetVessel(false);
+        ToggleColonyShip(false);
     }
 
     void Depot_OnDepotStarted(Depot depot)
@@ -96,13 +97,34 @@ public class HotBar : MonoBehaviour {
         ToggleBuildStarport(false);
     }
 
-    public void ToggleShip(bool isOn)
+    public void ToggleFleetVessel(bool isOn)
     {
-        GameObject.Find("ShipToggle").GetComponent<Toggle>().isOn = isOn;
+        GameObject.Find("FleetVesselToggle").GetComponent<Toggle>().isOn = isOn;
 
         if (Player.localPlayer != null)
         {
-            Player.localPlayer.Cmd_SetIsBuyingShip(isOn);
+            Player.localPlayer.Cmd_SetIsBuyingFleetVessel(isOn);
+        }
+        if (isOn)
+        {
+            GameManager.singleton.cam.SetTarget(ClientScene.FindLocalObject(Player.localPlayer.playerBase).GetComponent<Base>().camTarget);
+        }
+        else
+        {
+            if (GameManager.singleton != null)
+            {
+                GameManager.singleton.ResetCamera();
+            }
+        }
+    }
+
+    public void ToggleColonyShip(bool isOn)
+    {
+        GameObject.Find("ColonyShipToggle").GetComponent<Toggle>().isOn = isOn;
+
+        if (Player.localPlayer != null)
+        {
+            Player.localPlayer.Cmd_SetIsBuyingColonyShip(isOn);
         }
         if (isOn)
         {

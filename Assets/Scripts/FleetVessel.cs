@@ -10,8 +10,11 @@ public class FleetVessel : Ship {
     public float buildRange;
     public float cargoDropRange;
     public float boosterRange;
+    [HideInInspector]
     public List<Resource> nearbyResources = new List<Resource>();
+    [HideInInspector]
     public List<Depot> nearbyDepots = new List<Depot>();
+    [HideInInspector]
     public CargoHold cargoHold = new CargoHold();
 
     private int boosterCount = 0;

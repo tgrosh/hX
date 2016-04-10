@@ -22,6 +22,7 @@ public class GameManager : NetworkBehaviour
             return players[activePlayerIndex];
         }
     }
+    public int tempusReputation = 20;
 
     public delegate void TurnStart();
     public static event TurnStart OnTurnStart;

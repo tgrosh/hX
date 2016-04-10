@@ -19,6 +19,7 @@ public class AnimationHandler : MonoBehaviour {
 public enum AnimationType
 {
     FleetVesselEnter,
+    ColonyShipEnter,
     FleetVesselWormholeEnter,
     FleetVesselWormholeExit
 }

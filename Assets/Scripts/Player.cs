@@ -7,7 +7,7 @@ public class Player : NetworkBehaviour
 {
     public static Player localPlayer;
     public static Player opponent;
-    public List<FleetVessel> ships = new List<FleetVessel>();
+    public List<FleetVessel> fleetVessels = new List<FleetVessel>();
 
     [SyncVar]
     public Color color;
@@ -18,9 +18,11 @@ public class Player : NetworkBehaviour
     [SyncVar]
     public PlayerSeat seat;
     [SyncVar]
-    public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;       
+    public NetworkInstanceId playerBase = NetworkInstanceId.Invalid;
     [SyncVar]
-    public bool isBuyingShip;
+    public bool isBuyingColonyShip;
+    [SyncVar]
+    public bool isBuyingFleetVessel;
     [SyncVar]
     public bool isBuyingDepot;
     [SyncVar]
@@ -34,7 +36,7 @@ public class Player : NetworkBehaviour
     [SyncVar]
     public bool tempusAccess;
     [SyncVar]
-    public bool isBuyingStarport;
+    public bool isBuyingStarport;    
 
     // Use this for initialization
     void Start()
@@ -87,7 +89,8 @@ public class Player : NetworkBehaviour
 
     private void Ship_OnShipStarted(Ship ship)
     {
-        isBuyingShip = false;
+        isBuyingFleetVessel = false;
+        isBuyingColonyShip = false;
     }
 
     private void Depot_OnDepotStarted(Depot depot)
@@ -179,14 +182,21 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    public void Cmd_SetIsBuyingShip(bool isBuying)
+    public void Cmd_SetIsBuyingFleetVessel(bool isBuying)
     {
         NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuying);
         foreach (Starport starport in Starports)
         {
             starport.ToggleArea(isBuying);
         }
-        this.isBuyingShip = isBuying;
+        this.isBuyingFleetVessel = isBuying;
+    }
+
+    [Command]
+    public void Cmd_SetIsBuyingColonyShip(bool isBuying)
+    {
+        NetworkServer.FindLocalObject(playerBase).GetComponent<Base>().ToggleArea(isBuying);        
+        this.isBuyingColonyShip = isBuying;
     }
 
     [Command]
@@ -194,9 +204,9 @@ public class Player : NetworkBehaviour
     {
         if (isBuying)
         {
-            foreach (FleetVessel ship in ships)
+            foreach (FleetVessel ship in fleetVessels)
             {
-                List<GameCell> nearbyBuildableCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasShip && objCell.state == GameCellState.Empty; });
+                List<GameCell> nearbyBuildableCells = ship.nearbyCells.FindAll((GameCell objCell) => { return !objCell.hasLocalPlayerFleetVessel && objCell.state == GameCellState.Empty; });
                 foreach (GameCell cell in nearbyBuildableCells)
                 {
                     if (Vector3.Distance(ship.transform.position, cell.transform.position) <= ship.buildRange)

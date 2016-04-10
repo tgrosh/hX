@@ -58,17 +58,7 @@ public class UIManager : NetworkBehaviour
         NetManager.singleton.StopHost();
         NetManager.singleton.StopClient();
     }
-    
-    //used during radial menu
-    public void ShipButtonClick()
-    {
-        if (Player.localPlayer != null)
-        {
-            Player.localPlayer.Cmd_SetIsBuyingShip(true);
-        }
-        Player.localPlayer.SelectCell(GameManager.singleton.selectedCell.netId);
-    }
-    
+        
     public void ToggleEventLog()
     {
         if (!isFullLogOpen)

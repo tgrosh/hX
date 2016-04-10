@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 public abstract class Ship : NetworkBehaviour {
     public float baseMovementRange;
+    [HideInInspector]
     public List<GameCell> nearbyCells = new List<GameCell>();
+    [HideInInspector]
     public Base nearbyBase;
     public Transform cameraTarget;
     public Wormhole prefabWormhole;
@@ -20,8 +22,10 @@ public abstract class Ship : NetworkBehaviour {
     private Wormhole whDest;
 
     [SyncVar]
+    [HideInInspector]
     public NetworkInstanceId ownerId;
     [SyncVar]
+    [HideInInspector]
     public NetworkInstanceId associatedCell;
     [SyncVar]
     private int disabledRounds;
@@ -62,12 +66,7 @@ public abstract class Ship : NetworkBehaviour {
             OnShipSpawnStart(this);
         }
 	}
-
-    public override void OnStartClient()
-    {
-        cameraTarget = transform.FindChild("CameraTarget");
-    }
-	
+    	
 	// Update is called once per frame
 	protected void Update () {
         if (colliderTransform != null)
@@ -109,7 +108,7 @@ public abstract class Ship : NetworkBehaviour {
 
     void AnimationHandler_OnAnimationComplete(AnimationType animationType)
     {
-        if (animationType == AnimationType.FleetVesselEnter)
+        if (animationType == AnimationType.FleetVesselEnter || animationType == AnimationType.ColonyShipEnter)
         {
             ShipEnterComplete();
         }
