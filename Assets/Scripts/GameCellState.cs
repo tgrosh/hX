@@ -15,6 +15,11 @@ public enum GameCellState
     Starport = 10,
     TempusSpace = 11,
     Tempus = 12,
-    TempusPlanet = 13,
+    Tempus1 = 21,
+    Tempus2 = 22,
+    Tempus3 = 23,
+    Tempus4 = 24,
+    Tempus5 = 25,
+    Tempus6 = 26,
     NoMovement = 1
 }

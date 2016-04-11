@@ -25,7 +25,13 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabBase;
     public GameObject prefabDepot;
     public GameObject prefabStarport;
-    public GameObject prefabTempus; 
+    public GameObject prefabTempus;
+    public GameObject prefabTempus1;
+    public GameObject prefabTempus2;
+    public GameObject prefabTempus3;
+    public GameObject prefabTempus4;
+    public GameObject prefabTempus5;
+    public GameObject prefabTempus6;
     public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
@@ -112,6 +118,37 @@ public class GameCell : NetworkBehaviour
                 GameObject obj = (GameObject)Instantiate(prefabTempus, transform.position, Quaternion.identity);
                 NetworkServer.Spawn(obj);
             }
+
+            if (state == GameCellState.Tempus1)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus1, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
+            if (state == GameCellState.Tempus2)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus2, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
+            if (state == GameCellState.Tempus3)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus3, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
+            if (state == GameCellState.Tempus4)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus4, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
+            if (state == GameCellState.Tempus5)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus5, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
+            if (state == GameCellState.Tempus6)
+            {
+                GameObject obj = (GameObject)Instantiate(prefabTempus6, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(obj);
+            }
         }
             
     } 
@@ -178,7 +215,27 @@ public class GameCell : NetworkBehaviour
             {
                 SetCellMaterial(Color.clear, TempusSpaceMaterial);
             }
-            else if (state == GameCellState.TempusPlanet && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            else if (state == GameCellState.Tempus1 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus2 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus3 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus4 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus5 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
+            {
+                SetCellMaterial(Color.clear, TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus6 && !cellMaterial.name.Contains(TempusSpaceMaterial.name))
             {
                 SetCellMaterial(Color.clear, TempusSpaceMaterial);
             }
@@ -251,7 +308,32 @@ public class GameCell : NetworkBehaviour
                 cellColorTarget = Color.gray;
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
             }
-            else if (state == GameCellState.TempusPlanet)
+            else if (state == GameCellState.Tempus1)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus2)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus3)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus4)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus5)
+            {
+                cellColorTarget = Color.cyan;
+                prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
+            }
+            else if (state == GameCellState.Tempus6)
             {
                 cellColorTarget = Color.cyan;
                 prefabHex.GetComponent<Renderer>().sharedMaterial = new Material(TempusSpaceMaterial);
