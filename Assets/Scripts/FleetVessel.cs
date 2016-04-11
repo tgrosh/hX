@@ -9,7 +9,6 @@ public class FleetVessel : Ship {
     public float collectionRange;
     public float buildRange;
     public float cargoDropRange;
-    public float boosterRange;
     [HideInInspector]
     public List<Resource> nearbyResources = new List<Resource>();
     [HideInInspector]
@@ -17,12 +16,9 @@ public class FleetVessel : Ship {
     [HideInInspector]
     public CargoHold cargoHold = new CargoHold();
 
-    private int boosterCount = 0;
     private int blasterCount = 0;
     private int tractorBeamCount = 0;
     
-    public delegate void BoostersChanged(int count);
-    public static event BoostersChanged OnBoostersChanged;
     public delegate void BlastersChanged(int count);
     public static event BlastersChanged OnBlastersChanged;
     public delegate void TractorBeamsChanged(int count);
@@ -53,8 +49,6 @@ public class FleetVessel : Ship {
         	
 	// Update is called once per frame
 	new void Update () {
-        movementRange = baseMovementRange + (boosterRange * boosterCount);
-
         base.Update();
 	}
     
@@ -147,16 +141,7 @@ public class FleetVessel : Ship {
             }
         }
     }
-        
-    public int Boosters
-    {
-        get { return boosterCount; }
-        set {
-            boosterCount = value;
-            Rpc_BoosterChange(boosterCount);
-        }
-    }
-
+    
     public int Blasters
     {
         get { return blasterCount; }
@@ -177,15 +162,6 @@ public class FleetVessel : Ship {
         }
     }
     
-    [ClientRpc]
-    void Rpc_BoosterChange(int count)
-    {
-        if (OnBoostersChanged != null)
-        {
-            OnBoostersChanged(count);
-        }
-    }
-
     [ClientRpc]
     void Rpc_BlasterChange(int count)
     {

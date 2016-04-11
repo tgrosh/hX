@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public abstract class Ship : NetworkBehaviour {
     public float baseMovementRange;
+    public float boosterRange;
     [HideInInspector]
     public List<GameCell> nearbyCells = new List<GameCell>();
     [HideInInspector]
@@ -20,6 +21,7 @@ public abstract class Ship : NetworkBehaviour {
     private NetworkInstanceId wormholeCellId;
     private Wormhole whSource;
     private Wormhole whDest;
+    private int boosterCount = 0;
 
     [SyncVar]
     [HideInInspector]
@@ -47,6 +49,9 @@ public abstract class Ship : NetworkBehaviour {
     public delegate void ShipStarted(Ship ship);
     public static event ShipStarted OnShipStarted;
 
+    public delegate void BoostersChanged(int count);
+    public static event BoostersChanged OnBoostersChanged;
+
 	// Use this for initialization
 	protected void Start () {
         colliderTransform = transform.FindChild("collider");
@@ -69,6 +74,8 @@ public abstract class Ship : NetworkBehaviour {
     	
 	// Update is called once per frame
 	protected void Update () {
+        movementRange = baseMovementRange + (boosterRange * boosterCount);
+
         if (colliderTransform != null)
         {
             colliderTransform.localScale = new Vector3(movementRange, movementRange, 2);
@@ -184,6 +191,16 @@ public abstract class Ship : NetworkBehaviour {
         }
     }
 
+    public int Boosters
+    {
+        get { return boosterCount; }
+        set
+        {
+            boosterCount = value;
+            Rpc_BoosterChange(boosterCount);
+        }
+    }
+
     [Client]
     protected abstract void SetColor(Color color);
     
@@ -213,6 +230,15 @@ public abstract class Ship : NetworkBehaviour {
 
         CameraWatcher.OnCameraReachedDestination += StartWormholeJump;
         GameManager.singleton.cam.SetTarget(this.cameraTarget.transform);
+    }
+    
+    [ClientRpc]
+    void Rpc_BoosterChange(int count)
+    {
+        if (OnBoostersChanged != null)
+        {
+            OnBoostersChanged(count);
+        }
     }
 
     void StartWormholeJump()

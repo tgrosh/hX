@@ -44,9 +44,12 @@ public class EncounterManager : NetworkBehaviour {
     [Server]
     void Ship_OnShipMoveEnd(Ship ship)
     {
-        if (Random.value <= shipMoveEncounterChance)
+        if (ship.gameObject.GetType() == typeof(FleetVessel))
         {
-            ship.owner.GetComponent<Player>().Rpc_ShowEncounter(ship.netId, Random.Range(0, possibles.Count));
+            if (Random.value <= shipMoveEncounterChance)
+            {
+                ship.owner.GetComponent<Player>().Rpc_ShowEncounter(ship.netId, Random.Range(0, possibles.Count));
+            }
         }
     }
     

@@ -18,6 +18,6 @@ public class ColonyShip : Ship {
 
     protected override void SetColor(Color color)
     {
-        actor.GetComponent<MeshRenderer>().materials[0].SetColor("_EmissionColor", color + (Color.white * .5f));
+        actor.GetComponent<MeshRenderer>().materials[0].SetColor("_EmissionColor", color + (Color.white * .75f));
     }
 }

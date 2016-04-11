@@ -422,11 +422,11 @@ public class GameCell : NetworkBehaviour
     {
         if (hasShip && owner == player.netId)
         {
-            if (player.isBuyingBoosterUpgrade && hasLocalPlayerFleetVessel)
+            if (player.isBuyingBoosterUpgrade)
             {
                 if (player.Purchase(PurchaseManager.UpgradeBooster))
                 {
-                    NetworkServer.FindLocalObject(associatedShip).GetComponent<FleetVessel>().Boosters++;
+                    NetworkServer.FindLocalObject(associatedShip).GetComponent<Ship>().Boosters++;
                 }
             }
             else if (player.isBuyingBlasterUpgrade && hasLocalPlayerFleetVessel)
