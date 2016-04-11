@@ -16,6 +16,7 @@ public class GameCell : NetworkBehaviour
     public Material TempusSpaceMaterial;
     public Material NoMovementMaterial;
     public GameObject prefabHex;
+    public GameObject hexOutline;
     public GameObject prefabFleetVessel;
     public GameObject prefabColonyShip;
     public GameObject prefabResourceLocationTrillium;
@@ -161,13 +162,15 @@ public class GameCell : NetworkBehaviour
         {
             Material cellMaterial = prefabHex.GetComponent<Renderer>().material;
 
-            if (owner == Player.localPlayer.netId && selected && !selectedParticles.gameObject.activeInHierarchy)
+            if (owner == Player.localPlayer.netId && selected && !hexOutline.activeInHierarchy)
             {
-                selectedParticles.gameObject.SetActive(true);
+                //selectedParticles.gameObject.SetActive(true);
+                hexOutline.SetActive(true);
             }
-            else if (!selected && selectedParticles.gameObject.activeInHierarchy)
+            else if (!selected && hexOutline.activeInHierarchy)
             {
-                selectedParticles.gameObject.SetActive(false);
+                //selectedParticles.gameObject.SetActive(false);
+                hexOutline.SetActive(false);
             }
 
             if (owner == Player.localPlayer.netId && hasShip && !shipParticles.gameObject.activeInHierarchy)
