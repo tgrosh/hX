@@ -13,6 +13,9 @@ public abstract class Ship : NetworkBehaviour {
     public Transform cameraTarget;
     public Wormhole prefabWormhole;
     public Light spotlight;
+    [SyncVar]
+    [HideInInspector]
+    public bool hasMoved;
 
     protected float movementRange;
 
@@ -23,7 +26,7 @@ public abstract class Ship : NetworkBehaviour {
     private Wormhole whSource;
     private Wormhole whDest;
     private int boosterCount = 0;
-
+    
     [SyncVar]
     [HideInInspector]
     public NetworkInstanceId ownerId = NetworkInstanceId.Invalid;
@@ -80,7 +83,14 @@ public abstract class Ship : NetworkBehaviour {
 
         if (ownerId != NetworkInstanceId.Invalid && ownerId.Value != 0)
         {
-            spotlight.color = owner.color + Color.white * .5f;
+            if (hasMoved)
+            {
+                spotlight.color = owner.color + Color.white * .5f;
+            }
+            else
+            {
+                spotlight.color = Color.red;
+            }
 
             if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Player.localPlayer.playerActive && owner == Player.localPlayer)
             {
@@ -120,6 +130,8 @@ public abstract class Ship : NetworkBehaviour {
 
                 if (Vector3.Distance(transform.position, targetPoint) <= .01f)
                 {
+                    hasMoved = true;
+
                     if (OnShipMoveEnd != null)
                     {
                         OnShipMoveEnd(this);
@@ -140,6 +152,7 @@ public abstract class Ship : NetworkBehaviour {
     [Server]
     void GameManager_OnRoundStart()
     {
+        hasMoved = false;
         disabledRounds--;
         if (IsDisabled && disabledRounds <= 0)
         {
