@@ -12,6 +12,7 @@ public abstract class Ship : NetworkBehaviour {
     public Base nearbyBase;
     public Transform cameraTarget;
     public Wormhole prefabWormhole;
+    public Light spotlight;
 
     protected float movementRange;
 
@@ -25,7 +26,7 @@ public abstract class Ship : NetworkBehaviour {
 
     [SyncVar]
     [HideInInspector]
-    public NetworkInstanceId ownerId;
+    public NetworkInstanceId ownerId = NetworkInstanceId.Invalid;
     [SyncVar]
     [HideInInspector]
     public NetworkInstanceId associatedCell;
@@ -75,6 +76,21 @@ public abstract class Ship : NetworkBehaviour {
 	// Update is called once per frame
 	protected void Update () {
         movementRange = baseMovementRange + (boosterRange * boosterCount);
+        
+
+        if (ownerId != NetworkInstanceId.Invalid && ownerId.Value != 0)
+        {
+            spotlight.color = owner.color + Color.white * .5f;
+
+            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Player.localPlayer.playerActive && owner == Player.localPlayer)
+            {
+                spotlight.gameObject.SetActive(true);
+            }
+            else
+            {
+                spotlight.gameObject.SetActive(false);
+            }
+        }
 
         if (colliderTransform != null)
         {
@@ -167,7 +183,14 @@ public abstract class Ship : NetworkBehaviour {
     {
         get
         {
-            return NetworkServer.FindLocalObject(ownerId).GetComponent<Player>();
+            if (isServer)
+            {
+                return NetworkServer.FindLocalObject(ownerId).GetComponent<Player>();
+            }
+            else
+            {
+                return ClientScene.FindLocalObject(ownerId).GetComponent<Player>();
+            }
         }
     }
     

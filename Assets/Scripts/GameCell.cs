@@ -33,7 +33,6 @@ public class GameCell : NetworkBehaviour
     public GameObject prefabTempus4;
     public GameObject prefabTempus5;
     public GameObject prefabTempus6;
-    public ParticleSystem selectedParticles;
     public ParticleSystem shipParticles;
     
     [SyncVar]
