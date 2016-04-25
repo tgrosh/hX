@@ -47,6 +47,21 @@ public class UIManager : NetworkBehaviour
         NetManager.singleton.StartHost();
     }
 
+    public void CreateGame()
+    {
+        NetMatch.singleton.GetComponent<NetMatch>().CreateGame();
+    }
+
+    public void QuickJoin()
+    {
+        NetMatch.singleton.GetComponent<NetMatch>().QuickJoin();
+    }
+
+    public void EndGame()
+    {
+        NetMatch.singleton.EndGame();
+    }
+
     public void JoinMultiplayerGame(Text hostName)
     {
         NetManager.singleton.networkAddress = hostName.text;
