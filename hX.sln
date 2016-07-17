@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hX.CSharp.Plugins", "hX.CSharp.Plugins.csproj", "{7F2B6C9C-5345-93F7-0C34-F31A1D361225}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hX.CSharp", "hX.CSharp.csproj", "{BB84FA10-2829-ED1E-0D13-0CCD922DC84A}"
